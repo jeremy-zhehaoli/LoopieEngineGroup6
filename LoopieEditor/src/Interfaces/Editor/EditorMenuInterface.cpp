@@ -10,18 +10,22 @@ namespace Loopie {
 	}
 
 	void EditorMenuInterface::Render() {
+
+		ImGuiID openProjectPopUpId = ImGui::GetID("OpenProjectPopUp");
+		ImGuiID createProjectPopUpId = ImGui::GetID("CreateProjectPopUp");
+
 		if (ImGui::BeginMainMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
 			{
 				if (ImGui::MenuItem("Open"))
 				{
-
+					ImGui::OpenPopup(openProjectPopUpId);
 				}
 
 				if (ImGui::MenuItem("New"))
 				{
-
+					ImGui::OpenPopup(createProjectPopUpId);
 				}
 
 				if (ImGui::MenuItem("Exit"))
@@ -32,5 +36,17 @@ namespace Loopie {
 
 			ImGui::EndMainMenuBar();
 		}
+
+		if (ImGui::BeginPopupContextItem("OpenProjectPopUp")) {
+			///Render interface
+			ImGui::EndPopup();
+
+		}
+
+		if (ImGui::BeginPopupContextItem("CreateProjectPopUp")) {
+			///Render interface
+			ImGui::EndPopup();
+		}
+		
 	}
 }
