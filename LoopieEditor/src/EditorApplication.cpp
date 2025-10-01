@@ -6,6 +6,7 @@
 #include "Loopie/Files/Json.h"
 
 namespace Loopie {
+
 	class EditorApplication : public Application {
 	public:
 		EditorApplication() : Application() {
@@ -14,10 +15,36 @@ namespace Loopie {
 
 			AddModule(new CreateProjectModule());
 
-			std::string json_str = R"({"name": "Jane Doe", "age": 25})";
+			std::string json_str = R"({
+										"player": {
+											"name": "Alice",
+											"stats": { "hp": 100, "mana": 50 }
+										}
+									})";
+
 			JsonData data = Json::ReadFromString(json_str);
 
-			Log::Info("{0}",data.Get<int>("age").Result);
+			JsonNode root = data.Root();
+			JsonNode playerNode = root.Child("player");
+			JsonNode nameNode = root.Child("player.name");
+
+
+
+			Log::Info("{0}",data.Get<int>("player.stats.mana").Result);
+			Log::Info("{0}", root.Get<std::string>("player.name").Result);
+			Log::Info("{0}", playerNode.Get<std::string>("name").Result);
+
+			//playerNode.Set<std::string>("name","Lucia");
+			root.Set("player.name", "Carla");
+
+			Log::Info("{0}", playerNode.Get<std::string>("name").Result);
+			Log::Info("{0}", root.Get<std::string>("player.name").Result);
+
+			nameNode.SetSelf("Manuel");
+
+			Log::Info("{0}", playerNode.Get<std::string>("name").Result);
+			Log::Info("{0}", root.Get<std::string>("player.name").Result);
+			Log::Info("{0}", nameNode.GetSelf<std::string>().Result);
 		}
 	};
 }
