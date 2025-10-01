@@ -5,6 +5,8 @@
 #include "Loopie/Core/Log.h"
 #include "Loopie/Files/Json.h"
 
+#include <vector>
+
 namespace Loopie {
 
 	class EditorApplication : public Application {
@@ -18,7 +20,8 @@ namespace Loopie {
 			std::string json_str = R"({
 										"player": {
 											"name": "Alice",
-											"stats": { "hp": 100, "mana": 50 }
+											"stats": { "hp": 100, "mana": 50 },
+											"inventory": ["sword", "shield"]
 										}
 									})";
 
@@ -45,6 +48,13 @@ namespace Loopie {
 			Log::Info("{0}", playerNode.Get<std::string>("name").Result);
 			Log::Info("{0}", root.Get<std::string>("player.name").Result);
 			Log::Info("{0}", nameNode.GetSelf<std::string>().Result);
+
+			Log::Info("{0}", playerNode.AddArrayElement("inventory", "potion"));
+			Log::Info("{0}", playerNode.Get<std::vector<std::string>>("inventory").Result[1]);
+
+			playerNode.AddField("testStats", 100);
+
+			Json::WriteToFile("test.json", data);
 		}
 	};
 }
