@@ -41,10 +41,9 @@ namespace Loopie {
 	class BufferLayout {
 	public:
 
-
 		void AddLayoutElement(GLVariableType type, unsigned int count) {
-			m_layout.emplace_back(BufferElement{ type, count, m_stride);
-			m_stride+=GetGLVariableSize(type)*count});
+			m_layout.emplace_back(BufferElement{ m_stride, type, count });
+			m_stride+=GetGLVariableSize(type)*count;
 		}
 
 		unsigned int GetStride()const { return m_stride; }

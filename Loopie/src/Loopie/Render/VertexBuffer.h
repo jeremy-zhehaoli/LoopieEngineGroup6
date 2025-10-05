@@ -14,7 +14,7 @@ namespace Loopie
 		void Bind() const;
 		void Unbind() const;
 
-		const BufferLayout& GetLayout()const { return m_layout; }
+		BufferLayout& GetLayout() { return m_layout; }
 		void SetLayout(const BufferLayout& layout) { m_layout = layout; }
 
 	private:

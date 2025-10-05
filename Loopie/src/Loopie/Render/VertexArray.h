@@ -9,6 +9,8 @@ namespace Loopie
     {
     private:
         unsigned int m_RendererID;
+        VertexBuffer* m_vbo = nullptr;
+        IndexBuffer* m_ebo = nullptr;
 
     public:
         VertexArray();
@@ -17,6 +19,8 @@ namespace Loopie
         void Bind() const;
         void Unbind() const;
 
-        void AddBuffer(const VertexBuffer& vbo, const IndexBuffer& ebo);
+        void AddBuffer(VertexBuffer& vbo, IndexBuffer& ebo);
+
+        const IndexBuffer& GetIndexBuffer() const;
     };
 }

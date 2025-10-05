@@ -9,6 +9,7 @@ namespace Loopie {
 		ASSERT(!gladLoadGLLoader((GLADloadproc)context), "Failed to Initialize GLAD!");
 
 		glEnable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
@@ -25,9 +26,10 @@ namespace Loopie {
 		glViewport(x, y, width, height);
 	}
 
-	void Renderer::Draw(const Shader& shader) {
+	void Renderer::Draw(const VertexArray& vao, const Shader& shader) {
+		vao.Bind();
 		shader.Bind();
 		//// Bind VAO
-		//glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, vao.GetIndexBuffer().GetCount(), GL_UNSIGNED_INT, nullptr);
 	}
 }

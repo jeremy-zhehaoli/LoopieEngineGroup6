@@ -4,7 +4,7 @@
 
 namespace Loopie
 {
-	VertexBuffer::VertexBuffer(void* data, unsigned int size)
+	VertexBuffer::VertexBuffer(const void* data, unsigned int size)
 	{
 		glGenBuffers(1, &m_vboID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
