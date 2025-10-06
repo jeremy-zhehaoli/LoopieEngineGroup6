@@ -29,6 +29,6 @@ namespace Loopie {
 		VertexBuffer m_vbo;
 		IndexBuffer m_ebo;
 
-		Shader m_shader = Shader("../../../Loopie/src/Loopie/Render/CorrectShader.shader");
+		Shader m_shader = Shader("assets/CorrectShader.shader");
 	};
 }

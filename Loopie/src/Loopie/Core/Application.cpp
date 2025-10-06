@@ -247,7 +247,7 @@ namespace Loopie {
 			// TEST - F7 FOR CORRECT SHADER TESTING
 			else if (m_inputEvent.GetKeyStatus(SDL_SCANCODE_F7) == KeyState::DOWN)
 			{
-				Shader* shader = new Shader("../../../Loopie/src/Loopie/Render/CorrectShader.shader");
+				Shader* shader = new Shader("assets/CorrectShader.shader");
 				if (!shader->GetIsValidShader())
 				{
 					delete shader;
@@ -261,7 +261,7 @@ namespace Loopie {
 			// TEST - F8 FOR INCORRECT SHADER PATH
 			else if (m_inputEvent.GetKeyStatus(SDL_SCANCODE_F8) == KeyState::DOWN)
 			{
-				Shader* shader = new Shader("../../../Loopie/src/Loopie/Render/CorrectShaader.shader");
+				Shader* shader = new Shader("assets/CorrectShaader.shader");
 				if (!shader->GetIsValidShader())
 				{
 					delete shader;
@@ -275,7 +275,7 @@ namespace Loopie {
 			// TEST - F9 FOR FAILING SHADER TESTING
 			else if (m_inputEvent.GetKeyStatus(SDL_SCANCODE_F9) == KeyState::DOWN)
 			{
-				Shader* shader = new Shader("../../../Loopie/src/Loopie/Render/WrongShader.shader");
+				Shader* shader = new Shader("assets/WrongShader.shader");
 				if (!shader->GetIsValidShader())
 				{
 					delete shader;
