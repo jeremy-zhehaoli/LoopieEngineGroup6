@@ -18,9 +18,9 @@ namespace Loopie {
 	{
         NFD_Init();
 
-        Window* window = Application::GetInstance().GetWindow();
+        Window& window = Application::GetInstance().GetWindow();
         nfdopendialogu8args_t args = { 0 };
-        NFD_GetNativeWindowFromSDL3Window(window->GetSDLWindow(), &args.parentWindow);
+        NFD_GetNativeWindowFromSDL3Window(window.GetSDLWindow(), &args.parentWindow);
 
         nfdchar_t* outPath;
         DialogResult result;
@@ -56,9 +56,9 @@ namespace Loopie {
 	{
         NFD_Init();
 
-        Window* window = Application::GetInstance().GetWindow();
+        Window& window = Application::GetInstance().GetWindow();
         nfdopendialogu8args_t args = { 0 };
-        NFD_GetNativeWindowFromSDL3Window(window->GetSDLWindow(), &args.parentWindow);
+        NFD_GetNativeWindowFromSDL3Window(window.GetSDLWindow(), &args.parentWindow);
 
         const nfdpathset_t* pathSet;
         DialogResult result;
@@ -106,9 +106,9 @@ namespace Loopie {
 	{
         NFD_Init();
 
-        Window* window = Application::GetInstance().GetWindow();
+        Window& window = Application::GetInstance().GetWindow();
         nfdpickfolderu8args_t args = { 0 };
-        NFD_GetNativeWindowFromSDL3Window(window->GetSDLWindow(), &args.parentWindow);
+        NFD_GetNativeWindowFromSDL3Window(window.GetSDLWindow(), &args.parentWindow);
 
         nfdchar_t* outPath;
         DialogResult result;
@@ -134,9 +134,9 @@ namespace Loopie {
     {
         NFD_Init();
 
-        Window* window = Application::GetInstance().GetWindow();
+        Window& window = Application::GetInstance().GetWindow();
         nfdpickfolderu8args_t args = { 0 };
-        NFD_GetNativeWindowFromSDL3Window(window->GetSDLWindow(), &args.parentWindow);
+        NFD_GetNativeWindowFromSDL3Window(window.GetSDLWindow(), &args.parentWindow);
 
         const nfdpathset_t* pathSet;
         DialogResult result;

@@ -21,7 +21,7 @@ namespace Loopie {
 		void Close();
 
 		static Application& GetInstance();
-		Window* GetWindow() const;
+		Window& GetWindow();
 		InputEventManager& GetInputEvent();
 
 		void SetInterfaceState(bool enabled) { m_renderInterface = enabled; }

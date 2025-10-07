@@ -27,8 +27,8 @@ namespace Loopie {
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-		Window* window = Application::GetInstance().GetWindow();
-		ImGui_ImplSDL3_InitForOpenGL(window->GetSDLWindow(), window->GetSDL_GL_Context());
+		Window& window = Application::GetInstance().GetWindow();
+		ImGui_ImplSDL3_InitForOpenGL(window.GetSDLWindow(), window.GetSDL_GL_Context());
 		ImGui_ImplOpenGL3_Init();
 
 		CustomImGui();
@@ -48,8 +48,8 @@ namespace Loopie {
 
 	void ImGuiManager::EndFrame()
 	{
-		Window* window = Application::GetInstance().GetWindow();
-		ivec2 size = window->GetSize();
+		Window& window = Application::GetInstance().GetWindow();
+		ivec2 size = window.GetSize();
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2((float)size.x, (float)size.y);
 
@@ -59,8 +59,8 @@ namespace Loopie {
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 
-			SDL_Window* backup_window = window->GetSDLWindow();
-			SDL_GLContext backup_context = window->GetSDL_GL_Context();
+			SDL_Window* backup_window = window.GetSDLWindow();
+			SDL_GLContext backup_context = window.GetSDL_GL_Context();
 
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();

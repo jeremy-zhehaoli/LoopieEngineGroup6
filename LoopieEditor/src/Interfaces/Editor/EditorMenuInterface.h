@@ -3,6 +3,7 @@
 #include "src/Interfaces/Interface.h"
 
 #include <string>
+#include <vector>
 
 namespace Loopie {
 	class EditorMenuInterface : public Interface {
@@ -13,6 +14,7 @@ namespace Loopie {
 
 	private:
 		void RenderAboutMenu();
+		void RenderInfoConfigMenu();
 
 		void RenderOpenProjectPopUp();
 		void RenderCreateProjectPopUp();
@@ -21,6 +23,15 @@ namespace Loopie {
 		char m_projectName[128] = "";
 		std::string m_projectPath = "";
 
+
+		/// Menus States
 		bool m_showAboutMenu = false;
+		bool m_showInfoConfigMenu = false;
+
+
+		/// Plot
+		const int LOG_SIZE = 100;
+		std::vector<float> m_fpsLog;
+		std::vector<float> m_msLog;
 	};
 }

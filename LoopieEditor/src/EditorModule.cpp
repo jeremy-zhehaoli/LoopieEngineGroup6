@@ -8,7 +8,7 @@ namespace Loopie
 {
 	void EditorModule::OnLoad()
 	{
-		Application::GetInstance().GetWindow()->SetResizable(true);
+		Application::GetInstance().GetWindow().SetResizable(true);
 	}
 	void EditorModule::OnUnload()
 	{

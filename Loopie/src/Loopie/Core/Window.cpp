@@ -5,6 +5,7 @@
 #include "Loopie/Render/Renderer.h"
 
 #include <SDL3/SDL_init.h>
+#include <SDL3/SDL_timer.h>
 
 namespace Loopie {
 	Window::Window()
@@ -25,6 +26,8 @@ namespace Loopie {
 		
 		// Set clear color, optional
 		Renderer::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+
+		SetVsync(false);
 	}
 
 	Window::~Window()
@@ -41,15 +44,24 @@ namespace Loopie {
 		}
 	}
 
+	void Window::StartFrame() {
+		Uint64 now = SDL_GetPerformanceCounter();
+		if (m_lastFrameTime != 0)
+		{
+			m_deltaTimeMs = (float)((now - m_lastFrameTime) * 1000.0 / (double)SDL_GetPerformanceFrequency());
+		}
+		else
+		{
+			m_deltaTimeMs = 0.0f;
+		}
+		m_lastFrameTime = now;
+	}
+
 	// 24/09 Technically more of a swapbuffer rather than an update right now
-	bool Window::Update()
+	void Window::Update()
 	{
-
-		bool returnStatus = true;
-
 		SDL_GL_SwapWindow(m_window);
-
-		return returnStatus;
+		LimitFramerate();
 	}
 
 	ivec2 Window::GetSize() const /// Change To vector when posible (glm)
@@ -126,6 +138,19 @@ namespace Loopie {
 		SDL_SetWindowResizable(m_window, enable); // returns bool
 	}
 
+	void Window::SetVsync(bool enable)
+	{
+		if (enable == m_vsyncState)
+			return;
+		ASSERT(!SDL_GL_SetSwapInterval(enable), "Error setting vsync! SDL Error: {0}", SDL_GetError());
+		m_vsyncState = enable;
+	}
+
+	void Window::SetFramerateLimit(int fps)
+	{
+		m_targetFramerate = fps;
+	}
+
 	void Window::SetTitle(const char* title)
 	{
 		SDL_SetWindowTitle(m_window, title); // returns bool
@@ -134,6 +159,26 @@ namespace Loopie {
 	void Window::SetPosition(int x, int y) 
 	{
 		SDL_SetWindowPosition(m_window, x, y); // returns bool
+	}
+	float Window::GetDeltaTimeMs()
+	{
+		return m_deltaTimeMs;
+	}
+	void Window::LimitFramerate()
+	{
+		if (m_vsyncState || m_targetFramerate <= 0)
+			return;
+		Uint64 now = SDL_GetPerformanceCounter();
+
+		double freq = (double)(SDL_GetPerformanceFrequency());
+		double frameTimeMs = (now - m_lastFrameTime) * 1000.0 / freq;
+		double targetFrameMs = 1000.0 / m_targetFramerate;
+
+		if (frameTimeMs < targetFrameMs)
+		{
+			Uint32 delayMs = (Uint32)(targetFrameMs - frameTimeMs);
+			SDL_Delay(delayMs);
+		}
 	}
 }
 

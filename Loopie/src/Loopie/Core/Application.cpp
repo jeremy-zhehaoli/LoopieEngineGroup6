@@ -82,9 +82,9 @@ namespace Loopie {
 		return *s_Instance;
 	}
 
-	Window* Application::GetWindow() const
+	Window& Application::GetWindow()
 	{
-		return m_window;
+		return *m_window;
 	}
 
 	InputEventManager& Application::GetInputEvent()
@@ -159,7 +159,8 @@ namespace Loopie {
 		{
 
 			Renderer::Clear();
-			
+
+			m_window->StartFrame();
 			m_imguiManager.StartFrame();
 
 			m_inputEvent.Update();
