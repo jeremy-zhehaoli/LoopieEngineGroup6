@@ -6,6 +6,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <filesystem> // Used for checking the extension
+
 namespace Loopie {
 	std::vector<Mesh*> MeshImporter::LoadModel(const std::string& filepath) {
 		std::vector<Mesh*> meshes;
@@ -19,6 +21,25 @@ namespace Loopie {
 
 		ProcessNode(scene->mRootNode, scene, meshes);
 		return meshes;
+	}
+
+	bool MeshImporter::CheckIfIsModel(const char* path) const
+	{
+		Assimp::Importer importer;
+		std::string extension = std::filesystem::path(path).extension().string();
+
+		for (char& c : extension)
+		{
+			c = std::tolower(static_cast<unsigned char>(c));
+		}
+
+		if (!extension.empty() && extension[0] == '.')
+			extension = extension.substr(1);
+
+		bool isModel = importer.IsExtensionSupported(extension);
+		if (isModel) LoadModel(path);
+
+		return isModel;
 	}
 
 	void MeshImporter::ProcessNode(void* nodePtr, const void* scenePtr, std::vector<Mesh*>& meshes) {

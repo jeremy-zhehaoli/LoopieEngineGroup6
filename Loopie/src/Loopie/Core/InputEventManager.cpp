@@ -29,6 +29,7 @@ namespace Loopie {
 			m_events[t] = false;
 		}
 		m_touchedEvents.clear();
+		m_droppedFiles.clear();
 
 		AdvanceKeyStates(m_keyboard);
 		AdvanceKeyStates(m_gamepad);
@@ -102,11 +103,17 @@ namespace Loopie {
 					break;
 				}
 
+				case SDL_EVENT_DROP_FILE: {
+					const char* droppedFile = event.drop.data;
+					m_droppedFiles.push_back(droppedFile);
+					Log::Info("Dropped file into the Engine: '{0}'", droppedFile);
+				}
+
 				default:
 					break;
 			}
 
-		}
+		}		
 	}
 
 	KeyState InputEventManager::GetKeyStatus(SDL_Scancode keyCode) const
@@ -147,5 +154,27 @@ namespace Loopie {
 	float InputEventManager::GetRightTrigger() const
 	{
 		return m_axes[SDL_GAMEPAD_AXIS_RIGHT_TRIGGER];
+	}
+
+	std::vector<const char*> InputEventManager::GetDroppedFiles()
+	{
+		return m_droppedFiles;
+	}
+
+	// Remember that index starts at 0.
+	const char* InputEventManager::GetDroppedFile(int index)
+	{
+		if (index >= m_droppedFiles.size() || index < 0)
+		{
+			Log::Info("Attempted to get a dropped file out of range. \nIndex was {0}, dropped files' size is {1}",
+				index, m_droppedFiles.size());
+			return "";
+		}
+		return m_droppedFiles[index];
+	}
+
+	bool InputEventManager::HasFileBeenDropped() const
+	{
+		return !m_droppedFiles.empty();
 	}
 }
