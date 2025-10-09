@@ -3,7 +3,7 @@
 #include "Loopie/Core/Log.h"
 
 #include <iostream>
-#include <stb/stb_image.h>
+#include <stb_image.h>
 #include <glad/glad.h>
 
 namespace Loopie
