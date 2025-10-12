@@ -1,12 +1,9 @@
 #pragma once
+#include "Loopie/Resources/Resource.h"
 
-#include "Loopie/Core/Math.h"
-#include "Loopie/Render/Shader.h"
 #include "Loopie/Render/IndexBuffer.h"
 #include "Loopie/Render/VertexBuffer.h"
 #include "Loopie/Render/VertexArray.h"
-#include "Loopie/Render/Texture.h"
-
 #include <vector>
 
 namespace Loopie {
@@ -19,14 +16,14 @@ namespace Loopie {
 		bool Normal = false;
 	};
 
-	class Mesh {
+	class Mesh /*: public Resource*/{
+		friend class MeshRenderer;
 	public :
 		Mesh(const std::vector<float>& vertices, const std::vector<unsigned int>& indices, const VertexComponents& components);
 		~Mesh() = default;
 
-		void Render();
-
-		Shader& GetShader() { return m_shader; }
+		/*void LoadFromFile(const std::string path) override;
+		void Reload() override;*/
 	private:
 		std::vector<float> m_vertices;
 		std::vector<unsigned int> m_indices;
@@ -36,7 +33,5 @@ namespace Loopie {
 		VertexBuffer m_vbo;
 		IndexBuffer m_ebo;
 
-		Shader m_shader = Shader("assets/shaders/CorrectShader.shader");
-		Texture m_texture = Texture("assets/texture.png");
 	};
 }

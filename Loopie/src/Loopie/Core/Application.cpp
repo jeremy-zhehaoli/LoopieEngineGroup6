@@ -3,11 +3,6 @@
 #include "Loopie/Core/Assert.h"
 #include "Loopie/Core/Log.h"
 #include "Loopie/Render/Renderer.h"
-#include "Loopie/Components/Mesh.h"
-#include "Loopie/Files/MeshImporter.h"
-
-
-#include "Loopie/Core/Math.h" // TEMP INCLUDE FOR SHADER TESTING
 
 namespace Loopie {
 	Application* Application::s_Instance = nullptr;
@@ -88,29 +83,6 @@ namespace Loopie {
 
 	void Application::Run()
 	{
-		////TESTING VARIABLES
-
-		std::vector<Mesh*> meshes;
-
-		glm::vec3 position(0.0f, 0.0f, -50.0f);
-		glm::vec3 forward(0.0f, 0.0f, 1.0f);
-		glm::vec3 up(0.0f, 1.0f, 0.0f);
-		glm::mat4 viewMatrix = glm::lookAt(position, position + forward, up);
-
-		// Projection Matrix
-		const float FOV = 45.0f;
-		const float NEAR_PLANE = 0.1f;
-		const float FAR_PLANE = 200.0f;
-
-		float rotation = 0.0f;
-		const float SPEED = 100.0f;
-
-
-		ivec2 windowSize = m_window->GetSize();
-		glm::mat4 projectionMatrix = glm::perspective(glm::radians(FOV), static_cast<float>(windowSize.x) / static_cast<float>(windowSize.y), NEAR_PLANE, FAR_PLANE);
-
-		////
-
 		while (m_running)
 		{
 
@@ -124,9 +96,10 @@ namespace Loopie {
 			m_window->ProcessEvents(m_inputEvent);
 			ProcessEvents(m_inputEvent);
 
+			float dt = m_window->GetDeltaTime();
 			for (Module* module : m_modules) {
 				if (module->IsActive()) {
-					module->OnUpdate();
+					module->OnUpdate(dt);
 				}
 			}
 
@@ -138,59 +111,10 @@ namespace Loopie {
 				}
 			}
 
-			///// TEST AREA
-
-			if (m_inputEvent.HasFileBeenDropped()) {
-				const char* fileName = m_inputEvent.GetDroppedFile(0);
-				if (MeshImporter::CheckIfIsModel(fileName)) {
-					for (size_t i = 0; i < meshes.size(); i++)
-					{
-						delete meshes[i];
-					}
-					meshes.clear();
-
-					meshes = MeshImporter::LoadModel(fileName);
-				}
-			}
-
-			if (m_inputEvent.GetKeyStatus(SDL_SCANCODE_W) == KeyState::REPEAT)
-				position.z += 10 * m_window->GetDeltaTime();
-
-			if (m_inputEvent.GetKeyStatus(SDL_SCANCODE_S) == KeyState::REPEAT)
-				position.z -= 10 * m_window->GetDeltaTime();
-
-			windowSize = m_window->GetSize();
-
-			viewMatrix = glm::lookAt(position, position + forward, up);
-			projectionMatrix = glm::perspective(glm::radians(FOV), static_cast<float>(windowSize.x) / static_cast<float>(windowSize.y), NEAR_PLANE, FAR_PLANE);
-			glm::mat4 modelMatrix(1.0f);
-			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-			glm::mat4 modelViewProj = projectionMatrix * viewMatrix * modelMatrix;
-
-			rotation += SPEED * m_window->GetDeltaTime();
-
-			for (size_t i = 0; i < meshes.size(); i++)
-			{
-				meshes[i]->GetShader().Bind();
-				meshes[i]->GetShader().SetUniformMat4("modelViewProj", modelViewProj);
-				meshes[i]->Render();
-			}
-			
-			/////
-
-
 			m_imguiManager.EndFrame();
 
 			m_window->Update();		
 		}
-
-		///// TEST AREA
-		for (size_t i = 0; i < meshes.size(); i++)
-		{
-			delete meshes[i];
-		}
-		meshes.clear();
-		/////
 	}
 
 	void Application::ProcessEvents(InputEventManager& eventController)
@@ -208,9 +132,6 @@ namespace Loopie {
 			else if (eventController.GetKeyStatus(SDL_SCANCODE_ESCAPE) == KeyState::DOWN)
 			{
 				Close();
-			}
-			else if (eventController.GetKeyStatus(SDL_SCANCODE_I) == KeyState::DOWN){
-				SetInterfaceState(!m_renderInterface);
 			}
 		}
 	}

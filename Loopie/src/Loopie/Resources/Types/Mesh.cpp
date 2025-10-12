@@ -21,14 +21,13 @@ namespace Loopie {
 			layout.AddLayoutElement(4,GLVariableType::FLOAT, 3, "_Color");
 
 		m_vao.AddBuffer(m_vbo, m_ebo);
-
-		m_shader.Bind();
-		m_texture.Bind();
-		m_shader.SetUniformInt("u_Texture", 0);
-		m_shader.Unbind();
 	}
+	//void Mesh::LoadFromFile(const std::string path)
+	//{
+	//	//// Get Data From ChacheFile
+	//}
 
-	void Mesh::Render() {
-		Renderer::Draw(m_vao, m_shader);
-	}
+	//void Mesh::Reload()
+	//{
+	//}
 }

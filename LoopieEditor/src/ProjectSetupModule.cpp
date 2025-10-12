@@ -10,7 +10,7 @@
 
 namespace Loopie
 {
-	void ProjectSetupModule::OnUpdate()
+	void ProjectSetupModule::OnUpdate(float dt)
 	{
 		Application& app = Application::GetInstance();
 		if (!app.m_activeProject.IsEmpty())

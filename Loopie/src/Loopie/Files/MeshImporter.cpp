@@ -8,9 +8,10 @@
 
 #include <filesystem> // Used for checking the extension
 
+
 namespace Loopie {
-	std::vector<Mesh*> MeshImporter::LoadModel(const std::string& filepath) {
-		std::vector<Mesh*> meshes;
+	std::vector<std::shared_ptr<Mesh>> MeshImporter::LoadModel(const std::string& filepath) {
+		std::vector<std::shared_ptr<Mesh>> meshes;
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(filepath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
@@ -39,7 +40,7 @@ namespace Loopie {
 		return importer.IsExtensionSupported(extension);
 	}
 
-	void MeshImporter::ProcessNode(void* nodePtr, const void* scenePtr, std::vector<Mesh*>& meshes) {
+	void MeshImporter::ProcessNode(void* nodePtr, const void* scenePtr, std::vector<std::shared_ptr<Mesh>>& meshes) {
 		auto node = static_cast<const aiNode*>(nodePtr);
 		auto scene = static_cast<const aiScene*>(scenePtr);
 
@@ -53,7 +54,7 @@ namespace Loopie {
 		}
 	}
 
-	Mesh* MeshImporter::ProcessMesh(void* meshPtr, const void* scenePtr) {
+	std::shared_ptr<Mesh> MeshImporter::ProcessMesh(void* meshPtr, const void* scenePtr) {
 
 		auto mesh = static_cast<const aiMesh*>(meshPtr);
 
@@ -117,6 +118,6 @@ namespace Loopie {
 				indices.push_back(face.mIndices[j]);
 		}
 
-		return new Mesh(vertices, indices, components);
+		return  std::make_shared<Mesh>(vertices, indices, components);
 	}
 }
