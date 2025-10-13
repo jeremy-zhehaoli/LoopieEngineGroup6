@@ -3,6 +3,7 @@
 #include "Loopie/Core/UUID.h"
 
 #include <unordered_map>
+#include <vector>
 #include <string>
 
 namespace Loopie {
@@ -24,9 +25,10 @@ namespace Loopie {
         static bool UpdateAsset(const UUID& uuid, const AssetMetadata& newMetadata);
 
         static AssetMetadata* GetMetadata(const UUID& uuid);
-        static UUID GetUUIDFromSourcePath(const std::string& sourcePath);
+        static const std::vector<UUID>& GetUUIDFromSourcePath(const std::string& sourcePath);
 
         static bool AssetExists(const UUID& uuid);
+        static bool AssetExists(const std::string& sourcePath);
         static bool ValidateAsset(const UUID& uuid);
         static bool ValidateAllAsset();
 
@@ -40,6 +42,8 @@ namespace Loopie {
 
     private:
         static std::unordered_map<UUID, AssetMetadata> s_Assets;
-        static std::unordered_map<std::string, UUID> s_SourcePathToUUID;
+        static std::unordered_map<std::string, std::vector<UUID>> s_SourcePathToUUID;
+
+        static std::vector<UUID> s_EmptyUUIDVector;
     };
 }

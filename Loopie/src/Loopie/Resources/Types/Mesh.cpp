@@ -79,7 +79,6 @@ namespace Loopie {
 
 		BufferLayout& layout = m_vbo->GetLayout();
 
-
 		if (m_components.Position)
 			layout.AddLayoutElement(0, GLVariableType::FLOAT, 3, "_Pos");
 		if (m_components.TexCoord)

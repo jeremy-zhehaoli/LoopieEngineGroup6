@@ -56,8 +56,8 @@ namespace Loopie
             glVertexAttribPointer(element.Index, element.Count, ConvertGLVariableTypeToGlType(element.Type), GL_FALSE, layout.GetStride(), (const void*)(uintptr_t)element.Offset);
         }
         
-        Unbind();
         m_vbo->Unbind();
+        Unbind();
         m_ebo->Unbind();
     }
     const IndexBuffer& Loopie::VertexArray::GetIndexBuffer() const

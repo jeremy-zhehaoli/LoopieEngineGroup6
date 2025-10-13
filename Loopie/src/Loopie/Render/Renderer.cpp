@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include "Loopie/Core/Assert.h"
+#include <iostream>
 
 #include <glad/glad.h>
 #include <IL/il.h>
@@ -32,10 +33,13 @@ namespace Loopie {
 		glViewport(x, y, width, height);
 	}
 
+
+
 	void Renderer::Draw(std::shared_ptr<VertexArray> vao, const Shader& shader) {
 		vao->Bind();
 		shader.Bind();
 		//// Bind VAO
 		glDrawElements(GL_TRIANGLES, vao->GetIndexBuffer().GetCount(), GL_UNSIGNED_INT, nullptr);
+		vao->Unbind();
 	}
 }

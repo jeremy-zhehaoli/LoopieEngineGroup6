@@ -22,8 +22,6 @@ namespace Loopie
 		AssetRegistry::Initialize();
 		Application::GetInstance().GetWindow().SetResizable(true);
 
-		UUID id = AssetRegistry::GetUUIDFromSourcePath("test2");
-
 	}
 
 	void EditorModule::OnUnload()
@@ -71,22 +69,37 @@ namespace Loopie
 				///// Generate MeshFromMetaData
 				///// Generate MeshRenderer
 
-				std::vector<std::string> cacheFiles = MeshImporter::LoadModel(fileName); ///// dont return meshes, only create cacheFile, and fill AssetMetadata
-				
-				for (size_t i = 0; i < cacheFiles.size(); i++)
-				{
-					std::filesystem::path path = cacheFiles[i];
+				if (!AssetRegistry::AssetExists(fileName)) {
+					std::vector<std::string> cacheFiles = MeshImporter::LoadModel(fileName);
 
-					AssetMetadata metadata;
-					metadata.uuid = UUID(path.filename().string());
-					metadata.cachePath = cacheFiles[i];
-					metadata.sourcePath = fileName;
-					AssetRegistry::RegisterAsset(metadata);
+					for (size_t i = 0; i < cacheFiles.size(); i++)
+					{
+						std::filesystem::path path = cacheFiles[i];
 
-					std::shared_ptr<Mesh> mesh = ResourceDatabase::LoadResource<Mesh>(metadata.uuid); /// change Mesh class constructor, and structure, make VAO, EBO ... sharedPtr
-					if (mesh)
-						meshRenderers.push_back(new MeshRenderer(mesh));
+						AssetMetadata metadata;
+						metadata.uuid = UUID(path.stem().string());
+						metadata.cachePath = cacheFiles[i];
+						metadata.sourcePath = fileName;
+						AssetRegistry::RegisterAsset(metadata);
+
+						std::shared_ptr<Mesh> mesh = ResourceDatabase::LoadResource<Mesh>(metadata.uuid);
+						if (mesh)
+							meshRenderers.push_back(new MeshRenderer(mesh));
+					}
 				}
+				else {
+					std::vector<UUID> uuids = AssetRegistry::GetUUIDFromSourcePath(fileName);
+					for (size_t i = 0; i < uuids.size(); i++)
+					{
+						AssetMetadata* metadata = AssetRegistry::GetMetadata(uuids[i]);
+						std::shared_ptr<Mesh> mesh = ResourceDatabase::LoadResource<Mesh>(metadata->uuid);
+						if (mesh)
+							meshRenderers.push_back(new MeshRenderer(mesh));
+
+					}
+				}
+
+				
 
 				
 			}

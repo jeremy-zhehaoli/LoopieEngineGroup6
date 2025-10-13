@@ -10,7 +10,8 @@
 namespace Loopie {
 
 	std::unordered_map<UUID, AssetMetadata> AssetRegistry::s_Assets;
-	std::unordered_map<std::string, UUID> AssetRegistry::s_SourcePathToUUID;
+	std::unordered_map<std::string, std::vector<UUID>> AssetRegistry::s_SourcePathToUUID;
+	std::vector<UUID> AssetRegistry::s_EmptySearch;
 
 	void AssetRegistry::Initialize() {
 		if (LoadRegistry()) {
@@ -31,7 +32,7 @@ namespace Loopie {
 	void AssetRegistry::RegisterAsset(const AssetMetadata& metadata) {
 		RemoveAsset(metadata.uuid);
 		s_Assets[metadata.uuid] = metadata;
-		s_SourcePathToUUID[metadata.sourcePath] = metadata.uuid;
+		s_SourcePathToUUID[metadata.sourcePath].push_back(metadata.uuid);
 	}
 
 	bool AssetRegistry::RemoveAsset(const UUID& uuid) {
@@ -61,17 +62,37 @@ namespace Loopie {
 		return &it->second;
 	}
 
-	UUID AssetRegistry::GetUUIDFromSourcePath(const std::string& sourcePath)
+	const std::vector<UUID>& AssetRegistry::GetUUIDFromSourcePath(const std::string& sourcePath)
 	{
 		auto it = s_SourcePathToUUID.find(sourcePath);
 		if (it == s_SourcePathToUUID.end())
-			return UUID("-");
+			return s_EmptySearch;
 		return it->second;
 	}
 
 	bool AssetRegistry::AssetExists(const UUID& uuid)
 	{
-		return s_Assets.find(uuid) != s_Assets.end();
+		auto it = s_Assets.find(uuid);
+		if (it != s_Assets.end()) {
+			if (it->second.isValid)
+				return true;
+			RemoveAsset(uuid);
+			return false;
+		}
+		return false;
+	}
+
+	bool AssetRegistry::AssetExists(const std::string& sourcePath)
+	{
+		const std::vector<UUID> uuids = GetUUIDFromSourcePath(sourcePath);
+
+		for (size_t i = 0; i < uuids.size(); i++)
+		{
+			if (AssetExists(uuids[i])) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	bool AssetRegistry::ValidateAsset(const UUID& uuid)
@@ -141,6 +162,7 @@ namespace Loopie {
 			asset.CreateField("Id", assetData.second.uuid.Get());
 			asset.CreateField("SourcePath", assetData.second.sourcePath);
 			asset.CreateField("CachePath", assetData.second.cachePath);
+			
 		}
 
 		data.ToFile(savePath);
@@ -174,7 +196,7 @@ namespace Loopie {
 				metadata.cachePath = asset.GetValue<std::string>("CachePath").Result;
 
 				s_Assets[metadata.uuid] = metadata;
-				s_SourcePathToUUID[metadata.sourcePath] = metadata.uuid;
+				s_SourcePathToUUID[metadata.sourcePath].push_back(metadata.uuid);
 			}
 		}
 
