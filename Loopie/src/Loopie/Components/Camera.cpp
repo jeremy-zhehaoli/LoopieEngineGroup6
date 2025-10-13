@@ -2,9 +2,9 @@
 
 namespace Loopie
 {
-	Camera::Camera(float fov, float near_plane, float far_plane): m_fov(fov), m_near_plane(near_plane), m_far_plane(far_plane)
+	Camera::Camera(Transform& transform, float fov, float near_plane, float far_plane): m_transform(transform), m_fov(fov), m_near_plane(near_plane), m_far_plane(far_plane)
 	{
-
+		m_transform.OnTransformDirty = [this]() {CalculateMatrices(); };
 	}
 
 	void Camera::SetViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
@@ -28,31 +28,10 @@ namespace Loopie
 		return m_viewProjectionMatrix;
 	}
 
-	void Camera::SetPosition(const vec3& position)
-	{
-		m_position = position;
-		CalculateMatrices();
-	}
-
-	void Camera::SetRotation(const vec3& rotation)
-	{
-		m_rotation = rotation;
-		CalculateMatrices();
-	}
-
-	vec3 Camera::GetPosition() const
-	{
-		return m_position;
-	}
-
-	vec3 Camera::GetRotation() const
-	{
-		return m_rotation;
-	}
 
 	void Loopie::Camera::CalculateMatrices()
 	{
-		m_viewMatrix = glm::lookAt(m_position, m_position + vec3(0,0,1), vec3(0, 1, 0));
+		m_viewMatrix = m_transform.GetTransformMatrix();
 		m_projectionMatrix = glm::perspective(glm::radians(m_fov), m_viewport.z / m_viewport.w, m_near_plane, m_far_plane);
 		m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
 	}

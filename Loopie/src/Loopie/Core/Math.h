@@ -1,9 +1,9 @@
 #pragma once
-
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
-//#include <glm/gtx/quaternion.hpp> // Seems like it is experimental - Will cause error if uncommented
+#include <glm/gtx/quaternion.hpp> // Seems like it is experimental - Will cause error if uncommented
 
 // Might want to use wrappers / inliners to ensure glm can be swapped if necessary
 namespace Loopie

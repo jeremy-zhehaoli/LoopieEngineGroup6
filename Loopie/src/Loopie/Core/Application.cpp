@@ -91,16 +91,15 @@ namespace Loopie {
 	void Application::Run()
 	{
 		////TESTING VARIABLES
-		Camera camera;
-		camera.SetPosition(vec3(0, 0, -50.f));
+		Transform cameraTransform;
+		Camera camera = Camera(cameraTransform);
+		camera.m_transform.SetPosition(vec3(0, 0, -50.f));
 		Transform meshT;
 		std::vector<Mesh*> meshes;
 
 		float rotation = 0.0f;
 		const float SPEED = 100.0f;
 
-		vec3 cameraPosition = vec3(0, 0, -50);
-		vec3 cameraRotation = vec3(0, 0, 0);
 		////
 
 		while (m_running)
@@ -150,24 +149,21 @@ namespace Loopie {
 			}
 
 			if (m_inputEvent.GetKeyStatus(SDL_SCANCODE_W) == KeyState::REPEAT)
-				cameraPosition.z += 10 * m_window->GetDeltaTime();
+				camera.m_transform.Translate(cameraTransform.Forward() * 10.0f * m_window->GetDeltaTime());
 
 			if (m_inputEvent.GetKeyStatus(SDL_SCANCODE_S) == KeyState::REPEAT)
-				cameraPosition.z -= 10 * m_window->GetDeltaTime();
+				camera.m_transform.Translate(cameraTransform.Forward() * -10.0f * m_window->GetDeltaTime());
 
 			if (m_inputEvent.GetKeyStatus(SDL_SCANCODE_A) == KeyState::REPEAT)
-				cameraPosition.x += 10 * m_window->GetDeltaTime();
+				camera.m_transform.Translate(cameraTransform.Right() * 10.0f * m_window->GetDeltaTime());
 
 			if (m_inputEvent.GetKeyStatus(SDL_SCANCODE_D) == KeyState::REPEAT)
-				cameraPosition.x -= 10 * m_window->GetDeltaTime();
+				camera.m_transform.Translate(cameraTransform.Right() * -10.0f * m_window->GetDeltaTime());
 
-			camera.SetPosition(cameraPosition);
-			camera.SetRotation(cameraRotation);
-
-			rotation += SPEED * m_window->GetDeltaTime();
-			vec3 rot = meshT.GetEulerAnglesDeg();
-			rot.y += rotation;
-			meshT.SetEulerAnglesDeg(rot);
+			rotation = SPEED * m_window->GetDeltaTime();
+			
+			//Log::Info("{0}", rotation);
+			meshT.Rotate(vec3(0,rotation,0));
 
 			glm::mat4 modelViewProj = camera.GetViewProjectionMatrix() * meshT.GetTransformMatrix();
 
