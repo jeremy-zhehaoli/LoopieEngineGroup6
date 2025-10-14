@@ -94,7 +94,8 @@ namespace Loopie {
 	void Application::Run()
 	{
 		////TESTING VARIABLES
-
+		CreateScene("TestFilePath.scene");
+		
 		std::vector<Mesh*> meshes;
 
 		glm::vec3 position(0.0f, 0.0f, -50.0f);

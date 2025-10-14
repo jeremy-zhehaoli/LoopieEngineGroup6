@@ -4,7 +4,7 @@ namespace Loopie {
 	Scene::Scene(const std::string& filePath)
 	{
 		m_filePath = filePath;
-		LoadScene();
+		ReadAndLoadSceneFile();
 	}
 
 	Scene::~Scene()
@@ -53,7 +53,7 @@ namespace Loopie {
 		return m_entities;
 	}
 
-	void Scene::LoadScene()
+	void Scene::ReadAndLoadSceneFile()
 	{
 		// TODO: This should read the serialized file and load the entities and their uuid
 	}

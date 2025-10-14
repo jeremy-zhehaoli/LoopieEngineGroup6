@@ -1,9 +1,9 @@
 #include "Entity.h"
 
 namespace Loopie {
-	Entity::Entity(const std::string& name)
+	Entity::Entity(const std::string& name) : m_name(name)
 	{
-		m_name = name;
+
 	}
 
 	Entity::~Entity()
@@ -12,12 +12,14 @@ namespace Loopie {
 		m_childrenEntities.clear();
 	}
 
-	void Entity::AddComponent(std::shared_ptr<Component> component)
+	const std::shared_ptr<Component> Entity::AddComponent(const std::shared_ptr<Component> component)
 	{
 		if (component)
 		{
 			m_components.push_back(component);
+			return component;
 		}
+		return nullptr;
 	}
 
 	void Entity::AddChild(std::shared_ptr<Entity> child)
@@ -37,13 +39,11 @@ namespace Loopie {
 
 	void Entity::RemoveChild(std::shared_ptr<Entity> child)
 	{
-		for (auto it = m_childrenEntities.begin(); it != m_childrenEntities.end(); ++it)
+		auto it = std::find(m_childrenEntities.begin(), m_childrenEntities.end(), child);
+		if (it != m_childrenEntities.end())
 		{
-			if (*it == child)
-			{
-				m_childrenEntities.erase(it);
-				return;
-			}
+			(*it)->m_parentEntity.reset();
+			m_childrenEntities.erase(it);
 		}
 	}
 
@@ -53,6 +53,7 @@ namespace Loopie {
 		{
 			if ((*it)->GetUuid() == childUuid)
 			{
+				(*it)->m_parentEntity.reset();
 				m_childrenEntities.erase(it);
 				return;
 			}
@@ -64,7 +65,7 @@ namespace Loopie {
 		return m_uuid;
 	}
 
-	std::string Entity::GetName() const
+	const std::string& Entity::GetName() const
 	{
 		return m_name;
 	}
@@ -86,7 +87,7 @@ namespace Loopie {
 		return nullptr;
 	}
 
-	std::vector<std::shared_ptr<Entity>> Entity::GetChildren() const
+	const std::vector<std::shared_ptr<Entity>>& Entity::GetChildren() const
 	{
 		return m_childrenEntities;
 	}
@@ -94,6 +95,11 @@ namespace Loopie {
 	std::weak_ptr<Entity> Entity::GetParent() const
 	{ 
 		return m_parentEntity; 
+	}
+
+	std::vector<std::shared_ptr<Component>> Entity::GetComponents() const
+	{
+		return m_components;
 	}
 
 	void Entity::SetName(const std::string& name)

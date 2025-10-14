@@ -26,7 +26,7 @@ namespace Loopie {
 		const std::unordered_map<UUID, std::shared_ptr<Entity>>& GetAllEntities() const;
 
 	private:
-		void LoadScene();
+		void ReadAndLoadSceneFile();
 
 	private:
 		std::unordered_map<UUID, std::shared_ptr<Entity>> m_entities;

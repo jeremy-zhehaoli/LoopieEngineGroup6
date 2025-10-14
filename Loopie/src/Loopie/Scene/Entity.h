@@ -9,46 +9,75 @@
 
 namespace Loopie
 {
-	class Entity : std::enable_shared_from_this<Entity>
+	class Entity : public std::enable_shared_from_this<Entity>
 	{
 	public:
 		Entity(const std::string& name);
 		~Entity();
 		
+		const std::shared_ptr<Component> AddComponent(const std::shared_ptr<Component> component);
 
-		void AddComponent(std::shared_ptr<Component> component);
-		template<typename T>
+		template<typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>>>
+		std::shared_ptr<T> AddComponent()
+		{
+			std::shared_ptr<T> component = std::make_shared<T>();
+			m_components.push_back(component);
+			return component;
+		}
+
+		// From Claude.ai:
+		// "Without RTTI/dynamic_cast, static_pointer_cast will ALWAYS succeed, 
+		// even if the component is the wrong type! This will cause crashes."
+		// 
+		// From ChatGPT:
+		// "It will always succeed, even if the cast is invalid, 
+		// because it’s compile-time only — not runtime-checked. 
+		// That means if the wrong component type is stored, 
+		// you’ll get undefined behavior or crashes later."
+		// 
+		// TODO: Verify if it works, and if it doesn't, 
+		// consider using typing with strings on components.
+		template<typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>>>
 		std::shared_ptr<T> GetComponent() const
 		{
-			for (Component* comp : m_components)
+			for (size_t i = 0; i < m_components.size(); i++)
 			{
-				// Try to cast to the requested type
-				T* casted = dynamic_cast<T*>(comp);
-				if (casted)
+				std::shared_ptr<T> component = std::static_pointer_cast<T>(m_components[i]);
+				if (component)
 				{
-					// Wrap in shared_ptr without taking ownership
-					return std::shared_ptr<T>(std::shared_ptr<Component>(), casted);
+					return component;
 				}
 			}
 			return nullptr;
 		}
-		template<typename T>
+
+		template<typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>>>
 		bool HasComponent() const
 		{
 			return GetComponent<T>() != nullptr;
 		}
-		template<typename T>
+
+		// Removes first component of that specific type
+		template<typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>>>
 		void RemoveComponent()
 		{
-			for (auto it = m_components.begin(); it != m_components.end(); ++it)
+			for (size_t i = 0; i < m_components.size(); i++)
 			{
-				T* casted = dynamic_cast<T*>(*it);
-				if (casted)
+				std::shared_ptr<T> comp = std::static_pointer_cast<T>(m_components[i]);
+				if (comp)
 				{
-					delete* it;
-					m_components.erase(it);
-					return;  // Remove first match only
+					m_components.erase(m_components.begin() + i);
+					return;
 				}
+			}
+		}
+
+		void RemoveComponent(std::shared_ptr<Component> component)
+		{
+			auto it = std::find(m_components.begin(), m_components.end(), component);
+			if (it != m_components.end())
+			{
+				m_components.erase(it);
 			}
 		}
 
@@ -58,11 +87,12 @@ namespace Loopie
 		void RemoveChild(UUID childUuid);
 
 		UUID GetUuid() const;
-		std::string GetName() const;
+		const std::string& GetName() const;
 		bool GetIsActive() const;
 		std::shared_ptr<Entity> GetChild(UUID uuid) const;
-		std::vector<std::shared_ptr<Entity>> GetChildren() const;
+		const std::vector<std::shared_ptr<Entity>>& GetChildren() const;
 		std::weak_ptr<Entity> GetParent() const;
+		std::vector<std::shared_ptr<Component>> GetComponents() const;
 
 		void SetName(const std::string& name);
 		void SetIsActive(bool active);
@@ -72,7 +102,7 @@ namespace Loopie
 	private:
 		std::weak_ptr<Entity> m_parentEntity;
 		std::vector<std::shared_ptr<Entity>> m_childrenEntities;
-		std::vector<std::shared_ptr<Component>> m_components;
+		std::vector<std::shared_ptr<Component>> m_components; // Might want to re-do this to a map for optimization
 
 		UUID m_uuid;
 		std::string m_name;
