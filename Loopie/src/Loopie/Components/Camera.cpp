@@ -5,6 +5,7 @@ namespace Loopie
 	Camera::Camera(Transform& transform, float fov, float near_plane, float far_plane): m_transform(transform), m_fov(fov), m_nearPlane(near_plane), m_farPlane(far_plane)
 	{
 		m_transform.OnTransformDirty = [this]() { SetDirty(); };
+		CalculateMatrices();
 	}
 
 	void Camera::SetViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
