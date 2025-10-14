@@ -7,6 +7,7 @@
 #include "Interfaces/Editor/HierarchyInterface.h"
 #include "Interfaces/Editor/SceneInterface.h"
 #include "Interfaces/Editor/EditorMenuInterface.h"
+#include "Interfaces/Editor/AssetsExplorerInterface.h"
 
 /// Test
 
@@ -35,14 +36,15 @@ namespace Loopie {
 		HierarchyInterface m_hierarchy;
 		SceneInterface m_scene;
 		EditorMenuInterface m_mainMenu;
+		AssetsExplorerInterface m_assetsExplorer;
 
 
 		/// Test
 		Transform cameraT;
-		std::shared_ptr<Camera> camera; /// Create an especific CameraControllerClass????
+		std::shared_ptr<Camera> camera; /// Create an especific CameraController / EditorCamera / OrbitalCamera Class????
 
 		Transform meshT;
-		std::vector<MeshRenderer*> meshRenderers;
+		std::vector<MeshRenderer*> meshRenderers; /// Move To Entities when done
 
 		const float SPEED = 100.0f;
 		float rotation = 0;

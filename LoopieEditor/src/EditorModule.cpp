@@ -26,6 +26,9 @@ namespace Loopie
 
 		cameraT.SetPosition({ 0,0,-50.f });
 		camera = std::make_shared<Camera>(cameraT);
+
+		ivec2 windowSize = Application::GetInstance().GetWindow().GetSize();
+		camera->SetViewport(0, 0, windowSize.x, windowSize.y);
 	}
 
 	void EditorModule::OnUnload()
@@ -40,12 +43,16 @@ namespace Loopie
 
 	void EditorModule::OnUpdate(float dt)
 	{
-		InputEventManager& inputEvent = Application::GetInstance().GetInputEvent();
+		Application& app = Application::GetInstance();
+		InputEventManager& inputEvent = app.GetInputEvent();
 
 		
 		if (inputEvent.HasEvent(SDL_EVENT_WINDOW_RESIZED)) {
 			ivec2 windowSize = Application::GetInstance().GetWindow().GetSize();
 			camera->SetViewport(0, 0, windowSize.x, windowSize.y);
+		}
+		if (inputEvent.GetKeyStatus(SDL_SCANCODE_I) == KeyState::DOWN) {
+			app.SetInterfaceState(!app.IsInterfaceVisible());
 		}
 
 		if (inputEvent.HasFileBeenDropped()) { //// Move this to an AssetInspectorClass
@@ -115,6 +122,7 @@ namespace Loopie
 		m_inspector.Render();
 		m_console.Render();
 		m_hierarchy.Render();
+		m_assetsExplorer.Render();
 		m_scene.Render();
 	}
 }
