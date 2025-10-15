@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Loopie/Core/UUID.h"
+#include "Loopie/Core/Identificable.h"
 
 #include <string>
 #include <vector>
@@ -34,14 +35,11 @@ namespace Loopie {
 		template<typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>>>
 		std::shared_ptr<T> GetComponent() const
 		{
-			for (size_t i = 0; i < m_components.size(); i++)
-			{
-				std::shared_ptr<T> component = std::dynamic_pointer_cast<T>(m_components[i]);
-				if (component)
-				{
-					return component;
-				}
+			for (const auto& component : m_components) {
+				if (component->GetTypeID() == T::GetTypeIDStatic())
+					return std::static_pointer_cast<T>(component);
 			}
+			
 			return nullptr;
 		}
 
@@ -55,25 +53,24 @@ namespace Loopie {
 		template<typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>>>
 		void RemoveComponent()
 		{
+
 			for (size_t i = 0; i < m_components.size(); i++)
 			{
-				std::shared_ptr<T> comp = std::dynamic_pointer_cast<T>(m_components[i]);
-				if (comp)
-				{
+				if (m_components[i]->GetTypeID() == T::GetTypeIDStatic()){
 					m_components.erase(m_components.begin() + i);
 					return;
 				}
 			}
 		}
 
-		void RemoveComponent(std::shared_ptr<Component> component)
+		/*void RemoveComponent(std::shared_ptr<Component> component)
 		{
 			auto it = std::find(m_components.begin(), m_components.end(), component);
 			if (it != m_components.end())
 			{
 				m_components.erase(it);
 			}
-		}
+		}*/
 
 		// If a child is set up, then it means this is its parent and will update it accordingly
 		void AddChild(std::shared_ptr<Entity> child);

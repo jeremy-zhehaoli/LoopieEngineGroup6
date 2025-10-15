@@ -31,10 +31,6 @@ namespace Loopie
 		camera->GetTransform()->SetPosition({ 0,0,-50.f });
 
 		meshContainerEntity = scene->CreateEntity("ModelContainer");
-
-		std::shared_ptr<MeshRenderer> meshData = cameraEntity->GetComponent<MeshRenderer>();
-		if (meshData == nullptr)
-			Log::Info("Oh nooooo");
 		////
 	
 		ivec2 windowSize = Application::GetInstance().GetWindow().GetSize();
