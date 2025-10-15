@@ -15,15 +15,20 @@ namespace Loopie {
 		m_childrenEntities.clear();
 	}
 
-	/*std::shared_ptr<Component> Entity::AddComponent(const std::shared_ptr<Component> component)
+	bool Entity::RemoveComponent(Component* component)
 	{
-		if (component)
+		if (component->GetTypeID() == m_transform->GetTypeID())
+			return false;
+
+		for (size_t i = 0; i < m_components.size(); i++)
 		{
-			m_components.push_back(component);
-			return component;
+			if (m_components[i].get() == component) {
+				m_components.erase(m_components.begin() + i);
+				return true;
+			}
 		}
-		return nullptr;
-	}*/
+		return false;
+	}
 
 	void Entity::AddChild(const std::shared_ptr<Entity>& child)
 	{

@@ -12,13 +12,13 @@ namespace Loopie {
 	class Transform;
 	class Scene;
 
+
+	/// Maybe Add a CopyComponent
 	class Entity : public std::enable_shared_from_this<Entity>
 	{
 	public:
 		Entity(const std::string& name);
 		~Entity();
-		
-		/*std::shared_ptr<Component> AddComponent(const std::shared_ptr<Component> component);*/
 
 		template<typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>>>
 		T* AddComponent()
@@ -64,6 +64,8 @@ namespace Loopie {
 		template<typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>>>
 		bool RemoveComponent()
 		{
+			if constexpr (std::is_same_v<T, Transform>)
+				return false;
 
 			for (size_t i = 0; i < m_components.size(); i++)
 			{
@@ -75,14 +77,7 @@ namespace Loopie {
 			return false;
 		}
 
-		/*void RemoveComponent(std::shared_ptr<Component> component)
-		{
-			auto it = std::find(m_components.begin(), m_components.end(), component);
-			if (it != m_components.end())
-			{
-				m_components.erase(it);
-			}
-		}*/
+		bool RemoveComponent(Component* component);
 
 		// If a child is set up, then it means this is its parent and will update it accordingly
 		void AddChild(const std::shared_ptr<Entity>& child);
