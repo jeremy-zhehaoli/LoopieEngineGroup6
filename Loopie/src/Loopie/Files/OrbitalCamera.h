@@ -18,6 +18,9 @@ namespace Loopie
 		float m_cameraRotationSpeed = 1.f;
 		float m_speedMultiplier = 1.f;
 
+		float m_yaw = 0;
+		float m_pitch = 0;
+
 		vec3 m_inputDirection = vec3(0, 0, 0);
 		vec3 m_inputRotation = vec3(0, 0, 0);
 		bool m_complexMovement = false;

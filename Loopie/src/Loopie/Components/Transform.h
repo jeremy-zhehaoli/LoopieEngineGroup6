@@ -61,6 +61,10 @@ namespace Loopie
 
         void SetDirty() const;
 
+        void RotateLocal(const vec3& eulerDegrees);
+
+        void RotateLocalRad(const vec3& eulerRadians);
+
         void Init() override; //// From Component
 
     private:

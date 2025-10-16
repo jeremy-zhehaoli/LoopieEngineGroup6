@@ -50,13 +50,26 @@ namespace Loopie
 		}
 
 		m_inputDirection.z -= inputEvent.GetScrollDelta().y * 25;
+		
 	}
 
 	void OrbitalCamera::Update(float dt)
 	{
 		Transform* transform = m_entity->GetTransform();
-		transform->Translate(m_inputDirection * m_speedMultiplier * dt);
-		transform->Rotate(vec3(m_inputRotation.y, -m_inputRotation.x, 0) * 5.0f * dt);
 		
+		// Update pitch and yaw
+		m_yaw += - m_inputRotation.x * dt; // Yaw around world up
+		m_pitch += m_inputRotation.y * dt; // Pitch around local right
+
+		// Build new rotation from yaw and pitch — no roll
+		glm::quat yawRotation = glm::normalize(glm::angleAxis(m_yaw, vec3(0, 1, 0))); // global Y up
+		glm::quat pitchRotation = glm::normalize(glm::angleAxis(m_pitch, vec3(1, 0, 0))); // local X
+
+		transform->SetRotation(yawRotation * pitchRotation);
+
+		// Move camera in local space
+		if (glm::length(m_inputDirection) > 0.001f)
+			transform->Translate(m_inputDirection * m_speedMultiplier * dt);
 	}
+
 }

@@ -161,6 +161,27 @@ namespace Loopie
             OnTransformDirty();
     }
 
+    void Transform::RotateLocal(const vec3& eulerDegrees)
+    {
+        RotateLocalRad(glm::radians(eulerDegrees));
+    }
+
+    void Transform::RotateLocalRad(const vec3& eulerRadians)
+    {
+        RecalculateCache(); // Ensure axes are up to date
+
+        // Apply pitch (around right), yaw (around up), and roll (around forward)
+        if (eulerRadians.y != 0.0f)
+            m_rotation = glm::normalize(glm::angleAxis(eulerRadians.y, m_right) * m_rotation);
+        if (eulerRadians.x != 0.0f)
+            m_rotation = glm::normalize(glm::angleAxis(eulerRadians.x, m_up) * m_rotation);
+        if (eulerRadians.z != 0.0f)
+            m_rotation = glm::normalize(glm::angleAxis(eulerRadians.z, m_forward) * m_rotation);
+
+        SetDirty();
+    }
+
+
     void Transform::Init()
     {
     }
