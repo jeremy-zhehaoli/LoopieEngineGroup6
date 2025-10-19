@@ -17,6 +17,8 @@ namespace Loopie
 
 #pragma region Transform Matrix
         matrix4 GetTransformMatrix() const;
+        vec3 LocalToWorldPoint(const vec3& localPoint) const;
+        vec3 WorldToLocalPoint(const vec3& worldPoint) const;
 #pragma endregion
 
 #pragma region Position
@@ -32,11 +34,11 @@ namespace Loopie
         vec3 DegreesGetEulerAngles() const;
         vec3 RadiansGetEulerAngles() const;
 
-        void Quaternion_SetRotation(const quaternion& rotation);
+        void QuaternionSetRotation(const quaternion& rotation);
         void DegreesSetRotation(const vec3& degrees);
         void RadiansSetRotation(const vec3& radians);
 
-        void Quaternion_Rotate(const vec3& eulerDegrees);
+        void QuaternionRotate(const quaternion& quaternion);
         void DegreesRotate(const vec3& eulerDegrees);
         void RadiansRotate(const vec3& eulerRadians);
 
@@ -53,6 +55,8 @@ namespace Loopie
         const vec3& GetScale() const;
         
         void SetScale(const vec3& scale);
+
+        void Scale(const vec3& scale);
 #pragma endregion
 
 #pragma region Vector
@@ -60,26 +64,6 @@ namespace Loopie
         const vec3& Up() const;
         const vec3& Forward() const;
 #pragma endregion
-
-        
-        
-
-
-        
-
-
-
-
-
-
-
-
-
-        vec3 TransformPoint(const vec3& localPoint) const;
-
-        vec3 InverseTransformPoint(const vec3& worldPoint) const;
-
-
 
 
     private:

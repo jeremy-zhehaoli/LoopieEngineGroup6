@@ -64,7 +64,7 @@ namespace Loopie
 		glm::quat yawRotation = glm::normalize(glm::angleAxis(m_yaw, vec3(0, 1, 0))); // global Y up
 		glm::quat pitchRotation = glm::normalize(glm::angleAxis(m_pitch, vec3(1, 0, 0))); // local X
 
-		transform->SetRotation(yawRotation * pitchRotation);
+		transform->QuaternionSetRotation(yawRotation * pitchRotation);
 
 		if (glm::length(m_inputDirection) > 0.001f)
 			transform->Translate(m_inputDirection * m_speedMultiplier * m_directionSpeed * dt);

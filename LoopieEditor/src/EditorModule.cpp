@@ -103,13 +103,13 @@ namespace Loopie
 		camera->ProcessEvent(inputEvent);
 		camera->Update(dt);
 		rotation = SPEED * dt;
-		//meshContainerEntity->GetTransform()->Rotate({0,rotation,0}); //// this should Propagete to its childs
+		meshContainerEntity->GetTransform()->DegreesRotate({0,rotation,0}); //// this should Propagete to its childs
 
 		const matrix4& viewProj = camera->GetCamera()->GetViewProjectionMatrix();
 		for (auto& entity : scene->GetAllEntities()) {
 			MeshRenderer* renderer = entity.second->GetComponent<MeshRenderer>();
 			if (renderer) {
-				//renderer->GetTransform()->Rotate({ 0,rotation,0 }); //// this should Propagete to its childs
+				renderer->GetTransform()->DegreesRotate({ 0,rotation,0 }); //// this should Propagete to its childs
 				glm::mat4 modelViewProj = viewProj * entity.second->GetTransform()->GetTransformMatrix();
 				renderer->GetShader().Bind();
 				renderer->GetShader().SetUniformMat4("modelViewProj", modelViewProj);
