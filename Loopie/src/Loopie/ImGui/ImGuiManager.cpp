@@ -103,87 +103,118 @@ namespace Loopie {
         // ==============================
         // COLOR VARIABLES (Elegant & Neutral)
         // ==============================
-        ImVec4 baseColor = ImVec4(0.11f, 0.11f, 0.12f, 1.00f);
-        ImVec4 panelColor = ImVec4(0.16f, 0.16f, 0.18f, 1.00f);
-        ImVec4 panelHighlight = ImVec4(0.20f, 0.20f, 0.22f, 1.00f);
-
-        ImVec4 accentColor = ImVec4(0.70f, 0.65f, 0.50f, 1.00f); // warm subtle accent
-        ImVec4 accentHover = ImVec4(0.78f, 0.72f, 0.55f, 1.00f);
-        ImVec4 accentActive = ImVec4(0.60f, 0.55f, 0.45f, 1.00f);
-
-        ImVec4 textColor = ImVec4(0.95f, 0.95f, 0.95f, 1.00f);
-        ImVec4 textSecondary = ImVec4(0.60f, 0.60f, 0.65f, 1.00f);
-
-        ImVec4 borderColor = ImVec4(0.30f, 0.30f, 0.32f, 1.00f);
-        ImVec4 shadowColor = ImVec4(0.00f, 0.00f, 0.00f, 0.40f);
-
-        ImVec4 popupColor = ImVec4(0.18f, 0.18f, 0.20f, 0.95f);
-        ImVec4 menuColor = ImVec4(0.15f, 0.15f, 0.17f, 1.00f);
-
-        ImVec4 tabColor = panelColor;
-        ImVec4 tabHoverColor = panelHighlight;
-        ImVec4 tabActiveColor = accentColor;
-
-        ImVec4 selectionColor = ImVec4(0.70f, 0.65f, 0.50f, 0.35f);
-        ImVec4 dragDropColor = ImVec4(0.90f, 0.85f, 0.40f, 0.85f);
-
-        ImVec4 dockingBg = ImVec4(0.13f, 0.13f, 0.15f, 1.00f);
-        ImVec4 dockingPreview = accentColor;
-
-        ImVec4 plotLineColor = ImVec4(0.55f, 0.55f, 0.60f, 1.00f);
-        ImVec4 plotLineHover = accentColor;
-        ImVec4 plotHistogram = ImVec4(0.70f, 0.65f, 0.50f, 0.70f);
-        ImVec4 plotHistogramHover = accentHover;
-
-        // ==============================
-        // APPLY COLORS
-        // ==============================
         ImVec4* colors = style.Colors;
+       
 
-        colors[ImGuiCol_Text] = textColor;
-        colors[ImGuiCol_TextDisabled] = textSecondary;
+		// Base theme colors
+		ImVec4 white = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+		ImVec4 black = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+		ImVec4 grayDark = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+		ImVec4 grayMedium = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+		ImVec4 grayLight1 = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
+		ImVec4 grayLight2 = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+		ImVec4 grayLight3 = ImVec4(0.55f, 0.55f, 0.55f, 1.00f);
+		ImVec4 grayText = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
+		ImVec4 borderColor = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
 
-        colors[ImGuiCol_WindowBg] = baseColor;
-        colors[ImGuiCol_ChildBg] = panelColor;
-        colors[ImGuiCol_PopupBg] = popupColor;
+		// Accent colors
+		ImVec4 accent = ImVec4(0.26f, 0.78f, 0.78f, 1.00f);
+		ImVec4 accentHover = ImVec4(0.35f, 0.88f, 0.88f, 1.00f);
+		ImVec4 accentActive = ImVec4(0.18f, 0.65f, 0.65f, 1.00f);
 
-        colors[ImGuiCol_Border] = borderColor;
-        colors[ImGuiCol_BorderShadow] = shadowColor;
+		// Text Colors
+		colors[ImGuiCol_Text] = white;
+		colors[ImGuiCol_TextDisabled] = grayText;
+		colors[ImGuiCol_TextLink] = accent;
+		colors[ImGuiCol_TextSelectedBg] = ImVec4(accent.x, accent.y, accent.z, 0.35f);
 
-        colors[ImGuiCol_FrameBg] = panelColor;
-        colors[ImGuiCol_FrameBgHovered] = panelHighlight;
-        colors[ImGuiCol_FrameBgActive] = accentActive;
+		// Window Colors
+		colors[ImGuiCol_WindowBg] = grayDark;
+		colors[ImGuiCol_ChildBg] = black;
+		colors[ImGuiCol_PopupBg] = grayMedium;
+		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(black.x, black.y, black.z, 0.60f);
 
-        colors[ImGuiCol_TitleBg] = panelColor;
-        colors[ImGuiCol_TitleBgActive] = panelHighlight;
-        colors[ImGuiCol_TitleBgCollapsed] = panelColor;
+		// Border Colors
+		colors[ImGuiCol_Border] = borderColor;
+		colors[ImGuiCol_BorderShadow] = black;
 
-        colors[ImGuiCol_MenuBarBg] = menuColor;
-        colors[ImGuiCol_ScrollbarBg] = panelColor;
-        colors[ImGuiCol_ScrollbarGrab] = panelHighlight;
-        colors[ImGuiCol_ScrollbarGrabHovered] = accentHover;
-        colors[ImGuiCol_ScrollbarGrabActive] = accentActive;
+		// Frame Colors
+		colors[ImGuiCol_FrameBg] = grayMedium;
+		colors[ImGuiCol_FrameBgHovered] = grayLight1;
+		colors[ImGuiCol_FrameBgActive] = grayLight1;
 
-        colors[ImGuiCol_CheckMark] = accentColor;
-        colors[ImGuiCol_SliderGrab] = accentColor;
-        colors[ImGuiCol_SliderGrabActive] = accentHover;
+		// Title Bar Colors
+		colors[ImGuiCol_TitleBg] = grayDark;
+		colors[ImGuiCol_TitleBgActive] = grayMedium;
+		colors[ImGuiCol_TitleBgCollapsed] = grayDark;
 
-        colors[ImGuiCol_Tab] = tabColor;
-        colors[ImGuiCol_TabHovered] = tabHoverColor;
-        colors[ImGuiCol_TabActive] = tabActiveColor;
-        colors[ImGuiCol_TabUnfocused] = panelColor;
-        colors[ImGuiCol_TabUnfocusedActive] = panelHighlight;
+		// Menu Bar Colors
+		colors[ImGuiCol_MenuBarBg] = grayMedium;
 
-        colors[ImGuiCol_DockingPreview] = dockingPreview;
-        colors[ImGuiCol_DockingEmptyBg] = dockingBg;
+		// Scrollbar Colors
+		colors[ImGuiCol_ScrollbarBg] = grayDark;
+		colors[ImGuiCol_ScrollbarGrab] = grayMedium;
+		colors[ImGuiCol_ScrollbarGrabHovered] = grayLight1;
+		colors[ImGuiCol_ScrollbarGrabActive] = grayLight1;
 
-        colors[ImGuiCol_TextSelectedBg] = selectionColor;
-        colors[ImGuiCol_DragDropTarget] = dragDropColor;
+		// Interactive Element Colors
+		colors[ImGuiCol_CheckMark] = accent;
+		colors[ImGuiCol_SliderGrab] = accent;
+		colors[ImGuiCol_SliderGrabActive] = accentActive;
 
-        colors[ImGuiCol_PlotLines] = plotLineColor;
-        colors[ImGuiCol_PlotLinesHovered] = plotLineHover;
-        colors[ImGuiCol_PlotHistogram] = plotHistogram;
-        colors[ImGuiCol_PlotHistogramHovered] = plotHistogramHover;
+		// Button Colors
+		colors[ImGuiCol_Button] = grayMedium;
+		colors[ImGuiCol_ButtonHovered] = grayLight1;
+		colors[ImGuiCol_ButtonActive] = grayLight2;
+
+		// Header Colors
+		colors[ImGuiCol_Header] = grayMedium;
+		colors[ImGuiCol_HeaderHovered] = grayLight1;
+		colors[ImGuiCol_HeaderActive] = grayLight2;
+
+		// Separator Colors
+		colors[ImGuiCol_Separator] = borderColor;
+		colors[ImGuiCol_SeparatorHovered] = accentHover;
+		colors[ImGuiCol_SeparatorActive] = accentActive;
+
+		// Resize Grip Colors
+		colors[ImGuiCol_ResizeGrip] = ImVec4(accent.x, accent.y, accent.z, 0.20f);
+		colors[ImGuiCol_ResizeGripHovered] = ImVec4(accent.x, accent.y, accent.z, 0.67f);
+		colors[ImGuiCol_ResizeGripActive] = ImVec4(accent.x, accent.y, accent.z, 0.95f);
+
+		// Tab Colors
+		colors[ImGuiCol_Tab] = grayMedium;
+		colors[ImGuiCol_TabHovered] = grayLight2;
+		colors[ImGuiCol_TabSelected] = grayLight2;
+		colors[ImGuiCol_TabSelectedOverline] = white;
+		colors[ImGuiCol_TabDimmed] = grayMedium;
+		colors[ImGuiCol_TabDimmedSelected] = grayMedium;
+		colors[ImGuiCol_TabDimmedSelectedOverline] = grayMedium;
+
+		// Docking Colors
+		colors[ImGuiCol_DockingPreview] = ImVec4(accent.x, accent.y, accent.z, 0.70f);
+		colors[ImGuiCol_DockingEmptyBg] = grayDark;
+
+		// Plot Colors
+		colors[ImGuiCol_PlotLines] = accent;
+		colors[ImGuiCol_PlotLinesHovered] = accentHover;
+		colors[ImGuiCol_PlotHistogram] = accent;
+		colors[ImGuiCol_PlotHistogramHovered] = accentHover;
+
+		// Table Colors
+		colors[ImGuiCol_TableHeaderBg] = grayMedium;
+		colors[ImGuiCol_TableBorderStrong] = borderColor;
+		colors[ImGuiCol_TableBorderLight] = ImVec4(borderColor.x, borderColor.y, borderColor.z, 0.30f);
+		colors[ImGuiCol_TableRowBg] = black;
+		colors[ImGuiCol_TableRowBgAlt] = ImVec4(white.x, white.y, white.z, 0.06f);
+
+		// Drag & Drop Colors
+		colors[ImGuiCol_DragDropTarget] = ImVec4(1.00f, 1.00f, 0.00f, 0.90f); // Yellow highlight
+
+		// Navigation Colors
+		colors[ImGuiCol_NavCursor] = accent;
+		colors[ImGuiCol_NavWindowingHighlight] = ImVec4(white.x, white.y, white.z, 0.70f);
+		colors[ImGuiCol_NavWindowingDimBg] = ImVec4(black.x, black.y, black.z, 0.80f);
     }
 
 }

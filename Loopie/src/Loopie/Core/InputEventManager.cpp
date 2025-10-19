@@ -41,6 +41,11 @@ namespace Loopie {
 		m_mouseDelta = { 0.0f, 0.0f };
 		m_scrollDelta = { 0.0f, 0.0f };
 
+		anyKey = false;
+		anyButton = false;
+		anyMouseButton = false;
+		any = false;
+
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
@@ -53,8 +58,12 @@ namespace Loopie {
 
 			switch (event.type) {
 				case SDL_EVENT_KEY_DOWN:
-					if (!event.key.repeat)
+
+					if (!event.key.repeat) {
 						m_keyboard[event.key.scancode] = KeyState::DOWN;
+						any = true;
+						anyKey = true;
+					}
 					break;
 
 				case SDL_EVENT_KEY_UP:
@@ -63,6 +72,8 @@ namespace Loopie {
 
 				case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
 					m_gamepad[event.gbutton.button] = KeyState::DOWN;
+					any = true;
+					anyButton = true;
 					break;
 
 				case SDL_EVENT_GAMEPAD_BUTTON_UP:
@@ -70,8 +81,11 @@ namespace Loopie {
 					break;
 
 				case SDL_EVENT_MOUSE_BUTTON_DOWN:
-					if (event.button.button <= m_mouse.size())
+					if (event.button.button <= m_mouse.size()) {
 						m_mouse[event.button.button - 1] = KeyState::DOWN;
+						any = true;
+						anyMouseButton = true;
+					}
 					break;
 				case SDL_EVENT_MOUSE_BUTTON_UP:
 					if (event.button.button <= m_mouse.size())

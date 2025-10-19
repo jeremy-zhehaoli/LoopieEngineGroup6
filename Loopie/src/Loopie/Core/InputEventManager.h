@@ -27,6 +27,11 @@ namespace Loopie {
 		KeyState GetGamepadButtonStatus(SDL_GamepadButton controlCode) const;
 		KeyState GetMouseButtonStatus(int mouseIndex) const;
 
+		bool AnyKeyDown() const { return  anyKey; }
+		bool AnyButtonDown() const { return anyButton; }
+		bool AnyMouseButtonDown() const { return anyMouseButton; }
+		bool AnyDown() const { return any; }
+
 		const vec2& GetMousePosition() const;
 		const vec2& GetMouseDelta() const;
 		const vec2& GetScrollDelta() const;
@@ -76,6 +81,11 @@ namespace Loopie {
 		std::array<KeyState, SDL_GAMEPAD_BUTTON_COUNT> m_gamepad;
 		std::array<float, SDL_GAMEPAD_AXIS_COUNT> m_axes;
 		std::array<KeyState, 5> m_mouse;
+
+		bool anyKey=false;
+		bool anyButton = false;
+		bool anyMouseButton = false;
+		bool any = false;
 
 		vec2 m_mousePosition = { 0.0f, 0.0f };
 		vec2 m_mouseDelta = { 0.0f, 0.0f };

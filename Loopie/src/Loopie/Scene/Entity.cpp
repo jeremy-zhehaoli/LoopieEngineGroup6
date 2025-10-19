@@ -122,6 +122,11 @@ namespace Loopie {
 		return m_transform;
 	}
 
+	void Entity::SetUUID(const std::string uuid)
+	{
+		m_uuid = UUID(uuid);
+	}
+
 	void Entity::SetName(const std::string& name)
 	{
 		m_name = name;

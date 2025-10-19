@@ -5,7 +5,8 @@
 //// Test
 #include "Loopie/Core/Log.h"
 #include "Loopie/Render/Renderer.h"
-#include "Loopie/Files/MeshImporter.h"
+#include "Loopie/Importers/MeshImporter.h"
+#include "Loopie/Importers/TextureImporter.h"
 
 #include "Loopie/Core/Math.h"
 #include "Loopie/Resources/ResourceDatabase.h"
@@ -27,14 +28,16 @@ namespace Loopie
 		scene = &Application::GetInstance().GetScene();
 
 		cameraEntity = scene->CreateEntity("Camera");
-		camera = new OrbitalCamera();
-		camera->GetCamera()->GetTransform()->SetPosition({0,0,-50.f});
+		camera = cameraEntity->AddComponent<Camera>();
+		camera->GetTransform()->SetPosition({ 0,0,-50.f });
 
 		meshContainerEntity = scene->CreateEntity("ModelContainer");
 		////
 	
 		ivec2 windowSize = Application::GetInstance().GetWindow().GetSize();
-		
+		camera->SetViewport(0, 0, windowSize.x, windowSize.y);
+
+		m_hierarchy.SetScene(scene);
 	}
 
 	void EditorModule::OnUnload()
@@ -50,7 +53,7 @@ namespace Loopie
 		
 		if (inputEvent.HasEvent(SDL_EVENT_WINDOW_RESIZED)) {
 			ivec2 windowSize = Application::GetInstance().GetWindow().GetSize();
-			camera->GetCamera()->SetViewport(0, 0, windowSize.x, windowSize.y);
+			camera->SetViewport(0, 0, windowSize.x, windowSize.y);
 		}
 		if (inputEvent.GetKeyStatus(SDL_SCANCODE_I) == KeyState::DOWN) {
 			app.SetInterfaceState(!app.IsInterfaceVisible());
@@ -75,8 +78,7 @@ namespace Loopie
 
 						std::shared_ptr<Mesh> mesh = ResourceDatabase::LoadResource<Mesh>(metadata.uuid);
 						if (mesh) {
-							std::shared_ptr<Entity> newEntity = scene->CreateEntity("ModelEntity");
-							newEntity->SetParent(meshContainerEntity);
+							std::shared_ptr<Entity> newEntity = scene->CreateEntity("ModelEntity", meshContainerEntity);
 							MeshRenderer* renderer = newEntity->AddComponent<MeshRenderer>();
 							renderer->SetMesh(mesh);
 						}
@@ -89,27 +91,75 @@ namespace Loopie
 						AssetMetadata* metadata = AssetRegistry::GetMetadata(uuids[i]);
 						std::shared_ptr<Mesh> mesh = ResourceDatabase::LoadResource<Mesh>(metadata->uuid);
 						if (mesh) {
-							std::shared_ptr<Entity> newEntity = scene->CreateEntity("ModelEntity");
-							newEntity->SetParent(meshContainerEntity);
+							std::shared_ptr<Entity> newEntity = scene->CreateEntity("ModelEntity", meshContainerEntity);
 							MeshRenderer* renderer = newEntity->AddComponent<MeshRenderer>();
 							renderer->SetMesh(mesh);
 						}
 					}
 				}
 			}
+			else if(TextureImporter::CheckIfIsImage(fileName)) {
+				if (!AssetRegistry::AssetExists(fileName)) {
+					std::string cacheFile = TextureImporter::LoadImage(fileName);
+					std::filesystem::path path = cacheFile;
+
+					AssetMetadata metadata;
+					metadata.uuid = UUID(path.stem().string());
+					metadata.cachePath = cacheFile;
+					metadata.sourcePath = fileName;
+					AssetRegistry::RegisterAsset(metadata);
+
+					std::shared_ptr<Texture> texture = ResourceDatabase::LoadResource<Texture>(metadata.uuid);
+					if (texture) {
+						for (const auto& entity : meshContainerEntity->GetChildren())
+						{
+							MeshRenderer* renderer = entity->GetComponent<MeshRenderer>();
+							if (renderer) {
+								renderer->SetTexture(texture);
+							}
+						}
+					}
+				}
+				else {
+					std::vector<UUID> uuids = AssetRegistry::GetUUIDFromSourcePath(fileName);
+					for (size_t i = 0; i < uuids.size(); i++)
+					{
+						AssetMetadata* metadata = AssetRegistry::GetMetadata(uuids[i]);
+						std::shared_ptr<Texture> texture = ResourceDatabase::LoadResource<Texture>(metadata->uuid);
+						if (texture) {
+							for (const auto& entity : meshContainerEntity->GetChildren())
+							{
+								MeshRenderer* renderer = entity->GetComponent<MeshRenderer>();
+								if (renderer) {
+									renderer->SetTexture(texture);
+								}
+							}
+						}
+					}
+					
+				}
+			}
 		}
 
+		vec3 moveCameraInput = { 0,0,0 };
+		if (inputEvent.GetKeyStatus(SDL_SCANCODE_W) == KeyState::REPEAT)
+			moveCameraInput.z += 1;
+		if (inputEvent.GetKeyStatus(SDL_SCANCODE_S) == KeyState::REPEAT)
+			moveCameraInput.z -= 1;
+		if (inputEvent.GetKeyStatus(SDL_SCANCODE_A) == KeyState::REPEAT)
+			moveCameraInput.x += 1;
+		if (inputEvent.GetKeyStatus(SDL_SCANCODE_D) == KeyState::REPEAT)
+			moveCameraInput.x -= 1;
 
-		camera->ProcessEvent(inputEvent);
-		camera->Update(dt);
+		camera->GetTransform()->Translate(moveCameraInput * 10.f * dt);
 		rotation = SPEED * dt;
-		meshContainerEntity->GetTransform()->DegreesRotate({0,rotation,0}); //// this should Propagete to its childs
+		//meshContainerEntity->GetTransform()->Rotate({0,rotation,0}); //// this should Propagete to its childs
 
-		const matrix4& viewProj = camera->GetCamera()->GetViewProjectionMatrix();
+		const matrix4& viewProj = camera->GetViewProjectionMatrix();
 		for (auto& entity : scene->GetAllEntities()) {
 			MeshRenderer* renderer = entity.second->GetComponent<MeshRenderer>();
 			if (renderer) {
-				renderer->GetTransform()->DegreesRotate({ 0,rotation,0 }); //// this should Propagete to its childs
+				renderer->GetTransform()->Rotate({ 0,rotation,0 }); //// this should Propagete to its childs
 				glm::mat4 modelViewProj = viewProj * entity.second->GetTransform()->GetTransformMatrix();
 				renderer->GetShader().Bind();
 				renderer->GetShader().SetUniformMat4("modelViewProj", modelViewProj);

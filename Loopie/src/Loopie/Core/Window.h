@@ -5,8 +5,8 @@
 #include <string>
 #include <SDL3/SDL_video.h>
 
-#define WINDOW_DEFAULT_WIDTH 800
-#define WINDOW_DEFAULT_HEIGHT 600
+#define WINDOW_DEFAULT_WIDTH 1600
+#define WINDOW_DEFAULT_HEIGHT 900
 
 
 namespace Loopie {

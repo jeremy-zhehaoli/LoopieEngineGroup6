@@ -20,15 +20,15 @@ namespace Loopie {
 		Entity(const std::string& name);
 		~Entity();
 
-		template<typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>>>
-		T* AddComponent()
+		template<typename T, typename... Args, typename = std::enable_if_t<std::is_base_of_v<Component, T>>>
+		T* AddComponent(Args&&... args)
 		{
 			if constexpr (std::is_same_v<T, Transform>) {
 				if (m_transform)
 					return GetTransform();
 			}
 
-			m_components.push_back(std::make_unique<T>());
+			m_components.push_back(std::make_unique<T>(std::forward<Args>(args)...));
 			T* componentPtr = static_cast<T*>(m_components.back().get());
 
 			componentPtr->m_owner = weak_from_this();
@@ -92,6 +92,7 @@ namespace Loopie {
 		std::vector<Component*> GetComponents() const;
 		Transform* GetTransform() const;
 
+		void SetUUID(const std::string uuid);
 		void SetName(const std::string& name);
 		void SetIsActive(bool active);
 		// If a parent is set up, then it means this is its child and will update it accordingly
