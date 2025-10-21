@@ -29,7 +29,7 @@ namespace Loopie {
 		void Init() override; //// From Component
 	private:
 
-		Shader m_shader = Shader("assets/shaders/CorrectShader.shader");
+		Shader m_shader = Shader("assets/shaders/DefaultShader.shader");
 		std::shared_ptr<Texture> m_texture;
 		std::shared_ptr<Mesh> m_mesh;
 	};

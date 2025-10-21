@@ -12,9 +12,9 @@ namespace Loopie {
 	struct VertexComponents {
 		bool Position = true;
 		bool TexCoord = false;
+		bool Normal = false;
 		bool Tangent = false;
 		bool Color = false;
-		bool Normal = false;
 	};
 
 	class Mesh : public Resource{

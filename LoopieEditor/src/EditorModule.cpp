@@ -5,6 +5,7 @@
 //// Test
 #include "Loopie/Core/Log.h"
 #include "Loopie/Render/Renderer.h"
+#include "Loopie/Render/Gizmo.h"
 #include "Loopie/Importers/MeshImporter.h"
 #include "Loopie/Importers/TextureImporter.h"
 
@@ -50,7 +51,6 @@ namespace Loopie
 		Application& app = Application::GetInstance();
 		InputEventManager& inputEvent = app.GetInputEvent();
 
-		
 		if (inputEvent.HasEvent(SDL_EVENT_WINDOW_RESIZED)) {
 			ivec2 windowSize = Application::GetInstance().GetWindow().GetSize();
 			camera->SetViewport(0, 0, windowSize.x, windowSize.y);
@@ -156,16 +156,19 @@ namespace Loopie
 		//meshContainerEntity->GetTransform()->Rotate({0,rotation,0}); //// this should Propagete to its childs
 
 		const matrix4& viewProj = camera->GetViewProjectionMatrix();
+
+		Renderer::BeginScene(viewProj);
+
 		for (auto& entity : scene->GetAllEntities()) {
 			MeshRenderer* renderer = entity.second->GetComponent<MeshRenderer>();
 			if (renderer) {
 				renderer->GetTransform()->Rotate({ 0,rotation,0 }); //// this should Propagete to its childs
-				glm::mat4 modelViewProj = viewProj * entity.second->GetTransform()->GetTransformMatrix();
 				renderer->GetShader().Bind();
-				renderer->GetShader().SetUniformMat4("modelViewProj", modelViewProj);
+				renderer->GetShader().SetUniformMat4("u_ViewProjection", viewProj);
 				renderer->Render();
 			}
 		}
+		Renderer::EndScene();
 	}
 
 	void EditorModule::OnInterfaceRender()

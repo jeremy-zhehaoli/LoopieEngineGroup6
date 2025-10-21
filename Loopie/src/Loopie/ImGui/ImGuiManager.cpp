@@ -83,6 +83,7 @@ namespace Loopie {
         style.ScrollbarRounding = 3.0f;
         style.GrabRounding = 4.0f;
         style.TabRounding = 4.0f;
+		style.ChildBorderSize = 4.f;
 
         style.ScrollbarSize = 14.0f;
         style.GrabMinSize = 10.0f;
@@ -109,6 +110,7 @@ namespace Loopie {
 		// Base theme colors
 		ImVec4 white = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 		ImVec4 black = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+		ImVec4 grayDarkest = ImVec4(0.07f, 0.07f, 0.07f, 1.00f);
 		ImVec4 grayDark = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
 		ImVec4 grayMedium = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
 		ImVec4 grayLight1 = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
@@ -130,7 +132,7 @@ namespace Loopie {
 
 		// Window Colors
 		colors[ImGuiCol_WindowBg] = grayDark;
-		colors[ImGuiCol_ChildBg] = black;
+		colors[ImGuiCol_ChildBg] = grayDarkest;
 		colors[ImGuiCol_PopupBg] = grayMedium;
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(black.x, black.y, black.z, 0.60f);
 

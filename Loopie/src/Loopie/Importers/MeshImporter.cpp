@@ -85,7 +85,7 @@ namespace Loopie {
 		data.vertexElements += data.components.Normal ? 3 : 0;
 		data.vertexElements += data.components.TexCoord ? 2 : 0;
 		data.vertexElements += data.components.Tangent ? 3 : 0;
-		data.vertexElements += data.components.Color ? 3 : 0;
+		data.vertexElements += data.components.Color ? 4 : 0;
 
 
 
@@ -151,6 +151,7 @@ namespace Loopie {
 				fs.write(reinterpret_cast<const char*>(&c.r), sizeof c.r);
 				fs.write(reinterpret_cast<const char*>(&c.g), sizeof c.g);
 				fs.write(reinterpret_cast<const char*>(&c.b), sizeof c.b);
+				fs.write(reinterpret_cast<const char*>(&c.a), sizeof c.a);
 			}
 
 		}

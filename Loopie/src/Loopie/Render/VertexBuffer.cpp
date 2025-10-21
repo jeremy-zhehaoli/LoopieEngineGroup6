@@ -26,4 +26,10 @@ namespace Loopie
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
+
+	void VertexBuffer::SetData(const void* data, unsigned int size)
+	{
+		Bind();
+		glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+	}
 }

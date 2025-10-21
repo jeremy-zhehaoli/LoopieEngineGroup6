@@ -1,6 +1,7 @@
 #include "MeshRenderer.h"
 
 #include "Loopie/Render/Renderer.h"
+#include "Loopie/Render/Gizmo.h"
 
 namespace Loopie {
 
@@ -9,8 +10,9 @@ namespace Loopie {
 	}
 
 	void MeshRenderer::Render() {
-		if(m_mesh)
-			Renderer::Draw(m_mesh->m_vao, m_shader);
+		if (m_mesh) {
+			Renderer::Draw(m_mesh->m_vao, m_shader, GetTransform());
+		}
 	}
 
 	void MeshRenderer::SetMesh(std::shared_ptr<Mesh> mesh)
@@ -24,7 +26,7 @@ namespace Loopie {
 
 		m_shader.Bind();
 		m_texture->m_tb->Bind();
-		m_shader.SetUniformInt("u_Texture", 0);
+		m_shader.SetUniformInt("u_Albedo", 0);
 		m_shader.Unbind();
 	}
 

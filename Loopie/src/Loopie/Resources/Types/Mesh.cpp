@@ -80,15 +80,15 @@ namespace Loopie {
 		BufferLayout& layout = m_vbo->GetLayout();
 
 		if (m_components.Position)
-			layout.AddLayoutElement(0, GLVariableType::FLOAT, 3, "_Pos");
+			layout.AddLayoutElement(0, GLVariableType::FLOAT, 3, "a_Position");
 		if (m_components.TexCoord)
-			layout.AddLayoutElement(1, GLVariableType::FLOAT, 2, "_TexCoord");
+			layout.AddLayoutElement(1, GLVariableType::FLOAT, 2, "a_TexCoord");
 		if (m_components.Normal)
-			layout.AddLayoutElement(2, GLVariableType::FLOAT, 3, "_Normal");
+			layout.AddLayoutElement(2, GLVariableType::FLOAT, 3, "a_Normal");
 		if (m_components.Tangent)
-			layout.AddLayoutElement(3, GLVariableType::FLOAT, 3, "_Tangent");
+			layout.AddLayoutElement(3, GLVariableType::FLOAT, 3, "a_Tangent");
 		if (m_components.Color)
-			layout.AddLayoutElement(4, GLVariableType::FLOAT, 3, "_Color");
+			layout.AddLayoutElement(4, GLVariableType::FLOAT, 4, "a_Color");
 
 		m_vao->AddBuffer(m_vbo.get(), m_ebo.get());
 	}

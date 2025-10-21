@@ -1,6 +1,8 @@
 #include "Renderer.h"
 
 #include "Loopie/Core/Assert.h"
+#include "Loopie/Components/Transform.h"
+#include "Loopie/Render/Gizmo.h"
 #include <iostream>
 
 #include <glad/glad.h>
@@ -8,6 +10,7 @@
 #include <IL/ilu.h>
 
 namespace Loopie {
+
 	void Renderer::Init(void* context) {
 		ASSERT(!gladLoadGLLoader((GLADloadproc)context), "Failed to Initialize GLAD!");
 
@@ -18,6 +21,13 @@ namespace Loopie {
 		// DevIL Init
 		ilInit();
 		iluInit();
+
+		// Gizmo Data Structure Init
+		Gizmo::Init();
+	}
+
+	void Renderer::Shutdown() {
+		Gizmo::Shutdown();
 	}
 
 	void Renderer::Clear() {
@@ -33,12 +43,20 @@ namespace Loopie {
 		glViewport(x, y, width, height);
 	}
 
+	void Renderer::BeginScene(const matrix4 viewProjectionMatrix)
+	{
+		Gizmo::BeginGizmo(viewProjectionMatrix);
+	}
 
+	void Renderer::EndScene()
+	{
+		Gizmo::EndGizmo();
+	}
 
-	void Renderer::Draw(std::shared_ptr<VertexArray> vao, const Shader& shader) {
+	void Renderer::Draw(std::shared_ptr<VertexArray> vao, Shader& shader, const Transform* transform) {
 		vao->Bind();
 		shader.Bind();
-		//// Bind VAO
+		shader.SetUniformMat4("u_Transform", transform->GetTransformMatrix());
 		glDrawElements(GL_TRIANGLES, vao->GetIndexBuffer().GetCount(), GL_UNSIGNED_INT, nullptr);
 		vao->Unbind();
 	}
