@@ -2,47 +2,64 @@
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <vector>
 
 namespace Loopie {
 	class Log
 	{
 	public:
+        struct LogEntry {
+            int level;
+            std::string msg;
+
+            LogEntry(int level, const std::string& msg)
+                : level(level), msg(msg)
+            {
+            }
+        };
+
 		static void Init();
 
-		template <typename... Args>
-		static void Trace(const char* msg, Args&&... args)
-		{
-			spdlog::trace(msg, std::forward<Args>(args)...);
+        template <typename... Args>
+        static void Trace(const char* msg, Args&&... args) {
+            LogMessage(spdlog::level::trace, fmt::format(msg, std::forward<Args>(args)...));
+        }
+
+        template <typename... Args>
+        static void Info(const char* msg, Args&&... args) {
+            LogMessage(spdlog::level::info, fmt::format(msg, std::forward<Args>(args)...));
+        }
+
+        template <typename... Args>
+        static void Debug(const char* msg, Args&&... args) {
+            LogMessage(spdlog::level::debug, fmt::format(msg, std::forward<Args>(args)...));
+        }
+
+        template <typename... Args>
+        static void Warn(const char* msg, Args&&... args) {
+            LogMessage(spdlog::level::warn, fmt::format(msg, std::forward<Args>(args)...));
+        }
+
+        template <typename... Args>
+        static void Error(const char* msg, Args&&... args) {
+            LogMessage(spdlog::level::err, fmt::format(msg, std::forward<Args>(args)...));
+        }
+
+        template <typename... Args>
+        static void Critical(const char* msg, Args&&... args) {
+            LogMessage(spdlog::level::critical, fmt::format(msg, std::forward<Args>(args)...));
+        }
+
+		static const std::vector<LogEntry>& GetLogEntries() { return s_LogEntries; }
+		static void Clear() { s_LogEntries.clear(); }
+
+	private:
+		static void LogMessage(spdlog::level::level_enum level, const std::string& text) {
+			spdlog::log(level, text);
+			s_LogEntries.emplace_back(LogEntry(level, fmt::format("[{}] {}", spdlog::level::to_string_view(level), text)));
 		}
 
-		template <typename... Args>
-		static void Info(const char* msg, Args&&... args)
-		{
-			spdlog::info(msg, std::forward<Args>(args)...);
-		}
-
-		template <typename... Args>
-		static void Debug(const char* msg, Args&&... args)
-		{
-			spdlog::debug(msg, std::forward<Args>(args)...);
-		}
-
-		template <typename... Args>
-		static void Warn(const char* msg, Args&&... args)
-		{
-			spdlog::warn(msg, std::forward<Args>(args)...);
-		}
-
-		template <typename... Args>
-		static void Error(const char* msg, Args&&... args)
-		{
-			spdlog::error(msg, std::forward<Args>(args)...);
-		}
-
-		template <typename... Args>
-		static void Critical(const char* msg, Args&&... args)
-		{
-			spdlog::critical(msg, std::forward<Args>(args)...);
-		}
+	private:
+		static std::vector<LogEntry> s_LogEntries;
 	};
 }

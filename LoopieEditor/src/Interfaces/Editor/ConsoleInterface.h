@@ -1,6 +1,8 @@
 #pragma once 
 
 #include "src/Interfaces/Interface.h"
+#include "Loopie/Core/Math.h"
+#include <unordered_map>
 
 namespace Loopie {
 	class ConsoleInterface : public Interface {
@@ -8,5 +10,8 @@ namespace Loopie {
 		ConsoleInterface();
 		~ConsoleInterface() = default;
 		void Render() override;
+	
+	private:
+		std::unordered_map<unsigned int, vec4> msgColor;
 	};
 }
