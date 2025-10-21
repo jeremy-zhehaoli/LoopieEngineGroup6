@@ -1,5 +1,6 @@
 #include "Loopie/Core/UUID.h"
 #include "Loopie/Core/Random.h"
+#include "Loopie/Core/Assert.h"
 
 namespace Loopie {
 
@@ -8,6 +9,7 @@ namespace Loopie {
 
     UUID::UUID(const std::string& id)
         : m_id(id) {
+        ASSERT(m_id.size() != UUID_SIZE, "UUID id does not have a correct size of {0}, current size is {1}", UUID_SIZE, m_id.size());
     }
 
     const std::string& UUID::Get() const {
@@ -19,7 +21,7 @@ namespace Loopie {
         const bool dash[] = { 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0 };
 
         std::string res;
-        res.reserve(36);
+        res.reserve(UUID_SIZE);
 
         for (int i = 0; i < 16; i++) {
             if (dash[i]) res += '-';

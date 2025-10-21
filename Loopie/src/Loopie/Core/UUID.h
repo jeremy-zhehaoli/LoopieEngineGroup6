@@ -12,6 +12,10 @@ namespace Loopie {
         static std::string Generate();
 
         bool operator==(const UUID& other) const;
+
+    public:
+        static const unsigned int UUID_SIZE = 36;
+
     private:
         std::string m_id;
     };
