@@ -255,7 +255,7 @@ namespace Loopie {
 				return;
 			}
 		}
-		else {
+		else {			
 			for (auto& entry : std::filesystem::directory_iterator(m_currentDirectory, std::filesystem::directory_options::skip_permission_denied))
 				filesToShow.push_back(entry.path());
 		}
@@ -359,6 +359,11 @@ namespace Loopie {
 				std::filesystem::path fromPath = from;
 				std::filesystem::path newPath = to;
 				newPath /= fromPath.filename().string();
+				if (fromPath == m_currentDirectory) {
+					const Project& project = Application::GetInstance().m_activeProject;
+					GoToDirectory(project.GetAssetsPath());
+				}
+
 				DirectoryManager::Move(fromPath, newPath);
 			}
 			ImGui::EndDragDropTarget();
