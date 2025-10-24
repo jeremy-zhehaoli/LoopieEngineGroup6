@@ -15,7 +15,6 @@ namespace Loopie {
 		~MeshRenderer() = default;
 
 		void Render();
-
 		
 		std::shared_ptr<Mesh> GetMesh() { return m_mesh; }
 		void SetMesh(std::shared_ptr<Mesh> mesh);
@@ -23,6 +22,23 @@ namespace Loopie {
 		std::shared_ptr<Material> GetMaterial() { return m_material; }
 		void SetMaterial(std::shared_ptr <Material> material);
 		void Init() override; //// From Component
+
+
+		///TEST
+		void SetDrawNormalsPerFace(bool value) { m_drawNormalsPerFace = value; }
+		bool GetDrawNormalsPerFace() { return m_drawNormalsPerFace; }
+		void SetDrawNormalsPerTriangle(bool value) { m_drawNormalsPerTriangle = value; }
+		bool GetDrawNormalsPerTriangle() { return m_drawNormalsPerTriangle; }
+		///TEST
+	private:
+		///TEST
+		vec3 GetVertexVec3Data(const MeshData& data, unsigned int vertexIndex, unsigned int offset);
+		void RenderNormalsPerFace(float length, const vec4& color);
+		void RenderNormalsPerTriangle(float length, const vec4& color);
+		bool m_drawNormalsPerFace = false;
+		bool m_drawNormalsPerTriangle = false;
+		///TEST
+
 	private:
 
 		std::shared_ptr <Material> m_material;

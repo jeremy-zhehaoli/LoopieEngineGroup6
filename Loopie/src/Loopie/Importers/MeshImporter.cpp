@@ -94,6 +94,7 @@ namespace Loopie {
 		if (data.HasColor)
 			layout.AddLayoutElement(4, GLVariableType::FLOAT, 4, "a_Color");
 
+		mesh.m_data = data;
 		mesh.m_vao->AddBuffer(mesh.m_vbo.get(), mesh.m_ebo.get());
 	}
 

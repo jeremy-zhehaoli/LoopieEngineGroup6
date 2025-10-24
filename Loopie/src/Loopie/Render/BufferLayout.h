@@ -2,11 +2,11 @@
 
 #include <vector>
 #include <string>
-#include <glad/glad.h>
 
 namespace Loopie {
 
 	enum class GLVariableType {
+		NONE,
 		INT,
 		FLOAT,
 		BOOL
@@ -51,6 +51,11 @@ namespace Loopie {
 		unsigned int GetStride()const { return m_stride; }
 
 		const std::vector <BufferElement>& GetElements()const { return m_layout; }
+		const BufferElement& GetElementByIndex(int index) const{
+			for (size_t i = 0; i < m_layout.size(); i++)
+				if (m_layout[i].Index == index) return m_layout[i];
+			return BufferElement(0,0, GLVariableType::NONE,0);
+		}
 
 	private:
 		std::vector<BufferElement> m_layout;
