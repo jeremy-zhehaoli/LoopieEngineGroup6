@@ -28,6 +28,16 @@ namespace Loopie {
         return truncated_text;
     }
 
+    void ImGuiHelpers::TextCentered(const std::string& text, float align)
+    {
+        const ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
+        const ImVec2 avail = ImGui::GetContentRegionAvail();
+
+        float posX = ImGui::GetCursorPosX() + (avail.x - textSize.x) * align;
+        ImGui::SetCursorPosX(posX);
+        ImGui::Text(text.c_str());
+    }
+
 #pragma region Splitter
     Splitter::Splitter(SplitterMode mode, float ratio, float size, float rounding, int color)
         : m_mode(mode), m_ratio(ratio), m_size(size), m_rounding(rounding), m_colorStyle(color) {

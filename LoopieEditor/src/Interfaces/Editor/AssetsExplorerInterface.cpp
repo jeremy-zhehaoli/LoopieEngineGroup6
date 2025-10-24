@@ -301,7 +301,7 @@ namespace Loopie {
 				flags |= ImGuiSelectableFlags_Highlight;
 			if (ImGui::Selectable("##file", false, flags, ImVec2((float)thumbnailSize, (float)thumbnailSize))) { }
 
-			ImGui::Text(ImGuiHelpers::TruncateText(directory.stem().string(), (float)thumbnailSize).c_str());
+			ImGuiHelpers::TextCentered(ImGuiHelpers::TruncateText(directory.stem().string(), (float)thumbnailSize).c_str(), 0.5f);
 
 			ImGui::NextColumn();
 			ImGui::PopID();

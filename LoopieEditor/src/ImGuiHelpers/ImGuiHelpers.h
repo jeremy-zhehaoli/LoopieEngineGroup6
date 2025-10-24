@@ -10,6 +10,7 @@ namespace Loopie {
     {
     public:
         static std::string TruncateText(const std::string& text, float width);
+        static void TextCentered(const std::string& text, float align = 0.5f);
     };
 
     enum SplitterMode {
