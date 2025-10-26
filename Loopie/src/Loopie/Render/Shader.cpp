@@ -80,6 +80,18 @@ namespace Loopie {
 		glUniform1f(location, value);
 	}
 
+	void Shader::SetUniformMat2(const std::string& name, const Loopie::matrix2& matrix)
+	{
+		if (!CheckIfShaderIsBoundAndWarn()) return;
+		GLint location = GetUniformLocation(name);
+		if (location == -1)
+		{
+			Log::Warn("Uniform '{0}' not found in shader.", name);
+			return;
+		}
+		glUniformMatrix2fv(location, 1, GL_FALSE, &matrix[0][0]);
+	}
+
 	void Shader::SetUniformMat3(const std::string& name, const Loopie::matrix3& matrix)
 	{
 		if (!CheckIfShaderIsBoundAndWarn()) return;
@@ -244,7 +256,7 @@ namespace Loopie {
 		return m_activeAttributesCache;
 	}
 
-	const std::vector<Uniform>& Shader::GetParsedUniforms() const
+	const std::vector<Uniform>& Shader::GetUniforms() const
 	{
 		return m_uniforms;
 	}
@@ -342,6 +354,8 @@ namespace Loopie {
 
 		// Return the new program ID via output parameter
 		programID = newProgram;
+		GetUniformsGL();
+
 		return true;
 	}
 
@@ -470,86 +484,60 @@ namespace Loopie {
 
 		m_isValidShader = !m_vertexSource.empty() && !m_fragmentSource.empty();
 
-		// Parse and cache uniforms
-		if (m_isValidShader)
-		{
-			ParseUniforms();
-		}
-
 		return m_isValidShader;
 	}
 
-	void Shader::ParseUniforms()
+	void Shader::GetUniformsGL()
 	{
 		m_uniforms.clear();
 
-		static const std::unordered_map<std::string, UniformType> typeMap = 
+		static const std::unordered_map<GLenum, UniformType> typeMap =
 		{
-			{"float", UniformType_float},
-			{"int", UniformType_int},
-			{"uint", UniformType_uint},
-			{"bool", UniformType_bool},
-			{"vec2", UniformType_vec2},
-			{"vec3", UniformType_vec3},
-			{"vec4", UniformType_vec4},
-			{"mat2", UniformType_mat2},
-			{"mat3", UniformType_mat3},
-			{"mat4", UniformType_mat4},
-			// Add other sampler types if needed
-			{"sampler2D", UniformType_int},  // Samplers are typically treated as ints
-			{"sampler3D", UniformType_int},
-			{"samplerCube", UniformType_int},
+			{GL_FLOAT, UniformType_float},
+			{GL_INT, UniformType_int},
+			{GL_UNSIGNED_INT, UniformType_uint},
+			{GL_BOOL, UniformType_bool},
+			{GL_FLOAT_VEC2, UniformType_vec2},
+			{GL_FLOAT_VEC3, UniformType_vec3},
+			{GL_FLOAT_VEC4, UniformType_vec4},
+			{GL_FLOAT_MAT2, UniformType_mat2},
+			{GL_FLOAT_MAT3, UniformType_mat3},
+			{GL_FLOAT_MAT4, UniformType_mat4},
+			{GL_SAMPLER_2D, UniformType_Sampler2D}, 
+			{GL_SAMPLER_3D, UniformType_Sampler3D},
+			{GL_SAMPLER_CUBE, UniformType_SamplerCube},
 		};
 
-		std::regex uniformRegex(R"(uniform\s+(\w+)\s+(\w+)\s*;)");
+		GLint numUniforms = 0;
+		glGetProgramiv(m_rendererID, GL_ACTIVE_UNIFORMS, &numUniforms);
 
-		ExtractUniforms(m_vertexSource, typeMap, uniformRegex);
-		ExtractUniforms(m_fragmentSource, typeMap, uniformRegex);
-		if (!m_geometrySource.empty()) 
+		GLint maxNameLength = 0;
+		glGetProgramiv(m_rendererID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
+		std::vector<char> nameBuffer(maxNameLength);
+
+		for (GLint i = 0; i < numUniforms; ++i) 
 		{
-			ExtractUniforms(m_geometrySource, typeMap, uniformRegex);
-		}
-	}
+			GLsizei length = 0;
+			GLint size = 0;
+			GLenum type = 0;
 
-	void Shader::ExtractUniforms(const std::string& parsedShader, const std::unordered_map<std::string, UniformType>& typeMap, 
-								 const std::regex& uniformRegex)
-	{
-		auto begin = std::sregex_iterator(parsedShader.begin(), parsedShader.end(), uniformRegex);
-		auto end = std::sregex_iterator();
+			glGetActiveUniform(m_rendererID, i, maxNameLength, &length, &size, &type, nameBuffer.data());
+			std::string name(nameBuffer.data(), length);
 
-		for (auto it = begin; it != end; ++it) 
-		{
-			std::smatch match = *it;
-			std::string type = match[1].str();
-			std::string name = match[2].str();
-
-			// Skip uniforms variables that start with "lp_" (loopie)
-			if (name.rfind("lp_", 0) == 0) 
+			if (name.rfind("lp_", 0) == 0)
 			{
 				continue;
 			}
 
-			// Check if type is in our map
 			auto typeIt = typeMap.find(type);
-			if (typeIt != typeMap.end()) 
+			if (typeIt != typeMap.end())
 			{
-				// Check if uniform already exists (avoid duplicates across shaders)
-				bool exists = false;
-				for (const auto& uniform : m_uniforms) 
-				{
-					if (uniform.name == name) 
-					{
-						exists = true;
-						break;
-					}
-				}
-
-				if (!exists) {
-					Uniform uniform;
-					uniform.name = name;
-					uniform.type = typeIt->second;
-					m_uniforms.push_back(uniform);
-				}
+				m_uniforms.push_back(Uniform{ name, typeIt->second });
+			}
+			else
+			{
+				Log::Warn("Unknown uniform type {0} for uniform '{1}'", type, name);
+				m_uniforms.push_back(Uniform{ name, UniformType_Unknown }); 
 			}
 		}
 	}

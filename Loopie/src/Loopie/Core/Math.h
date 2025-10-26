@@ -20,6 +20,7 @@ namespace Loopie
     // There also exist uvec (unsigned) if we should ever need those
 
 	// Matrices
+    typedef glm::mat2 matrix2;
 	typedef glm::mat3 matrix3;
 	typedef glm::mat4 matrix4;
 

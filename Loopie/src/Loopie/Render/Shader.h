@@ -28,11 +28,16 @@ enum UniformType
 	UniformType_mat2,
 	UniformType_mat3,
 	UniformType_mat4,
+	UniformType_Sampler2D, // treated as int
+	UniformType_Sampler3D, // treated as int
+	UniformType_SamplerCube, // treated as int?
+
+	UniformType_Unknown
 };
 
 struct Uniform
 {
-	std::string name;
+	std::string id;
 	UniformType type;
 };
 
@@ -54,6 +59,7 @@ namespace Loopie {
 		// Add more if needed: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glUniform.xhtml
 		void SetUniformInt(const std::string& name, int value);
 		void SetUniformFloat(const std::string& name, float value);
+		void SetUniformMat2(const std::string& name, const Loopie::matrix2& matrix);
 		void SetUniformMat3(const std::string& name, const Loopie::matrix3& matrix);
 		void SetUniformMat4(const std::string& name, const Loopie::matrix4& matrix);
 		void SetUniformVec2(const std::string& name, const Loopie::vec2& vector);
@@ -74,7 +80,7 @@ namespace Loopie {
 		const std::string& GetFilePath() const;
 		const std::vector<std::string>& GetActiveUniforms() const;
 		const std::vector<std::string>& GetActiveAttributes() const;
-		const std::vector<Uniform>& GetParsedUniforms() const;
+		const std::vector<Uniform>& GetUniforms() const;
 
 		// Setters
 		void SetPath(const std::string& path);
@@ -90,9 +96,9 @@ namespace Loopie {
 		// Parse GLSL's version of shader string file
 		std::string ParseGLSLVersion(const std::string& source);
 		bool ParseShaderSourcePath(const std::string& filePath);
-		void ParseUniforms();
-		void ExtractUniforms(const std::string& parsedShader, const std::unordered_map<std::string, 
-							 UniformType>& typeMap, const std::regex& uniformRegex);
+		void GetUniformsGL();
+		//void ExtractUniforms(const std::string& parsedShader, const std::unordered_map<std::string, 
+							 //UniformType>& typeMap, const std::regex& uniformRegex);
 		bool CheckIfShaderIsBoundAndWarn();
 
 
