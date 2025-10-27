@@ -6,6 +6,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <filesystem> // Used for checking the extension
 
 namespace Loopie {
@@ -53,19 +54,52 @@ namespace Loopie {
 
 			///Write EnumType
 			///Write Value
-			if (type == "Int") {
 
+			unsigned int enumLength = key.size();
+			fs.write(reinterpret_cast<const char*>(&enumLength), sizeof(enumLength));
+			if (type == "Int") {
+				int data = std::stoi(value);
+				fs.write(reinterpret_cast<const char*>(&data), sizeof(data));
 			}
 			else if (type == "Float") {
-
+				int data = std::stof(value);
+				fs.write(reinterpret_cast<const char*>(&data), sizeof(data));
+			}
+			else if (type == "UInt") {
+				int data = std::stoi(value);
+				fs.write(reinterpret_cast<const char*>(&data), sizeof(data));
 			}
 			else if (type == "Bool") {
+				int data = key == "True" ? 1 : 0;
+				fs.write(reinterpret_cast<const char*>(&data), sizeof(data));
+			}
+			else if (type == "Vec2") {
+				
+				int data = std::stoi(value);
+				fs.write(reinterpret_cast<const char*>(&data), sizeof(data));
+			}
+			else if (type == "Vec3") {
 
 			}
-			else if (type == "Color") {
+			else if (type == "Vec4") {
 
 			}
-			else if (type == "Texture") {
+			else if (type == "Mat2") {
+
+			}
+			else if (type == "Mat3") {
+
+			}
+			else if (type == "Mat4") {
+
+			}
+			else if (type == "Sampler2D") {
+
+			}
+			else if (type == "Sampler3D") {
+
+			}
+			else if (type == "SamplerCube") {
 
 			}
 		}
