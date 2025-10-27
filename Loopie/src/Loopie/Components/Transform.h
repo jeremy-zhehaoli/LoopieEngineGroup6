@@ -1,85 +1,65 @@
-#pragma once
-
-#include "Loopie/Core/Math.h"
 #include "Loopie/Components/Component.h"
-#include <functional>
-
+#include "Loopie/Scene/Entity.h"
+#include "Loopie/Core/Math.h"
+#include <memory>
 namespace Loopie
 {
     class Transform : public Component
     {
     public:
         DEFINE_TYPE(Transform)
-
-        Transform::Transform(const vec3& position = { 0, 0, 0 }, const quaternion& rotation = { 1, 0, 0, 0 }, const vec3& scale = { 1, 1, 1 });
-        Transform::~Transform() = default;
-        void Init() override; //// From Component
-
-#pragma region Transform Matrix
-        matrix4 GetTransformMatrix() const;
-        vec3 LocalToWorldPoint(const vec3& localPoint) const;
-        vec3 WorldToLocalPoint(const vec3& worldPoint) const;
+        Transform(vec3 pos = { 0,0,0 }, quaternion rot = {1,0,0,0}, vec3 sca = {1,1,1});
+        ~Transform() = default;
+        void Init()override;
+#pragma region Transformations
+        void Translate(const vec3& translation, bool local = true);
+        void RotateAxisAngle(const vec3& axis, float angle, bool local = true);
+        void RotateEulerAngles(const vec3& eulerAngles, bool local = true);
+        void LookAt(const Transform* target, const vec3& up);
+        void Scale(const vec3& scaling, bool local = true);
+#pragma endregion
+#pragma region Vectors
+        vec3 Right();
+        vec3 Up();
+        vec3 Forward();  
+#pragma endregion
+#pragma region Matrix
+        matrix4 GetMatrix();
+        void UpdateMatrix();
+#pragma endregion
+#pragma region Get
+        vec3 GetPosition() const;
+        vec3 GetLocalPosition() const;
+        quaternion GetRotation() const;
+        quaternion GetLocalRotation() const;
+        vec3 GetEulerAngles() const;
+        vec3 GetLocalEulerAngles() const;
+        vec3 GetScale() const;
+        vec3 GetLocalScale() const;
+        quaternion GetQuaternion() const;
+#pragma endregion
+#pragma region Set
+        void SetPosition(const vec3& newPosition);
+        void SetRotation(const vec3& newRotation);
+        void SetQuaternion(const quaternion newQuaternion);
+        void SetScale(const vec3& newScale);
 #pragma endregion
 
-#pragma region Position
-        const vec3& GetPosition() const;
-
-        void SetPosition(const vec3& position);
-
-        void Translate(const vec3& translation, bool localSpace = true);
-#pragma endregion
-
-#pragma region Rotation
-        quaternion QuaternionGetRotation() const;
-        vec3 DegreesGetEulerAngles() const;
-        vec3 RadiansGetEulerAngles() const;
-
-        void QuaternionSetRotation(const quaternion& rotation);
-        void DegreesSetRotation(const vec3& degrees);
-        void RadiansSetRotation(const vec3& radians);
-
-        void QuaternionRotate(const quaternion& quaternion);
-        void DegreesRotate(const vec3& eulerDegrees);
-        void RadiansRotate(const vec3& eulerRadians);
-
-        void DegreesRotateAroundAxis(const vec3& axis, float degrees);
-        void RadiansRotateAroundAxis(const vec3& axis, float radians);
-        
-        void LookAt(const vec3& target, const vec3& up = { 0, 1, 0 });
-        
-        void DegreesRotateLocal(const vec3& degrees);
-        void RadiansRotateLocal(const vec3& radians);
-#pragma endregion
-
-#pragma region Scale
-        const vec3& GetScale() const;
-        
-        void SetScale(const vec3& scale);
-
-        void Scale(const vec3& scale);
-#pragma endregion
-
-#pragma region Vector
-        const vec3& Right() const;
-        const vec3& Up() const;
-        const vec3& Forward() const;
-#pragma endregion
-
-
+        quaternion EulerAnglesToQuaternion(const vec3& eulerAngles);
+        void UpdateParent();
     private:
-        void SetDirty() const;
-        void RecalculateCache() const;
-    public:
-        std::function<void()>OnTransformDirty;
+        void Recalculate();
     private:
         vec3 m_position;
+        vec3 m_localPosition;
         quaternion m_rotation;
+        quaternion m_localRotation;
+        vec3 m_eulerAngles;
+        vec3 m_localEulerAngles;
         vec3 m_scale;
+        vec3 m_localScale;
+        matrix4 m_globalMatrix;
 
-        mutable bool m_dirty = true;
-        mutable matrix4 m_matrix;
-        mutable vec3 m_forward;
-        mutable vec3 m_right;
-        mutable vec3 m_up;
+        Transform* m_parentTransform;
     };
 }

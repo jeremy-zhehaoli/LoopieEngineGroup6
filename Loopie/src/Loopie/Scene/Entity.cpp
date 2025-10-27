@@ -102,7 +102,7 @@ namespace Loopie {
 
 	std::weak_ptr<Entity> Entity::GetParent() const
 	{ 
-		return m_parentEntity; 
+		return m_parentEntity;
 	}
 
 	std::vector<Component*> Entity::GetComponents() const
