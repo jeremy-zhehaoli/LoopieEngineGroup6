@@ -14,31 +14,35 @@
 
 
 namespace Loopie {
-	std::vector<std::string> MeshImporter::ImportModel(const std::string& filepath) {
-		std::vector<std::string> outputPaths;
+	void MeshImporter::ImportModel(const std::string& filepath, Metadata& metadata) {
+		if (metadata.HasCache)
+			return;
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(filepath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
 		if (!scene || !scene->mRootNode) {
 			Log::Error("Assimp Error: {0}", importer.GetErrorString());
-			return outputPaths;
+			return;
 		}
 
-		ProcessNode(scene->mRootNode, scene, outputPaths);
-		return outputPaths;
+		ProcessNode(scene->mRootNode, scene, metadata.CachesPath);
+
+		metadata.HasCache = true;
+		MetadataRegistry::SaveMetadata(filepath, metadata);
 	}
 
-	void MeshImporter::LoadModel(const std::string& path,Mesh& mesh)
+	void MeshImporter::LoadModel(const std::string& path ,Mesh& mesh)
 	{
-		std::filesystem::path filepath = path;
-		if (!std::filesystem::exists(path))
+		Project project = Application::GetInstance().m_activeProject;
+		std::filesystem::path filepath = project.GetChachePath() / path;
+		if (!std::filesystem::exists(filepath))
 			return;
 
 
 		/// READ
-		std::ifstream file(path, std::ios::binary);
+		std::ifstream file(filepath, std::ios::binary);
 		if (!file) {
-			Log::Warn("Error opening .mesh file -> {0}", path.c_str());
+			Log::Warn("Error opening .mesh file -> {0}", filepath.string());
 			return;
 		}
 
@@ -47,7 +51,7 @@ namespace Loopie {
 		file.seekg(0, std::ios::beg);
 
 		if (size <= 0) {
-			Log::Warn("Error reading .mesh file -> {0}", path.c_str());
+			Log::Warn("Error reading .mesh file -> {0}", filepath.string());
 			return;
 		}
 
@@ -151,10 +155,11 @@ namespace Loopie {
 
 		///// File Creation
 		Project project = Application::GetInstance().m_activeProject;
-		std::filesystem::path pathToWrite = project.GetChachePath();
 		UUID id;
-		pathToWrite /= "Meshes";
-		pathToWrite /= id.Get() + ".mesh";
+		std::filesystem::path locationPath = "Meshes";
+		locationPath /= id.Get() + ".mesh";
+
+		std::filesystem::path pathToWrite = project.GetChachePath() / locationPath;
 
 		std::ofstream fs(pathToWrite, std::ios::out | std::ios::binary | std::ios::app);
 
@@ -226,6 +231,6 @@ namespace Loopie {
 		fs.close();
 
 
-		return pathToWrite.string();
+		return locationPath.string();
 	}
 }

@@ -9,9 +9,9 @@
 #include <filesystem>
 
 namespace Loopie {
-	Mesh::Mesh(const UUID& id) : Resource(id)
+	Mesh::Mesh(const UUID& id, unsigned int index) : Resource(id)
 	{
-		
+		m_meshIndex = index;
 	}
 	void Mesh::LoadFromFile(const std::string path)
 	{
@@ -20,9 +20,9 @@ namespace Loopie {
 
 	void Mesh::Reload()
 	{
-		AssetMetadata* metadata = AssetRegistry::GetMetadata(GetUUID());
-		if (metadata && metadata->isValid) {
-			LoadFromFile(metadata->cachePath);
+		Metadata* metadata = AssetRegistry::GetMetadata(GetUUID());
+		if (metadata->HasCache && m_meshIndex< metadata->CachesPath.size()) {
+			LoadFromFile(metadata->CachesPath[m_meshIndex]);
 		}
 	}
 }

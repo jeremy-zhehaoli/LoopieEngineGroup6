@@ -298,7 +298,7 @@ namespace Loopie {
         bool ToFile(const std::filesystem::path& filePath, int indent = 4);
 
     private:
-        json m_data;
+        json m_data = json::object();
         bool m_empty = true;
     };
 

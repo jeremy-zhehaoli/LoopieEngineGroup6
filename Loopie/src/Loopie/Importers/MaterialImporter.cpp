@@ -10,12 +10,24 @@
 #include <filesystem> // Used for checking the extension
 
 namespace Loopie {
-	std::string MaterialImporter::ImportMaterial(const std::string& filepath) {
-		std::string outputPath;
+
+	static std::vector<float> ParseNumberList(const std::string& s) {
+		std::vector<float> out;
+		std::stringstream ss(s);
+		std::string item;
+		while (std::getline(ss, item, ',')) {
+			out.push_back(std::stof(item));
+		}
+		return out;
+	}
+
+	void MaterialImporter::ImportMaterial(const std::string& filepath, Metadata& metadata) {
+		if (metadata.HasCache)
+			return;
 
 		JsonData data = Json::ReadFromFile(filepath);
 		if (data.IsEmpty())
-			return "";
+			return;
 
 		JsonResult<std::string> shaderNode = data.GetValue<std::string>("shader");
 		std::string shaderUUID = shaderNode.Result;
@@ -24,10 +36,11 @@ namespace Loopie {
 		std::vector<std::string> propKeys = propertiesNode.GetObjectKeys();
 
 		Project project = Application::GetInstance().m_activeProject;
-		std::filesystem::path pathToWrite = project.GetChachePath();
 		UUID id;
-		pathToWrite /= "Materials";
-		pathToWrite /= id.Get() + ".material";
+		std::filesystem::path locationPath = "Materials";
+		locationPath /= id.Get() + ".material";
+
+		std::filesystem::path pathToWrite = project.GetChachePath() / locationPath;
 
 		std::ofstream fs(pathToWrite, std::ios::out | std::ios::binary | std::ios::app);
 		
@@ -66,58 +79,48 @@ namespace Loopie {
 				fs.write(reinterpret_cast<const char*>(&data), sizeof(data));
 			}
 			else if (type == "UInt") {
-				int data = std::stoi(value);
+				unsigned int data = std::stoul(value);
 				fs.write(reinterpret_cast<const char*>(&data), sizeof(data));
 			}
 			else if (type == "Bool") {
 				int data = key == "True" ? 1 : 0;
 				fs.write(reinterpret_cast<const char*>(&data), sizeof(data));
 			}
-			else if (type == "Vec2") {
-				
-				int data = std::stoi(value);
-				fs.write(reinterpret_cast<const char*>(&data), sizeof(data));
-			}
-			else if (type == "Vec3") {
-
-			}
-			else if (type == "Vec4") {
-
-			}
-			else if (type == "Mat2") {
-
-			}
-			else if (type == "Mat3") {
-
-			}
-			else if (type == "Mat4") {
-
+			else if (type == "Vec2" || type == "Vec3" || type == "Vec4" || type == "Mat2" || type == "Mat3" || type == "Mat4") {		
+				auto nums = ParseNumberList(value);
+				for(const auto& data : nums)
+					fs.write(reinterpret_cast<const char*>(&data), sizeof(data));
 			}
 			else if (type == "Sampler2D") {
-
+				//fs.write(shaderUUID.c_str(), UUID::UUID_SIZE);
 			}
 			else if (type == "Sampler3D") {
-
+				//fs.write(shaderUUID.c_str(), UUID::UUID_SIZE);
 			}
 			else if (type == "SamplerCube") {
-
+				//fs.write(shaderUUID.c_str(), UUID::UUID_SIZE);
 			}
 		}
 
 		fs.close();
-		return outputPath;
+
+		metadata.HasCache = true;
+		metadata.CachesPath.clear();
+		metadata.CachesPath.push_back(locationPath.string());
+		MetadataRegistry::SaveMetadata(filepath, metadata);
 
 	}
 
 	void MaterialImporter::LoadMaterial(const std::string& path, Material& material) {
-		std::filesystem::path filepath = path;
-		if (!std::filesystem::exists(path))
+		Project project = Application::GetInstance().m_activeProject;
+		std::filesystem::path filepath = project.GetChachePath() / path;
+		if (!std::filesystem::exists(filepath))
 			return;
 
 		/// READ
-		std::ifstream file(path, std::ios::binary);
+		std::ifstream file(filepath, std::ios::binary);
 		if (!file) {
-			Log::Warn("Error opening .material file -> {0}", path.c_str());
+			Log::Warn("Error opening .material file -> {0}", filepath.string());
 			return;
 		}
 
@@ -126,7 +129,7 @@ namespace Loopie {
 		file.seekg(0, std::ios::beg);
 
 		if (size <= 0) {
-			Log::Warn("Error reading .material file -> {0}", path.c_str());
+			Log::Warn("Error reading .material file -> {0}", filepath.string());
 			return;
 		}
 
@@ -148,13 +151,65 @@ namespace Loopie {
 			file.read(propertyName.data(), sizeof propertyNameLength);
 
 			//// ReadEnume
+			unsigned int typeLength = 0;
+			file.read(reinterpret_cast<char*>(&typeLength), sizeof(typeLength));
+			std::string type(typeLength, '\0');
+			file.read(&type[0], typeLength);
 
-			switch (0 /*EnumType*/)
-			{
-				////TypeReadMode
-			default:
-				break;
+
+			UniformValue uv{};
+
+			if (type == "Int") {
+				int32_t v; file.read(reinterpret_cast<char*>(&v), sizeof(v));
+				uv.type = UniformType_int; uv.value = v;
 			}
+			else if (type == "Float") {
+				float v; file.read(reinterpret_cast<char*>(&v), sizeof(v));
+				uv.type = UniformType_float; uv.value = v;
+			}
+			else if (type == "UInt") {
+				uint32_t v; file.read(reinterpret_cast<char*>(&v), sizeof(v));
+				uv.type = UniformType_uint; uv.value = v;
+			}
+			else if (type == "Bool") {
+				uint8_t b; file.read(reinterpret_cast<char*>(&b), sizeof(b));
+				uv.type = UniformType_bool; uv.value = (b != 0);
+			}
+			else if (type == "Vec2") {
+				float v[2]; file.read(reinterpret_cast<char*>(v), sizeof(v));
+				uv.type = UniformType_vec2; uv.value = vec2(v[0], v[1]);
+			}
+			else if (type == "Vec3") {
+				float v[3]; file.read(reinterpret_cast<char*>(v), sizeof(v));
+				uv.type = UniformType_vec3; uv.value = vec3(v[0], v[1], v[2]);
+			}
+			else if (type == "Vec4") {
+				float v[4]; file.read(reinterpret_cast<char*>(v), sizeof(v));
+				uv.type = UniformType_vec4; uv.value = vec4(v[0], v[1], v[2], v[3]);
+			}
+			else if (type == "Mat2") {
+				float v[4]; file.read(reinterpret_cast<char*>(v), sizeof(v));
+				uv.type = UniformType_mat2; uv.value = matrix2(v[0], v[1], v[2], v[3]);
+			}
+			else if (type == "Mat3") {
+				float v[9]; file.read(reinterpret_cast<char*>(v), sizeof(v));
+				uv.type = UniformType_mat3; uv.value = matrix3(v[0], v[1], v[2], v[3], v[4],v[5], v[6], v[7], v[8]);
+			}
+			else if (type == "Mat4") {
+				float v[16]; file.read(reinterpret_cast<char*>(v), sizeof(v));
+				uv.type = UniformType_mat4; uv.value = matrix4(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]);
+			}
+			else if (type == "Sampler2D" ) {
+
+			}
+			else if (type == "Sampler3D") {
+
+			}
+			else if (type == "SamplerCube") {
+
+			}
+
+			material.SetShaderVariable(propertyName, uv);
 		}
 
 		file.close();

@@ -30,8 +30,8 @@ namespace Loopie {
 		void DrawFooter();
 		std::vector<std::filesystem::path> GetFilteredFiles();
 
-		void DragFile(std::string from);
-		void DropFile(std::string to);
+		void DragFile(const std::string& from);
+		void DropFile(const std::string& to);
 
 	private:
 		std::filesystem::path m_currentDirectory;

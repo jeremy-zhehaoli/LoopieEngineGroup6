@@ -11,9 +11,10 @@
 #include <IL/ilu.h>
 
 namespace Loopie {
-	std::string TextureImporter::ImportImage(const std::string& filepath)
+	void TextureImporter::ImportImage(const std::string& filepath, Metadata& metadata)
 	{
-		std::string outputPath;
+		if (metadata.HasCache)
+			return;
 
 		ILuint imageID;
 		ilGenImages(1, &imageID);
@@ -32,7 +33,7 @@ namespace Loopie {
 			{
 				Log::Error("Failed to convert image {0}", filepath);
 				ilDeleteImages(1, &imageID);
-				return "";
+				return;
 			}
 
 			int width = ilGetInteger(IL_IMAGE_WIDTH);
@@ -41,12 +42,12 @@ namespace Loopie {
 
 			ILubyte* data = ilGetData();
 
-
 			Project project = Application::GetInstance().m_activeProject;
-			std::filesystem::path pathToWrite = project.GetChachePath();
 			UUID id;
-			pathToWrite /= "Textures";
-			pathToWrite /= id.Get() + ".texture";
+			std::filesystem::path locationPath = "Textures";
+			locationPath /= id.Get() + ".texture";
+
+			std::filesystem::path pathToWrite = project.GetChachePath() / locationPath;
 
 			std::ofstream fs(pathToWrite, std::ios::out | std::ios::binary | std::ios::app);
 
@@ -60,7 +61,11 @@ namespace Loopie {
 			fs.close();
 
 			ilDeleteImages(1, &imageID);
-			return pathToWrite.string();
+
+			metadata.HasCache = true;
+			metadata.CachesPath.clear();
+			metadata.CachesPath.push_back(locationPath.string());
+			MetadataRegistry::SaveMetadata(filepath, metadata);
 		}
 		else
 		{
@@ -68,20 +73,21 @@ namespace Loopie {
 			ilDeleteImages(1, &imageID);
 		}
 
-		return "";
+		return;
 	}
 
 	void TextureImporter::LoadImage(const std::string& path, Texture& texture)
 	{
-		std::filesystem::path filepath = path;
-		if (!std::filesystem::exists(path))
+		Project project = Application::GetInstance().m_activeProject;
+		std::filesystem::path filepath = project.GetChachePath() / path;
+		if (!std::filesystem::exists(filepath))
 			return;
 
 
 		/// READ
-		std::ifstream file(path, std::ios::binary);
+		std::ifstream file(filepath, std::ios::binary);
 		if (!file) {
-			Log::Warn("Error opening .texture file -> {0}", path.c_str());
+			Log::Warn("Error opening .texture file -> {0}", filepath.string());
 			return;
 		}
 
@@ -90,7 +96,7 @@ namespace Loopie {
 		file.seekg(0, std::ios::beg);
 
 		if (size <= 0) {
-			Log::Warn("Error reading .texture file -> {0}", path.c_str());
+			Log::Warn("Error reading .texture file -> {0}", filepath.string());
 			return;
 		}
 

@@ -33,7 +33,7 @@ namespace Loopie
             if (inputEvent.GetMouseButtonStatus(0) == KeyState::REPEAT)
             {
                // Log::Info("Entering Alt + Mouse 0");
-                m_inputRotation = vec3(-mouseDelta.x, -mouseDelta.y, 0);
+                m_inputRotation = vec3(mouseDelta.x, mouseDelta.y, 0);
             }
             if (inputEvent.GetMouseButtonStatus(1) == KeyState::REPEAT)
             {
@@ -56,7 +56,7 @@ namespace Loopie
             if (inputEvent.GetMouseButtonStatus(2) == KeyState::REPEAT)
             {
                 m_entityToPivot = m_entity;
-                m_inputRotation = vec3(-mouseDelta.x, -mouseDelta.y, 0);
+                m_inputRotation = vec3(mouseDelta.x, mouseDelta.y, 0);
 
                 if (inputEvent.GetKeyStatus(SDL_SCANCODE_LSHIFT) == KeyState::REPEAT)
                     m_speedMultiplier = 2.0f;

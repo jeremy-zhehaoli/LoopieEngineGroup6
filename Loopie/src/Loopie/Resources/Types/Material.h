@@ -43,6 +43,7 @@ namespace Loopie
 		UniformValue GetDefaultValue(UniformType type) const;
 		void ApplyUniform(const std::string& name, const UniformValue& uniformValue);
 
+
 	private:
 		Shader m_shader = Shader("assets/shaders/DefaultShader.shader");
 		std::shared_ptr<Texture> m_texture;

@@ -31,7 +31,7 @@ namespace Loopie {
 	public :
 		DEFINE_TYPE(Mesh)
 
-		Mesh(const UUID& id);
+		Mesh(const UUID& id, unsigned int index);
 		~Mesh() = default;
 
 		void LoadFromFile(const std::string path) override;
@@ -42,6 +42,8 @@ namespace Loopie {
 		std::shared_ptr<VertexArray> m_vao;
 		std::shared_ptr<VertexBuffer> m_vbo;
 		std::shared_ptr<IndexBuffer> m_ebo;
+
+		unsigned int m_meshIndex = 0;
 
 	};
 }

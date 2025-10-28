@@ -3,9 +3,11 @@
 #include "Loopie/Core/Application.h"
 #include "Loopie/Files/DirectoryManager.h"
 #include "Loopie/Resources/AssetRegistry.h"
-#include "Loopie/Resources/ResourceDatabase.h"
-#include "Loopie/Importers/TextureImporter.h"
 #include "Loopie/Resources/Types/Texture.h"
+
+#include "Loopie/Importers/TextureImporter.h"
+#include "Loopie/Importers/MaterialImporter.h"
+#include "Loopie/Importers/MeshImporter.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -17,30 +19,27 @@ namespace Loopie {
 	}
 
 	void AssetsExplorerInterface::Init()
-	{
-		std::string iconPath = "assets/icons/icon_file.png";
-		if (!AssetRegistry::AssetExists(iconPath)) {
-			std::string cacheFile = TextureImporter::ImportImage(iconPath);
-			AssetMetadata metadata = AssetRegistry::CreateAssetMetadata(iconPath, cacheFile);
-			AssetRegistry::RegisterAsset(metadata);
-		}
-		m_fileIcon = ResourceDatabase::LoadResource<Texture>(AssetRegistry::GetUUIDFromSourcePath(iconPath)[0]);
+	{	
+		std::vector<std::string> iconsToLoad = {
+			"assets/icons/icon_file.png",
+			"assets/icons/icon_folder.png",
+			"assets/icons/icon_folderFill.png"
+		};
 
-		iconPath = "assets/icons/icon_folder.png";
-		if (!AssetRegistry::AssetExists(iconPath)) {
-			std::string cacheFile = TextureImporter::ImportImage(iconPath);
-			AssetMetadata metadata = AssetRegistry::CreateAssetMetadata(iconPath, cacheFile);
-			AssetRegistry::RegisterAsset(metadata);
+		for (size_t i = 0; i < iconsToLoad.size(); i++)
+		{
+			Metadata& meta = AssetRegistry::GetOrCreateMetadata(iconsToLoad[i]);
+			TextureImporter::ImportImage(iconsToLoad[i], meta);
 		}
-		m_emptyFolderIcon = ResourceDatabase::LoadResource<Texture>(AssetRegistry::GetUUIDFromSourcePath(iconPath)[0]);
+		
+		m_fileIcon = std::make_shared<Texture>(AssetRegistry::GetMetadata(iconsToLoad[0])->UUID);
+		m_fileIcon->Reload();
 
-		iconPath = "assets/icons/icon_folderFill.png";
-		if (!AssetRegistry::AssetExists(iconPath)) {
-			std::string cacheFile = TextureImporter::ImportImage(iconPath);
-			AssetMetadata metadata = AssetRegistry::CreateAssetMetadata(iconPath, cacheFile);
-			AssetRegistry::RegisterAsset(metadata);
-		}
-		m_folderIcon = ResourceDatabase::LoadResource<Texture>(AssetRegistry::GetUUIDFromSourcePath(iconPath)[0]);
+		m_folderIcon = std::make_shared<Texture>(AssetRegistry::GetMetadata(iconsToLoad[1])->UUID);
+		m_folderIcon->Reload();
+
+		m_emptyFolderIcon = std::make_shared<Texture>(AssetRegistry::GetMetadata(iconsToLoad[2])->UUID);
+		m_emptyFolderIcon->Reload();
 
 		const Project& project = Application::GetInstance().m_activeProject;
 		GoToDirectory(project.GetAssetsPath());
@@ -296,8 +295,11 @@ namespace Loopie {
 			}
 		}
 		else {			
-			for (auto& entry : std::filesystem::directory_iterator(m_currentDirectory, std::filesystem::directory_options::skip_permission_denied))
+			for (auto& entry : std::filesystem::directory_iterator(m_currentDirectory, std::filesystem::directory_options::skip_permission_denied)) {
+				if(MetadataRegistry::IsMetadataFile(entry.path()))
+					continue;
 				filesToShow.push_back(entry.path());
+			}
 		}
 
 		for (auto& directory : filesToShow) {
@@ -366,6 +368,8 @@ namespace Loopie {
 
 		for (auto& entry : std::filesystem::recursive_directory_iterator(project.GetAssetsPath(), std::filesystem::directory_options::skip_permission_denied))
 		{
+			if (MetadataRegistry::IsMetadataFile(entry.path()))
+				continue;
 			const auto& filePath = entry.path();
 			std::string fileName = filePath.filename().string();
 
@@ -380,7 +384,7 @@ namespace Loopie {
 		}
 		return results;
 	}
-	void AssetsExplorerInterface::DragFile(std::string from)
+	void AssetsExplorerInterface::DragFile(const std::string& from)
 	{
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceNoDisableHover | ImGuiDragDropFlags_SourceAllowNullID))
 		{
@@ -389,7 +393,7 @@ namespace Loopie {
 			ImGui::EndDragDropSource();
 		}
 	}
-	void AssetsExplorerInterface::DropFile(std::string to)
+	void AssetsExplorerInterface::DropFile(const std::string& to)
 	{
 		if (ImGui::BeginDragDropTarget())
 		{

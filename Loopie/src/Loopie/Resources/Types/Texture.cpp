@@ -20,9 +20,9 @@ namespace Loopie {
 
 	void Texture::Reload()
 	{
-		AssetMetadata* metadata = AssetRegistry::GetMetadata(GetUUID());
-		if (metadata && metadata->isValid) {
-			LoadFromFile(metadata->cachePath);
+		Metadata* metadata = AssetRegistry::GetMetadata(GetUUID());
+		if (metadata->HasCache) {
+			LoadFromFile(metadata->CachesPath[0]);
 		}
 	}
 }

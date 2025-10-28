@@ -10,7 +10,6 @@
 #include "Loopie/Importers/TextureImporter.h"
 
 #include "Loopie/Core/Math.h"
-#include "Loopie/Resources/ResourceDatabase.h"
 #include "Loopie/Resources/AssetRegistry.h"
 ///
 
@@ -115,85 +114,40 @@ namespace Loopie
 	}
 
 	void EditorModule::DropFile(const std::string& file) {
+
+		Metadata& meta = AssetRegistry::GetOrCreateMetadata(file);
+
 		if (MeshImporter::CheckIfIsModel(file.c_str())) {
+			MeshImporter::ImportModel(file, meta);
+			for (size_t i = 0; i < meta.CachesPath.size(); i++)
+			{
+				std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(meta.UUID, i);
 
-			if (!AssetRegistry::AssetExists(file)) {
-				std::vector<std::string> cacheFiles = MeshImporter::ImportModel(file);
-
-				for (size_t i = 0; i < cacheFiles.size(); i++)
-				{
-					AssetMetadata metadata = AssetRegistry::CreateAssetMetadata(file, cacheFiles[i]);
-					AssetRegistry::RegisterAsset(metadata);
-
-					std::shared_ptr<Mesh> mesh = ResourceDatabase::LoadResource<Mesh>(metadata.uuid);
-					if (mesh) {
-						std::shared_ptr<Entity> newEntity = scene->CreateEntity("ModelEntity", meshContainerEntity);
-						MeshRenderer* renderer = newEntity->AddComponent<MeshRenderer>();
-						renderer->SetMesh(mesh);
-					}
-				}
-			}
-			else {
-				std::vector<UUID> uuids = AssetRegistry::GetUUIDFromSourcePath(file);
-				for (size_t i = 0; i < uuids.size(); i++)
-				{
-					AssetMetadata* metadata = AssetRegistry::GetMetadata(uuids[i]);
-					std::shared_ptr<Mesh> mesh = ResourceDatabase::LoadResource<Mesh>(metadata->uuid);
-					if (mesh) {
-						std::shared_ptr<Entity> newEntity = scene->CreateEntity("ModelEntity", meshContainerEntity);
-						MeshRenderer* renderer = newEntity->AddComponent<MeshRenderer>();
-						renderer->SetMesh(mesh);
-					}
+				if (mesh) {
+					mesh->Reload();
+					std::shared_ptr<Entity> newEntity = scene->CreateEntity("ModelEntity", meshContainerEntity);
+					MeshRenderer* renderer = newEntity->AddComponent<MeshRenderer>();
+					renderer->SetMesh(mesh);
 				}
 			}
 		}
 		else if (TextureImporter::CheckIfIsImage(file.c_str())) {
-			if (!AssetRegistry::AssetExists(file)) {
-				std::string cacheFile = TextureImporter::ImportImage(file);
-				AssetMetadata metadata = AssetRegistry::CreateAssetMetadata(file, cacheFile);
-				AssetRegistry::RegisterAsset(metadata);
-				AssetRegistry::RegisterAsset(metadata);
-
-				std::shared_ptr<Texture> texture = ResourceDatabase::LoadResource<Texture>(metadata.uuid);
-				if (texture) {
-					if (m_hierarchy.s_SelectedEntity != nullptr) {
-						MeshRenderer* renderer = m_hierarchy.s_SelectedEntity->GetComponent<MeshRenderer>();
-						if (renderer) {
-							renderer->GetMaterial()->SetTexture(texture);
-						}
-					}
-					else {
-						for (const auto& entity : meshContainerEntity->GetChildren())
-						{
-							MeshRenderer* renderer = entity->GetComponent<MeshRenderer>();
-							if (renderer) {
-								renderer->GetMaterial()->SetTexture(texture);
-							}
-						}
+			TextureImporter::ImportImage(file, meta);
+			std::shared_ptr<Texture> texture = std::make_shared<Texture>(meta.UUID);
+			if (texture) {
+				texture->Reload();
+				if (m_hierarchy.s_SelectedEntity != nullptr) {
+					MeshRenderer* renderer = m_hierarchy.s_SelectedEntity->GetComponent<MeshRenderer>();
+					if (renderer) {
+						renderer->GetMaterial()->SetTexture(texture);
 					}
 				}
-			}
-			else {
-				std::vector<UUID> uuids = AssetRegistry::GetUUIDFromSourcePath(file);
-				for (size_t i = 0; i < uuids.size(); i++)
-				{
-					AssetMetadata* metadata = AssetRegistry::GetMetadata(uuids[i]);
-					std::shared_ptr<Texture> texture = ResourceDatabase::LoadResource<Texture>(metadata->uuid);
-					if (texture) {
-						if (m_hierarchy.s_SelectedEntity != nullptr) {
-							MeshRenderer* renderer = m_hierarchy.s_SelectedEntity->GetComponent<MeshRenderer>();
-							if (renderer) {
-								renderer->GetMaterial()->SetTexture(texture);
-							}
-						}
-						else {
-							for (const auto& entity : meshContainerEntity->GetChildren())
-							{
-								MeshRenderer* renderer = entity->GetComponent<MeshRenderer>();
-								if (renderer) {
-									renderer->GetMaterial()->SetTexture(texture);
-								}
-							}
+				else {
+					for (const auto& entity : meshContainerEntity->GetChildren())
+					{
+						MeshRenderer* renderer = entity->GetComponent<MeshRenderer>();
+						if (renderer) {
+							renderer->GetMaterial()->SetTexture(texture);
 						}
 					}
 				}

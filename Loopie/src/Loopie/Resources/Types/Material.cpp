@@ -1,6 +1,6 @@
 #include "Material.h"
 
-#include "Loopie/Resources/ResourceDatabase.h"
+#include "Loopie/Resources/AssetRegistry.h"
 #include "Loopie/Importers/TextureImporter.h"
 #include "Loopie/Core/Log.h"
 
@@ -10,12 +10,9 @@ namespace Loopie
 	{
 
 		std::string defaultTeturePath = "assets/textures/simpleWhiteTexture.png";
-		if (!AssetRegistry::AssetExists(defaultTeturePath)) {
-			std::string cacheFile = TextureImporter::ImportImage(defaultTeturePath);
-			AssetMetadata metadata = AssetRegistry::CreateAssetMetadata(defaultTeturePath, cacheFile);
-			AssetRegistry::RegisterAsset(metadata);
-		}
-		m_defaultTexture = ResourceDatabase::LoadResource<Texture>(AssetRegistry::GetUUIDFromSourcePath(defaultTeturePath)[0]);
+		Metadata& meta = AssetRegistry::GetOrCreateMetadata(defaultTeturePath);
+		TextureImporter::ImportImage(defaultTeturePath, meta);
+		m_defaultTexture = std::make_shared<Texture>(meta.UUID);
 
 		InitMaterial();
 	}

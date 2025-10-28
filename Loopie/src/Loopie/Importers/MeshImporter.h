@@ -1,5 +1,6 @@
 #pragma once
 #include "Loopie/Resources/Types/Mesh.h"
+#include "Loopie/Resources/MetadataRegistry.h"
 
 #include <memory>
 #include <vector>
@@ -9,7 +10,7 @@
 namespace Loopie {
 	class MeshImporter {
 	public:
-		static std::vector<std::string> ImportModel(const std::string& filepath);
+		static void ImportModel(const std::string& filepath, Metadata& metadata);
 		static void LoadModel(const std::string& path, Mesh& mesh);
 		static bool CheckIfIsModel(const char* path);
 
