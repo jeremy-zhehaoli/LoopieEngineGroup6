@@ -28,6 +28,7 @@ namespace Loopie {
 											const std::string& name = "Entity");
 		
 		void RemoveEntity(UUID uuid);
+		void RemoveEntity(std::shared_ptr<Entity> entity);
 		// Name should be trimmed out of spaces for changename to work
 		
 		std::shared_ptr<Entity> GetRootEntity() const;
@@ -42,8 +43,9 @@ namespace Loopie {
 	private:
 		void ReadAndLoadSceneFile();
 		std::string GetUniqueName(std::shared_ptr<Entity> parentEntity, const std::string& desiredName);
-		void Scene::CollectEntitiesRecursive(std::shared_ptr<Entity> entity,
-											 std::vector<std::shared_ptr<Entity>>& outEntities) const;
+		void CollectEntitiesRecursive(std::shared_ptr<Entity> entity,
+									  std::vector<std::shared_ptr<Entity>>& outEntities) const;
+		void RemoveEntityRecursive(std::shared_ptr<Entity> parent);
 
 	private:
 		std::unordered_map<UUID, std::shared_ptr<Entity>> m_entities; // Fast lookup

@@ -99,6 +99,9 @@ namespace Loopie {
 		void SetParent(const std::shared_ptr<Entity>& parent);
 
 	private:
+		void GetRecursiveChildren(std::vector<std::shared_ptr<Entity>>& childrenEntities);
+
+	private:
 		std::weak_ptr<Entity> m_parentEntity;
 		std::vector<std::shared_ptr<Entity>> m_childrenEntities;
 		std::vector<std::unique_ptr<Component>> m_components; // Might want to re-do this to a map for optimization

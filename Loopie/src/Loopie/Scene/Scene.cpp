@@ -83,16 +83,18 @@ namespace Loopie {
 	void Scene::RemoveEntity(UUID uuid)
 	{
 		auto it = m_entities.find(uuid);
-		if (it == m_entities.end()) return;
+		if (it == m_entities.end())
+			return;
 
-		std::shared_ptr<Entity> entity = it->second;
+		RemoveEntityRecursive(it->second);
+	}
 
-		if (std::shared_ptr<Entity> parent = entity->GetParent().lock())
-		{
-			parent->RemoveChild(uuid);
-		}
+	void Scene::RemoveEntity(std::shared_ptr<Entity> entity)
+	{
+		if (!entity) 
+			return;
 
-		m_entities.erase(uuid);
+		RemoveEntityRecursive(entity);
 	}
 
 	std::shared_ptr<Entity> Scene::GetRootEntity() const
@@ -194,5 +196,25 @@ namespace Loopie {
 		{
 			CollectEntitiesRecursive(child, outEntities);
 		}
+	}
+
+	void Scene::RemoveEntityRecursive(std::shared_ptr<Entity> entity)
+	{
+		if (!entity) 
+			return;
+
+		auto children = entity->GetChildren(); // Making a copy instead of referencing just in case
+
+		for (const auto& child : children)
+		{
+			RemoveEntityRecursive(child);
+		}
+
+		if (std::shared_ptr<Entity> parent = entity->GetParent().lock())
+		{
+			parent->RemoveChild(entity->GetUUID());
+		}
+
+		m_entities.erase(entity->GetUUID());
 	}
 }

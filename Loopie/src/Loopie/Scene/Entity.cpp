@@ -2,6 +2,7 @@
 
 #include "Loopie/Components/Component.h"
 #include "Loopie/Components/Transform.h"
+#include "Loopie/Core/Log.h"
 
 namespace Loopie {
 	Entity::Entity(const std::string& name) : m_name(name)
@@ -139,15 +140,49 @@ namespace Loopie {
 
 	void Entity::SetParent(const std::shared_ptr<Entity>& parent)
 	{
-		std::shared_ptr<Entity> parentEntity = m_parentEntity.lock();
-		if (parentEntity)
+		// Prevents parenting to its own son
+		if (parent == shared_from_this())
 		{
-			parentEntity->RemoveChild(shared_from_this());
+			Log::Warn("Cannot parent entity to itself.");
+			return;
 		}
+
+		if (parent)
+		{
+			std::vector<std::shared_ptr<Entity>> allChildren;
+			GetRecursiveChildren(allChildren);
+
+			for (const auto& child : allChildren)
+			{
+				if (parent == child) 
+				{
+					Log::Warn("Cannot parent entity to one of its descendants, as it would create an infinite loop.");
+					return;
+				}
+			}
+		}
+
+
+		std::shared_ptr<Entity> currentParent = m_parentEntity.lock();
+		if (currentParent)
+		{
+			currentParent->RemoveChild(shared_from_this());
+		}
+
+		m_parentEntity = parent;
 
 		if (parent && (parent != shared_from_this()))
 		{
 			parent->AddChild(shared_from_this());
+		}
+	}
+
+	void Entity::GetRecursiveChildren(std::vector<std::shared_ptr<Entity>>& childrenEntities) 
+	{
+		for (const auto& child : m_childrenEntities)
+		{
+			childrenEntities.push_back(child);
+			child->GetRecursiveChildren(childrenEntities);
 		}
 	}
 }
