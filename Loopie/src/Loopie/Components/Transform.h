@@ -32,14 +32,9 @@ namespace Loopie
         void SetLocalEulerAngles(const vec3& euler_degrees);
         void SetLocalScale(const vec3& scale);
 
+		void SetWorldMatrix(const matrix4& worldMatrix);
         const matrix4& GetLocalToWorldMatrix() const;
-        float* GetLocalToWorldMatrixPtr() const;
         const matrix4& GetWorldToLocalMatrix() const;
-        float* GetWorldToLocalMatrixPtr() const;
-
-        vec3 GetWorldPosition() const;
-        quaternion GetWorldRotation() const;
-        vec3 GetWorldScale() const;
 
         void SetWorldPosition(const vec3& position);
         void SetWorldRotation(const quaternion& quat);
@@ -64,6 +59,11 @@ namespace Loopie
         void ForceRefreshMatrices();
 
     private:
+
+        vec3 GetWorldPosition() const;
+        quaternion GetWorldRotation() const;
+        vec3 GetWorldScale() const;
+
         void RefreshMatrices() const;
 
     private:

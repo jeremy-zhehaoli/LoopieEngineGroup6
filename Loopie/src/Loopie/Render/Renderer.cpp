@@ -90,7 +90,7 @@ namespace Loopie {
 	void Renderer::SetRenderUniforms(std::shared_ptr<Material> material, const Transform* transform)
 	{
 		material->GetShader().SetUniformMat4("lp_ViewProjection", s_ViewProjection);
-		material->GetShader().SetUniformMat4("lp_Transform", transform->GetWorldToLocalMatrix());
+		material->GetShader().SetUniformMat4("lp_Transform", transform->GetLocalToWorldMatrix());
 	}
 
 	void Renderer::EnableDepth()

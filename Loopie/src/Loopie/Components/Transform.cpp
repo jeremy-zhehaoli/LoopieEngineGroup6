@@ -114,28 +114,39 @@ namespace Loopie
         MarkLocalDirty();
     }
 
+    void Transform::SetWorldMatrix(const matrix4& worldMatrix)
+    {
+        glm::vec3 position, scale;
+        glm::quat rotation;
+
+        DecomposeMatrix(worldMatrix, position, rotation, scale);
+
+        if (auto parent = GetOwner()->GetParent().lock())
+        {
+            Transform* parentTransform = parent->GetTransform();
+
+            SetLocalPosition(glm::vec3(parentTransform->GetWorldToLocalMatrix() * glm::vec4(position, 1.0f)));
+            SetLocalRotation(glm::inverse(parentTransform->GetWorldRotation()) * rotation);
+            SetLocalScale(scale / parentTransform->GetWorldScale());
+        }
+        else
+        {
+            SetLocalPosition(position);
+            SetLocalRotation(rotation);
+            SetLocalScale(scale);
+        }
+    }
+
     const matrix4& Transform::GetLocalToWorldMatrix() const
     {
         RefreshMatrices();
         return m_localToWorld;
     }
 
-	float* Transform::GetLocalToWorldMatrixPtr() const
-	{
-		RefreshMatrices();
-		return &m_localToWorld[0][0];
-	}
-
     const matrix4& Transform::GetWorldToLocalMatrix() const
     {
         RefreshMatrices();
         return m_worldToLocal;
-    }
-
-    float* Transform::GetWorldToLocalMatrixPtr() const
-    {
-        RefreshMatrices();
-        return &m_worldToLocal[0][0];
     }
 
     vec3 Transform::GetWorldPosition() const
@@ -147,7 +158,14 @@ namespace Loopie
     quaternion Transform::GetWorldRotation() const
     {
         RefreshMatrices();
-        return glm::quat_cast(matrix3(m_localToWorld));
+
+        matrix3 rotMat = matrix3(m_localToWorld);
+        vec3 scale(length(rotMat[0]), length(rotMat[1]), length(rotMat[2]));
+        rotMat[0] /= scale.x;
+        rotMat[1] /= scale.y;
+        rotMat[2] /= scale.z;
+
+        return glm::quat_cast(rotMat);
     }
 
     vec3 Transform::GetWorldScale() const
@@ -323,7 +341,7 @@ namespace Loopie
             m_localToWorld = localMat;
         }
 
-        m_worldToLocal = m_localToWorld;
+        m_worldToLocal = inverse(m_localToWorld);
 
         m_localDirty = false;
         m_worldDirty = false;

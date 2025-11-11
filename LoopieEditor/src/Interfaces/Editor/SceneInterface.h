@@ -1,8 +1,12 @@
 #pragma once 
 
+#include "Loopie/Resources/Types/Texture.h"
+
 #include "src/Interfaces/Interface.h"
 #include "Loopie/Render/FrameBuffer.h"
 #include "src/Others/OrbitalCamera.h"
+
+#include <array>
 
 namespace Loopie {
 	class SceneInterface : public Interface {
@@ -23,7 +27,7 @@ namespace Loopie {
 
 	private:
 		void Drop();
-
+		void DrawHelperBar();
 
 
 	private:
@@ -32,5 +36,14 @@ namespace Loopie {
 
 		bool m_interacted = false;
 		ImVec2 m_windowSize;
+
+		int m_gizmoOperation = 0;
+		int m_gizmoMode = 0;
+		std::array<const char*,2> m_gizmoModes = { "World", "Local" };
+
+		std::shared_ptr<Texture> m_moveIcon;
+		std::shared_ptr<Texture> m_scaleIcon;
+		std::shared_ptr<Texture> m_rotateIcon;
+		std::shared_ptr<Texture> m_trsIcon;
 	};
 }
