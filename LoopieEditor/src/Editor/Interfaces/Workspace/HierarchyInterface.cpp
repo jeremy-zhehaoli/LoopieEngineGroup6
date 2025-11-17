@@ -70,7 +70,7 @@ namespace Loopie {
 		if (s_SelectedEntity == entity)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
-		bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity.get(), flags, entity->GetName().c_str());
+		bool opened = ImGui::TreeNodeEx((void*)entity.get(), flags, entity->GetName().c_str());
 
 		if (ImGui::IsItemClicked())
 		{

@@ -35,7 +35,7 @@ namespace Loopie {
 		std::shared_ptr<OrbitalCamera> m_camera;
 
 		bool m_interacted = false;
-		ImVec2 m_windowSize;
+		ivec2 m_windowSize = ivec2(0);
 
 		int m_gizmoOperation = 0;
 		int m_gizmoMode = 0;

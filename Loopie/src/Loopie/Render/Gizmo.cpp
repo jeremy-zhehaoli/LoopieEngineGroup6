@@ -15,7 +15,7 @@ namespace Loopie {
 
 	void Gizmo::Init() {
 		s_Data.LineRender.VertexArray = std::make_shared<VertexArray>();
-		s_Data.LineRender.VertexBuffer = std::make_shared<VertexBuffer>(nullptr, s_Data.MAX_VERTICES * sizeof(LineVertex));
+		s_Data.LineRender.VertexBuffer = std::make_shared<VertexBuffer>(nullptr, (unsigned int)(s_Data.MAX_VERTICES * sizeof(LineVertex)));
 
 		BufferLayout& layout = s_Data.LineRender.VertexBuffer->GetLayout();
 		layout.AddLayoutElement(0, GLVariableType::FLOAT, 3, "a_Position");

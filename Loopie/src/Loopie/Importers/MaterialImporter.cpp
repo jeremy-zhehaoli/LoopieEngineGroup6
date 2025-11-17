@@ -47,7 +47,7 @@ namespace Loopie {
 
 		fs.write(shaderUUID.c_str(), UUID::UUID_SIZE);
 
-		unsigned int propertyCount = propKeys.size();
+		unsigned int propertyCount = (unsigned int)propKeys.size();
 		fs.write(reinterpret_cast<const char*>(&propertyCount), sizeof(propertyCount));
 
 		for (const auto& key : propKeys)
@@ -61,14 +61,14 @@ namespace Loopie {
 			const std::string& type = typeResult.Result;
 			const std::string& value = valueResult.Result;
 
-			unsigned int nameLength = key.size();
+			unsigned int nameLength = (unsigned int)key.size();
 			fs.write(reinterpret_cast<const char*>(&nameLength), sizeof(nameLength));
 			fs.write(key.c_str(), nameLength);
 
 			///Write EnumType
 			///Write Value
 
-			unsigned int enumLength = key.size();
+			unsigned int enumLength = (unsigned int)key.size();
 			fs.write(reinterpret_cast<const char*>(&enumLength), sizeof(enumLength));
 			if (type == "Int") {
 				int data = std::stoi(value);

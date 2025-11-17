@@ -17,6 +17,6 @@ namespace Loopie {
 
 	private:
 		std::shared_ptr<FrameBuffer> m_buffer;
-		ImVec2 m_windowSize;
+		ivec2 m_windowSize = ivec2(0);
 	};
 }

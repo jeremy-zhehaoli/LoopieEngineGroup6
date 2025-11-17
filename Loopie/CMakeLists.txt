@@ -45,6 +45,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 )
 
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE GLFW_INCLUDE_NONE _CRT_SECURE_NO_WARNINGS )
+target_compile_definitions(${PROJECT_NAME} PUBLIC _CRT_SECURE_NO_WARNINGS GLFW_INCLUDE_NONE)
 
 

@@ -16,8 +16,9 @@ namespace Loopie {
 		
 		ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoNav;
 		if (ImGui::Begin("Game", nullptr, flags)) {
-			m_windowSize = ImGui::GetContentRegionAvail();
-			ImGui::Image((ImTextureID)m_buffer->GetTextureId(), m_windowSize, ImVec2(0, 1), ImVec2(1, 0));
+			ImVec2 size = ImGui::GetContentRegionAvail();
+			m_windowSize = { (int)size.x, (int)size.y };
+			ImGui::Image((ImTextureID)m_buffer->GetTextureId(), size, ImVec2(0, 1), ImVec2(1, 0));
 		}
 
 		ImGui::End();
@@ -37,9 +38,9 @@ namespace Loopie {
 			return;
 		}
 
-		vec2 textureSize = vec2((float)m_buffer->GetWidth(), (float)m_buffer->GetHeight());
+		ivec2 textureSize = ivec2(m_buffer->GetWidth(), m_buffer->GetHeight());
 		vec4 viewportSize = Camera::GetMainCamera()->GetViewport();
-		Renderer::SetViewport(0, 0, m_windowSize.x, m_windowSize.y);
+		Renderer::SetViewport(0, 0, (unsigned int)m_windowSize.x, (unsigned int)m_windowSize.y);
 
 		if (m_windowSize.x != textureSize.x || m_windowSize.y != textureSize.y)
 			m_buffer->Resize(m_windowSize.x, m_windowSize.y);

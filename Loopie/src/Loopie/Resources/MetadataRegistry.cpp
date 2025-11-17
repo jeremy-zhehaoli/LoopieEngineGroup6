@@ -29,9 +29,9 @@ namespace Loopie {
 
             if (metadata.HasCache) {
                 JsonNode cacheNode = data.Child("Caches");
-                int entries = cacheNode.Size();
+                unsigned int entries = cacheNode.Size();
                 Project project = Application::GetInstance().m_activeProject;
-                for (size_t i = 0; i < entries; i++)
+                for (unsigned int i = 0; i < entries; i++)
                 {
                     std::string cachePath = cacheNode.GetArrayElement<std::string>(i).Result;
                     if (!std::filesystem::exists(project.GetChachePath() / cachePath))

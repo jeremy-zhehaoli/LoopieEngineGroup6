@@ -66,7 +66,8 @@ namespace Loopie {
 		}
 
 		if (ImGui::Begin("Scene",nullptr, flags)) {
-			m_windowSize =  ImGui::GetContentRegionAvail();
+			ImVec2 size = ImGui::GetContentRegionAvail();
+			m_windowSize = { (int)size.x, (int)size.y };
 			m_focused = ImGui::IsWindowHovered();
 			ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
 			ImVec2 cursorPos = ImGui::GetCursorPos();
@@ -76,7 +77,7 @@ namespace Loopie {
 				m_interacted = ImGui::IsMouseDown(ImGuiMouseButton_Left) || ImGui::IsMouseDown(ImGuiMouseButton_Right) || ImGui::IsMouseDown(ImGuiMouseButton_Middle);
 			else 
 				m_interacted = false;
-			ImGui::Image((ImTextureID)m_buffer->GetTextureId(), m_windowSize, ImVec2(0,1), ImVec2(1,0));
+			ImGui::Image((ImTextureID)m_buffer->GetTextureId(), size, ImVec2(0,1), ImVec2(1,0));
 
 			ImGui::SetCursorPos(cursorPos);
 			DrawHelperBar();
@@ -88,7 +89,7 @@ namespace Loopie {
 				glm::mat4 worldMatrix = transform->GetLocalToWorldMatrix();
 
 				Renderer::DisableDepth();
-				ImGuizmo::SetRect(cursorScreenPos.x, cursorScreenPos.y, m_windowSize.x, m_windowSize.y);
+				ImGuizmo::SetRect(cursorScreenPos.x, cursorScreenPos.y, (float)m_windowSize.x, (float)m_windowSize.y);
 				ImGuizmo::SetDrawlist();
 				if (ImGuizmo::Manipulate(&m_camera->GetCamera()->GetViewMatrix()[0][0], &m_camera->GetCamera()->GetProjectionMatrix()[0][0], (ImGuizmo::OPERATION)m_gizmoOperation, (ImGuizmo::MODE)m_gizmoMode, &worldMatrix[0][0])) {
 					transform->SetWorldMatrix(worldMatrix);
@@ -106,8 +107,8 @@ namespace Loopie {
 	{
 		m_buffer->Bind();
 
-		ImVec2 textureSize = ImVec2((float)m_buffer->GetWidth(), (float)m_buffer->GetHeight());
-		Renderer::SetViewport(0, 0, m_windowSize.x, m_windowSize.y);
+		ivec2 textureSize = ivec2(m_buffer->GetWidth(), m_buffer->GetHeight());
+		Renderer::SetViewport(0, 0, (unsigned int)m_windowSize.x, (unsigned int)m_windowSize.y);
 		if (m_windowSize.x != textureSize.x || m_windowSize.y != textureSize.y) {
 			m_camera->GetCamera()->SetViewport(0, 0, m_windowSize.x, m_windowSize.y);
 			m_buffer->Resize(m_windowSize.x, m_windowSize.y);
@@ -173,7 +174,7 @@ namespace Loopie {
 		for (size_t i = 0; i < meta.CachesPath.size(); i++)
 		{
 			
-			std::shared_ptr<Mesh> mesh = ResourceManager::GetMesh(meta, i);;
+			std::shared_ptr<Mesh> mesh = ResourceManager::GetMesh(meta, (int)i);
 
 			if (mesh) {
 				std::shared_ptr<Entity> newEntity;

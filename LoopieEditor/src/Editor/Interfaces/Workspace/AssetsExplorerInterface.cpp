@@ -352,7 +352,7 @@ namespace Loopie {
 			const auto& directory = (*filesToShow)[i];
 			const bool isDir = std::filesystem::is_directory(directory);
 
-			ImGui::PushID(i);
+			ImGui::PushID((int)i);
 
 			std::shared_ptr<Texture> icon = nullptr;
 			if (isDir) {

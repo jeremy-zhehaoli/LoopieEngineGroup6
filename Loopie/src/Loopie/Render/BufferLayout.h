@@ -63,7 +63,7 @@ namespace Loopie {
 		const BufferElement& GetElementByIndex(int index) const{
 			for (size_t i = 0; i < m_layout.size(); i++)
 				if (m_layout[i].Index == index) return m_layout[i];
-			return BufferElement(0,0, GLVariableType::NONE,0);
+			return m_layout[0];
 		}
 
 	private:

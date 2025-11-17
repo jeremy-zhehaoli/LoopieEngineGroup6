@@ -18,7 +18,7 @@ namespace Loopie {
 
         bool HasCache = false;
         bool IsOutdated = false;
-        std::time_t LastModified;
+        std::time_t LastModified = 0;
         std::string LegibleLastModified;
 
         const std::string& RefreshLegibleLastModified() {
