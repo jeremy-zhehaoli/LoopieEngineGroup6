@@ -2,11 +2,12 @@
 #include "Loopie/Math/MathTypes.h"
 #include "Loopie/Math/Frustum.h"
 #include "Loopie/Components/Component.h"
+#include "Loopie/Events/EventTypes.h"
 #include "Loopie/Render/FrameBuffer.h"
 
 namespace Loopie
 {
-	class Camera : public Component
+	class Camera : public Component, public IObserver<TransformNotification>
 	{
 	public:
 		DEFINE_TYPE(Camera)
@@ -14,7 +15,7 @@ namespace Loopie
 		Camera(float fov = 60.0f, float near_plane = 0.3f, float far_plane = 200.0f, bool canBeMainCamera = true);
 		~Camera();
 		void Init() override; //// From Component
-		void OnNotify(unsigned int id) override;
+		void OnNotify(const TransformNotification& id) override;
 
 		void SetViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 

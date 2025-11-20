@@ -2,6 +2,7 @@
 #include "Loopie/Scene/Entity.h"
 #include "Loopie/Math/MathTypes.h"
 #include "Loopie/Events/Event.h"
+#include "Loopie/Events/EventTypes.h"
 
 #include <memory>
 namespace Loopie
@@ -17,7 +18,6 @@ namespace Loopie
         Transform(vec3 position = { 0,0,0 }, quaternion rotation = { 1, 0,0,0 }, vec3 scale = { 1,1,1 });
         ~Transform() = default;
         void Init()override;
-        void OnNotify(unsigned int id) override;
 
         vec3 GetPosition();
         const vec3& GetLocalPosition() const;
@@ -72,7 +72,7 @@ namespace Loopie
 
         void RefreshMatrices() const;
     public:
-        Event m_onTransformUpdated;
+        Event<TransformNotification> m_transformNotifier;
     private:
         vec3 m_localPosition = vec3(0);
         quaternion m_localRotation = quaternion(1, 0, 0, 0);

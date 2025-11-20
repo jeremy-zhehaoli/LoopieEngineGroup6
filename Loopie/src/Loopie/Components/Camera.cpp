@@ -24,7 +24,7 @@ namespace Loopie
 		Renderer::UnregisterCamera(*this);
 
 		if (GetTransform())
-			GetTransform()->m_onTransformUpdated.RemoveObserver(this);
+			GetTransform()->m_transformNotifier.RemoveObserver(this);
 
 		if (s_Main == this)
 		{
@@ -45,12 +45,12 @@ namespace Loopie
 	{
 		CalculateMatrices();
 
-		GetTransform()->m_onTransformUpdated.AddObserver(this);
+		GetTransform()->m_transformNotifier.AddObserver(this);
 	}
 
-	void Camera::OnNotify(unsigned int id)
+	void Camera::OnNotify(const TransformNotification& id)
 	{
-		if(id == 1)
+		if(id == TransformNotification::OnDirty)
 			SetDirty();
 	}
 
@@ -119,7 +119,7 @@ namespace Loopie
 
 	void Camera::CalculateMatrices() const
 	{
-		if (!m_dirty && !GetTransform()->IsDirty())
+		if (!m_dirty)
 			return;
 		
 		auto transform = GetTransform();

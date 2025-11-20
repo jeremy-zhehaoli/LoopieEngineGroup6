@@ -3,9 +3,11 @@
 
 namespace Loopie 
 {
+    template<typename T>
     class IObserver {
     public:
         virtual ~IObserver() = default;
-        virtual void OnNotify(unsigned int id) = 0;
+
+        virtual void OnNotify(const T& id) = 0;
     };
 }

@@ -9,7 +9,7 @@ namespace Loopie {
 	class Entity;
 	class Transform;
 
-	class Component : public Identificable, public IObserver
+	class Component : public Identificable
 	{
 		friend class Entity;
 	public:

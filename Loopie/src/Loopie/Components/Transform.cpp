@@ -17,11 +17,6 @@ namespace Loopie
         ForceRefreshMatrices();
     }
 
-
-    void Transform::OnNotify(unsigned int id)
-    {
-    }
-
     const vec3& Transform::GetLocalPosition() const
     {
         return m_localPosition;
@@ -309,6 +304,7 @@ namespace Loopie
     {
         m_localDirty = true;
         MarkWorldDirty();
+        m_transformNotifier.Notify(TransformNotification::OnDirty);
     }
 
     void Transform::MarkWorldDirty()
@@ -318,6 +314,7 @@ namespace Loopie
         for (auto& child : GetOwner()->GetChildren()) {
             if (child) child->GetTransform()->MarkWorldDirty();
         }
+        m_transformNotifier.Notify(TransformNotification::OnDirty);
     }
 
     bool Transform::IsDirty() const{
@@ -355,7 +352,7 @@ namespace Loopie
         m_localDirty = false;
         m_worldDirty = false;
 
-        m_onTransformUpdated.Notify(1);
+        m_transformNotifier.Notify(TransformNotification::OnChanged);
     }
 
 };

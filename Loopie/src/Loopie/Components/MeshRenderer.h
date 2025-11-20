@@ -1,5 +1,6 @@
 #pragma once
 #include "Loopie/Components/Component.h"
+#include "Loopie/Events/EventTypes.h"
 
 #include "Loopie/Resources/Types/Mesh.h"
 #include "Loopie/Resources/Types/Material.h"
@@ -7,14 +8,14 @@
 #include <memory>
 
 namespace Loopie {
-	class MeshRenderer : public Component{
+	class MeshRenderer : public Component, public IObserver<TransformNotification> {
 	public:
 		DEFINE_TYPE(MeshRenderer)
 
 		MeshRenderer();
 		~MeshRenderer();
 		void Init() override; //// From Component
-		void OnNotify(unsigned int id) override;
+		void OnNotify(const TransformNotification& id) override;
 
 		void Render();
 		

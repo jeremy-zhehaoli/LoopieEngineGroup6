@@ -14,7 +14,7 @@ namespace Loopie {
 	MeshRenderer::~MeshRenderer()
 	{
 		if(GetTransform())
-			GetTransform()->m_onTransformUpdated.RemoveObserver(this);
+			GetTransform()->m_transformNotifier.RemoveObserver(this);
 	}
 
 	void MeshRenderer::Init()
@@ -22,12 +22,12 @@ namespace Loopie {
 		m_material = std::make_shared<Material>();
 
 		RecalculateBoundingBoxes();
-		GetTransform()->m_onTransformUpdated.AddObserver(this);
+		GetTransform()->m_transformNotifier.AddObserver(this);
 	}
 
-	void MeshRenderer::OnNotify(unsigned int id)
+	void MeshRenderer::OnNotify(const TransformNotification& id)
 	{
-		if(id == 1)
+		if(id == TransformNotification::OnChanged)
 			SetBoundingBoxesDirty();
 	}
 
