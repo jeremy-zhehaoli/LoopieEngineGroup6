@@ -17,6 +17,11 @@ namespace Loopie
         ForceRefreshMatrices();
     }
 
+
+    void Transform::OnNotify(unsigned int id)
+    {
+    }
+
     const vec3& Transform::GetLocalPosition() const
     {
         return m_localPosition;
@@ -330,7 +335,7 @@ namespace Loopie
 
     void Transform::RefreshMatrices() const
     {
-        if (!m_worldDirty && !m_localDirty) return;
+        if (!IsDirty()) return;
 
         matrix4 localMat = translate(matrix4(1.0f), m_localPosition) * toMat4(m_localRotation) * scale(matrix4(1.0f), m_localScale);
 
@@ -350,6 +355,7 @@ namespace Loopie
         m_localDirty = false;
         m_worldDirty = false;
 
-        m_hasChanged = true;
+        m_onTransformUpdated.Notify(1);
     }
+
 };

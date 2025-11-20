@@ -3,12 +3,13 @@
 
 #include "Loopie/Core/Identificable.h"
 #include "Loopie/Core/UUID.h"
+#include "Loopie/Events/IObserver.h"
 
 namespace Loopie {
 	class Entity;
 	class Transform;
 
-	class Component : public Identificable
+	class Component : public Identificable, public IObserver
 	{
 		friend class Entity;
 	public:

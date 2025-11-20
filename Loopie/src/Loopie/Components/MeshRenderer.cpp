@@ -11,6 +11,26 @@ namespace Loopie {
 		
 	}
 
+	MeshRenderer::~MeshRenderer()
+	{
+		if(GetTransform())
+			GetTransform()->m_onTransformUpdated.RemoveObserver(this);
+	}
+
+	void MeshRenderer::Init()
+	{
+		m_material = std::make_shared<Material>();
+
+		RecalculateBoundingBoxes();
+		GetTransform()->m_onTransformUpdated.AddObserver(this);
+	}
+
+	void MeshRenderer::OnNotify(unsigned int id)
+	{
+		if(id == 1)
+			SetBoundingBoxesDirty();
+	}
+
 	void MeshRenderer::Render() {
 		if (m_mesh) {
 			///TEST
@@ -42,15 +62,21 @@ namespace Loopie {
 		m_material = material;
 	}
 
-	void MeshRenderer::Init()
+	const AABB& MeshRenderer::GetWorldAABB() const
 	{
-		m_material = std::make_shared<Material>();
+		RecalculateBoundingBoxes(); 
+		return m_worldAABB;
 	}
-	
+
+	const OBB& MeshRenderer::GetWorldOBB() const
+	{
+		RecalculateBoundingBoxes();
+		return m_worldOBB;
+	}
 
 	void MeshRenderer::RecalculateBoundingBoxes() const
 	{
-		if (!m_boundingBoxesDirty && !GetTransform()->HasChanged())
+		if (!m_boundingBoxesDirty || !m_mesh)
 			return;
 
 		m_worldOBB = m_mesh->GetData().BoundingBox.ToOBB();

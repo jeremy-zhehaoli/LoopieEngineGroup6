@@ -13,6 +13,8 @@ namespace Loopie
 
 		Camera(float fov = 60.0f, float near_plane = 0.3f, float far_plane = 200.0f, bool canBeMainCamera = true);
 		~Camera();
+		void Init() override; //// From Component
+		void OnNotify(unsigned int id) override;
 
 		void SetViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 
@@ -29,7 +31,7 @@ namespace Loopie
 		void SetFarPlane(float farPlane);
 		float GetFarPlane() const;
 		vec4 GetViewport() const { return m_viewport; }
-		const Frustum& GetFrustum() const { CalculateMatrices(); return m_frustum; }
+		const Frustum& GetFrustum() const;
 
 		void SetDirty() const;
 
@@ -44,7 +46,8 @@ namespace Loopie
 		void SetIfBeMainCamera(bool canBe) { m_canBeMainCamera = canBe; }
 
 
-		void Init() override; //// From Component
+		
+		
 	private:
 		void CalculateMatrices() const;
 	private:

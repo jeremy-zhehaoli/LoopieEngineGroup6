@@ -23,6 +23,9 @@ namespace Loopie
 	Camera::~Camera() {
 		Renderer::UnregisterCamera(*this);
 
+		if (GetTransform())
+			GetTransform()->m_onTransformUpdated.RemoveObserver(this);
+
 		if (s_Main == this)
 		{
 			s_Main = nullptr;
@@ -36,6 +39,19 @@ namespace Loopie
 				}
 			}
 		}
+	}
+
+	void Camera::Init()
+	{
+		CalculateMatrices();
+
+		GetTransform()->m_onTransformUpdated.AddObserver(this);
+	}
+
+	void Camera::OnNotify(unsigned int id)
+	{
+		if(id == 1)
+			SetDirty();
 	}
 
 	void Camera::SetViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
@@ -95,10 +111,15 @@ namespace Loopie
 		return m_farPlane;
 	}
 
+	const Frustum& Camera::GetFrustum() const {
+		CalculateMatrices(); 
+		return m_frustum;
+	}
+
 
 	void Camera::CalculateMatrices() const
 	{
-		if (!m_dirty && !GetTransform()->HasChanged())
+		if (!m_dirty && !GetTransform()->IsDirty())
 			return;
 		
 		auto transform = GetTransform();
@@ -117,10 +138,6 @@ namespace Loopie
 
 	void Camera::SetDirty() const{
 		m_dirty = true;
-	}
-	void Camera::Init()
-	{
-		CalculateMatrices();
 	}
 
 	bool Camera::SetMainCamera(Camera* camera) {

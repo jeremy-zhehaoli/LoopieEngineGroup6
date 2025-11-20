@@ -124,12 +124,6 @@ namespace Loopie
 			Renderer::EndScene();
 		}
 		m_game.EndScene();
-	
-
-		m_scene.GetCamera()->GetTransform()->ResetHasChanged();
-		for (auto& [uuid, entity] : scene->GetAllEntities()) {
-			entity->GetTransform()->ResetHasChanged();  /// Temporary
-		}
 	}
 
 	void EditorModule::OnInterfaceRender()

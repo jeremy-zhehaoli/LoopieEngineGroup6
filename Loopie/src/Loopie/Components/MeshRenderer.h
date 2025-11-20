@@ -12,7 +12,9 @@ namespace Loopie {
 		DEFINE_TYPE(MeshRenderer)
 
 		MeshRenderer();
-		~MeshRenderer() = default;
+		~MeshRenderer();
+		void Init() override; //// From Component
+		void OnNotify(unsigned int id) override;
 
 		void Render();
 		
@@ -21,11 +23,11 @@ namespace Loopie {
 
 		std::shared_ptr<Material> GetMaterial() { return m_material; }
 		void SetMaterial(std::shared_ptr <Material> material);
-		void Init() override; //// From Component
+		
 
 		void SetBoundingBoxesDirty() { m_boundingBoxesDirty = true; }
-		const AABB& GetWorldAABB() const { RecalculateBoundingBoxes(); return m_worldAABB; }
-		const OBB& GetWorldOBB() const { RecalculateBoundingBoxes(); return m_worldOBB; }
+		const AABB& GetWorldAABB() const;
+		const OBB& GetWorldOBB() const;
 
 		///TEST
 		void SetDrawNormalsPerFace(bool value) { m_drawNormalsPerFace = value; }
