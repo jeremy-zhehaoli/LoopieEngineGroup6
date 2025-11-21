@@ -22,11 +22,17 @@ namespace Loopie {
 		void Reload();
 
 	private:
-		struct CachedDirectoryNode
+		struct CachedDirectoryTreeNode
 		{
-			std::filesystem::path path;
-			bool isEmpty = true;
-			std::vector<CachedDirectoryNode> children;
+			std::filesystem::path Path;
+			bool IsEmpty = true;
+			std::vector<CachedDirectoryTreeNode> Children;
+		};
+
+		struct CachedFileNode {
+			std::filesystem::path Path;
+			bool IsDirectory;
+			bool IsEmpty;
 		};
 
 		void HotKeysControls(const InputEventManager& inputEvent);
@@ -37,20 +43,21 @@ namespace Loopie {
 		void DrawSearchBar();
 		void ClearSearch();
 		void DrawDirectoryTree();
-		void DrawDirectoryTreeNode(const CachedDirectoryNode& node, int indent = 0);
+		void DrawDirectoryTreeNode(const CachedDirectoryTreeNode& node, int indent = 0);
 		void DrawPathBar();
 		void DrawFolderContent();
 		void DrawFooter();
-		std::vector<std::filesystem::path> GetFilteredFiles();
 
 		void DragFile(const std::string& from);
 		void DropFile(const std::string& to);
 
 		void Refresh(bool folderTree = true, bool folderFiles = true, bool searchFiles = true);
 		void RebuildTreeFolderCache();
-		CachedDirectoryNode BuildDirectoryNode(const std::filesystem::path& directory);
+		CachedDirectoryTreeNode BuildDirectoryNode(const std::filesystem::path& directory);
 		void RebuildFolderFilesCache();
 		void RebuildSearchFilesCache();
+
+		void RebuildFooter();
 
 	private:
 		std::filesystem::path m_currentDirectory;
@@ -71,12 +78,15 @@ namespace Loopie {
 		std::shared_ptr<Texture> m_emptyFolderIcon;
 		std::shared_ptr<Texture> m_folderIcon;
 
-		bool m_dirtyFoldersTree = true;
+		bool m_dirtyTreeFolders = true;
 		bool m_dirtyFolderFiles = true;
 		bool m_dirtyFileSearch = true;
 
-		CachedDirectoryNode m_cachedTreeFolder;
-		std::vector<std::filesystem::path> m_cachedFolderFiles;
-		std::vector<std::filesystem::path> m_cachedSearchFiles;
+		CachedDirectoryTreeNode m_cachedTreeFolder;
+		std::vector<CachedFileNode> m_cachedFolderFiles;
+		std::vector<CachedFileNode> m_cachedSearchFiles;
+
+		bool m_dirtyFooterText = true;
+		std::string m_cachedFooterText;
 	};
 }
