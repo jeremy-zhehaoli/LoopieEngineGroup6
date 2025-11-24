@@ -11,6 +11,7 @@
 
 #include "Loopie/Resources/ResourceManager.h"
 #include "Loopie/Importers/TextureImporter.h"
+#include "Loopie/Importers/MaterialImporter.h"
 
 #include "Loopie/Components/MeshRenderer.h"
 #include "Loopie/Components/Transform.h"
@@ -31,6 +32,12 @@ namespace Loopie
 		TextureImporter::ImportImage(defaultTeturePath, meta);
 		Renderer::SetDefaultTexture(ResourceManager::GetTexture(meta));
 
+		std::string defaultMaterialPath = "assets/materials/defaultMaterial.mat";
+		meta = AssetRegistry::GetOrCreateMetadata(defaultMaterialPath);
+		MaterialImporter::ImportMaterial(defaultMaterialPath, meta);
+		Renderer::SetDefaultMaterial(ResourceManager::GetMaterial(meta));
+		Renderer::GetDefaultMaterial()->SetIfEditable(false);
+
 		/////SCENE
 		Application::GetInstance().CreateScene(""); /// Maybe default One
 		scene = &Application::GetInstance().GetScene();
@@ -38,7 +45,11 @@ namespace Loopie
 
 		scene->CreateEntity({ 0,0,-10 }, { 1,0,0,0 }, {1,1,1}, nullptr, "MainCamera")->AddComponent<Camera>();
 		scene->CreateEntity({ 0,0,-20 }, { 1,0,0,0 }, {1,1,1}, nullptr, "SecondaryCamera")->AddComponent<Camera>();
-		selectedObjectMaterial = std::make_shared<Material>();
+		
+		std::string outlineMaterialPath = "assets/materials/outlineMaterial.mat";
+		meta = AssetRegistry::GetOrCreateMetadata(outlineMaterialPath);
+		MaterialImporter::ImportMaterial(outlineMaterialPath, meta);
+		selectedObjectMaterial = ResourceManager::GetMaterial(meta);
 		selectedObjectShader = new Shader("assets/shaders/SelectionOutline.shader");
 		selectedObjectMaterial->SetShader(*selectedObjectShader);
 		////

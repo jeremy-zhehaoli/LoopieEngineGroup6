@@ -15,6 +15,7 @@ namespace Loopie
 
 	Material::~Material()
 	{
+
 	}
 
 	void Material::InitMaterial()
@@ -65,7 +66,7 @@ namespace Loopie
 		}
 		else
 		{
-			Renderer::s_DefaultTexture->m_tb->Bind();
+			Renderer::GetDefaultTexture()->m_tb->Bind();
 		}
 
 		for (const auto& [name, uniformValue] : m_uniformValues)
@@ -103,6 +104,11 @@ namespace Loopie
 	void Material::SaveToFile() 
 	{
 		//// Save
+		Metadata* metadata = AssetRegistry::GetMetadata(GetUUID());
+		if (metadata) {
+			MaterialImporter::SaveMaterial(m_path, *this, *metadata);
+			Reload();
+		}
 	}
 
 	void Material::Reload()
@@ -138,6 +144,8 @@ namespace Loopie
 
 	bool Material::SetShaderVariable(const std::string& name, const UniformValue& value)
 	{
+		if (!m_editable)
+			return false;
 		auto it = m_uniformValues.find(name);
 		if (it == m_uniformValues.end())
 		{
@@ -158,6 +166,8 @@ namespace Loopie
 
 	void Material::SetTexture(std::shared_ptr<Texture> texture)
 	{
+		if (!m_editable)
+			return;
 		m_texture = texture;
 	}
 

@@ -162,28 +162,29 @@ namespace Loopie {
 				{
 					typeString = "Vec2";
 					auto v = std::get<glm::vec2>(uniformValue.value);
-					valueString = GLMToString(v);
+					valueString = GLMVectorToString(v);
 					break;
 				}
 				case UniformType_vec3:
 				{
 					typeString = "Vec3";
 					auto v = std::get<glm::vec3>(uniformValue.value);
-					valueString = GLMToString(v);
+					valueString = GLMVectorToString(v);
 					break;
 				}
 				case UniformType_vec4:
 				{
 					typeString = "Vec4";
 					auto v = std::get<glm::vec4>(uniformValue.value);
-					valueString = GLMToString(v);
+					valueString = GLMVectorToString(v);
+					
 					break;
 				}
 				case UniformType_mat2:
 				{
 					typeString = "Mat2";
 					auto m = std::get<glm::mat2>(uniformValue.value);
-					valueString = GLMToString(m);
+					valueString = GLMMatrixToString(m);
 					break;
 				}
 
@@ -191,7 +192,8 @@ namespace Loopie {
 				{
 					typeString = "Mat3";
 					auto m = std::get<glm::mat3>(uniformValue.value);
-					valueString = GLMToString(m);
+					valueString = GLMMatrixToString(m);
+					
 					break;
 				}
 
@@ -199,7 +201,7 @@ namespace Loopie {
 				{
 					typeString = "Mat4";
 					auto m = std::get<glm::mat4>(uniformValue.value);
-					valueString = GLMToString(m);
+					valueString = GLMMatrixToString(m);
 					break;
 				}
 

@@ -85,6 +85,11 @@ namespace Loopie {
 					if (m_focused)
 						GetExternalFile();
 					DrawFolderContent();
+
+					if (ImGui::BeginPopupContextWindow("HierarchyBackgroundContext", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems)) {
+						DrawContextMenu();
+						ImGui::EndPopup();
+					}
 				}
 				ImGui::EndChild();
 				ImGui::Separator();
@@ -559,5 +564,24 @@ namespace Loopie {
 			m_cachedFooterText = "";
 		
 		m_dirtyFooterText = false;
+	}
+
+	void AssetsExplorerInterface::DrawContextMenu()
+	{
+		if (ImGui::MenuItem("Create Material"))
+		{
+			CreateMaterial(m_currentDirectory, "newMaterial");
+		}
+	}
+
+	std::string AssetsExplorerInterface::CreateMaterial(const std::filesystem::path& directory, const std::string& name)
+	{
+		std::filesystem::path filePath = directory / name;
+		filePath += ".mat";
+		if (!DirectoryManager::Contains(filePath)) {
+			DirectoryManager::Copy("assets/materials/defaultMaterial.mat", filePath);
+			Refresh();
+		}
+		return filePath.string();
 	}
 }

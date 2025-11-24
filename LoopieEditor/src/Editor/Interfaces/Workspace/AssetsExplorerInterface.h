@@ -59,6 +59,9 @@ namespace Loopie {
 
 		void RebuildFooter();
 
+		void DrawContextMenu();
+		std::string CreateMaterial(const std::filesystem::path& directory, const std::string& name);
+
 	private:
 		std::filesystem::path m_currentDirectory;
 		std::filesystem::path m_selectedFile;

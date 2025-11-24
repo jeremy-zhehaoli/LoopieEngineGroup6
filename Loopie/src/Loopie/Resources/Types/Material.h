@@ -43,6 +43,9 @@ namespace Loopie
 		void LoadFromFile(const std::string path) override;
 		void Reload() override;
 
+		void SetIfEditable(bool isEditable) { m_editable = isEditable; }
+		bool IsEditable() { return m_editable; }
+
 	private:
 		void ApplyUniform(const std::string& name, const UniformValue& uniformValue);
 		void SaveToFile();
@@ -55,8 +58,6 @@ namespace Loopie
 		// adjust them for different textures (maybe we want a variable of type roughness
 		// to be different for all different kinds of textures, which can be changed like this)
 		std::unordered_map<std::string, UniformValue> m_uniformValues;
-
-		void LoadFromFile(const std::string path) override;
-		void Reload() override;
+		bool m_editable = true;
 	};
 }

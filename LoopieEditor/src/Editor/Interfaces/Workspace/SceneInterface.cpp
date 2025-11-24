@@ -8,6 +8,7 @@
 #include "Loopie/Resources/AssetRegistry.h"
 #include "Loopie/Resources/ResourceManager.h"
 #include "Loopie/Importers/MeshImporter.h"
+#include "Loopie/Importers/MaterialImporter.h"
 #include "Loopie/Importers/TextureImporter.h"
 #include "Loopie/Components/MeshRenderer.h"
 
@@ -138,6 +139,9 @@ namespace Loopie {
 				else if (MeshImporter::CheckIfIsModel(path.c_str())) {
 					ChargeModel(path);
 				}
+				else if (MaterialImporter::CheckIfIsMaterial(path.c_str())) {
+					ChargeMaterial(path);
+				}
 			}
 			ImGui::EndDragDropTarget();
 		}
@@ -201,7 +205,8 @@ namespace Loopie {
 			if (HierarchyInterface::s_SelectedEntity != nullptr) {
 				MeshRenderer* renderer = HierarchyInterface::s_SelectedEntity->GetComponent<MeshRenderer>();
 				if (renderer) {
-					renderer->GetMaterial()->SetTexture(texture);
+					if (renderer->GetMaterial())
+						renderer->GetMaterial()->SetTexture(texture);
 				}
 			}
 			else {
@@ -209,7 +214,32 @@ namespace Loopie {
 				{
 					MeshRenderer* renderer = entity->GetComponent<MeshRenderer>();
 					if (renderer) {
-						renderer->GetMaterial()->SetTexture(texture);
+						if(renderer->GetMaterial())
+							renderer->GetMaterial()->SetTexture(texture);
+					}
+				}
+			}
+		}
+	}
+	void SceneInterface::ChargeMaterial(const std::string& materialPath)
+	{
+		Metadata& meta = AssetRegistry::GetOrCreateMetadata(materialPath);
+
+		MaterialImporter::ImportMaterial(materialPath, meta);
+		std::shared_ptr<Material> material = ResourceManager::GetMaterial(meta);
+		if (material) {
+			if (HierarchyInterface::s_SelectedEntity != nullptr) {
+				MeshRenderer* renderer = HierarchyInterface::s_SelectedEntity->GetComponent<MeshRenderer>();
+				if (renderer) {
+					renderer->SetMaterial(material);
+				}
+			}
+			else {
+				for (const auto& [uuid, entity] : Application::GetInstance().GetScene().GetAllEntities())
+				{
+					MeshRenderer* renderer = entity->GetComponent<MeshRenderer>();
+					if (renderer) {
+						renderer->SetMaterial(material);
 					}
 				}
 			}

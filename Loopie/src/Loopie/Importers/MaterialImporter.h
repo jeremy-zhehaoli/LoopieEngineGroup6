@@ -15,8 +15,25 @@ namespace Loopie {
 		static void LoadMaterial(const std::string& path, Material& material);
 		static bool CheckIfIsMaterial(const char* path);
 	private:
-		template<typename T>
-		static std::string GLMToString(const T& value)
+		template<typename T>		
+        static std::string GLMVectorToString(const T& value)
+        {
+            std::string out;
+            unsigned int columns = value.length();
+
+            for (int c = 0; c < columns; c++)
+            {
+                out += std::to_string(value[c]) + ",";
+            }
+
+            if (!out.empty())
+                out.pop_back();
+
+            return out;
+        }
+
+        template<typename T>
+        static std::string GLMMatrixToString(const T& value)
         {
             std::string out;
             unsigned int columns = value.length();

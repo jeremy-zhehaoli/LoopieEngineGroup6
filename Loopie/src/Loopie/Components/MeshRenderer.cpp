@@ -21,8 +21,6 @@ namespace Loopie {
 
 	void MeshRenderer::Init()
 	{
-		m_material = std::make_shared<Material>();
-
 		RecalculateBoundingBoxes();
 		GetTransform()->m_transformNotifier.AddObserver(this);
 	}
@@ -64,6 +62,12 @@ namespace Loopie {
 		m_material = material;
 	}
 
+	std::shared_ptr<Material> MeshRenderer::GetMaterial() {
+		if (m_material)
+			return m_material;
+		return Renderer::GetDefaultMaterial();
+	}
+
 	const AABB& MeshRenderer::GetWorldAABB() const
 	{
 		RecalculateBoundingBoxes(); 
@@ -80,8 +84,12 @@ namespace Loopie {
 	{
 		json meshRendererObj = json::object();
 
-		meshRendererObj["mesh_uuid"] = m_mesh->GetUUID().Get();
-		meshRendererObj["mesh_index"] = m_mesh->GetMeshIndex();
+		if (m_mesh) {
+			meshRendererObj["mesh_uuid"] = m_mesh->GetUUID().Get();
+			meshRendererObj["mesh_index"] = m_mesh->GetMeshIndex();
+		}
+		if(m_material)
+			meshRendererObj["material_uuid"] = m_material->GetUUID().Get();
 
 		json componentWrapper = json::object();
 		componentWrapper["meshrenderer"] = meshRendererObj;
@@ -99,6 +107,11 @@ namespace Loopie {
 			unsigned int index = data["mesh_index"].get<unsigned int>();
 			Metadata* meta = AssetRegistry::GetMetadata(id);
 			m_mesh = ResourceManager::GetMesh(*meta, index);
+		}
+		if (data.contains("material_uuid")) {
+			UUID id = UUID(data["material_uuid"].get<std::string>());
+			Metadata* meta = AssetRegistry::GetMetadata(id);
+			m_material = ResourceManager::GetMaterial(*meta);
 		}
 	}
 
