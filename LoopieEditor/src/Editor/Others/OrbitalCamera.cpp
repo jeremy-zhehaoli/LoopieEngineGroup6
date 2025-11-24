@@ -82,7 +82,6 @@ namespace Loopie
 
         m_inputDirection *= m_speedMultiplier;
         m_inputRotation *= m_cameraRotationSpeed;
-        Log::Info("{0} {1}", inputEvent.GetMousePosition().x, inputEvent.GetMousePosition().y);
     }
 
     void OrbitalCamera::Update()
