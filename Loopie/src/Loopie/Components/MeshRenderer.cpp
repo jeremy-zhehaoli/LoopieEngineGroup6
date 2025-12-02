@@ -82,37 +82,35 @@ namespace Loopie {
 		return m_worldOBB;
 	}
 
-	json MeshRenderer::Serialize() const
+	JsonNode MeshRenderer::Serialize(JsonNode& parent) const
 	{
-		json meshRendererObj = json::object();
+		JsonNode meshRendererObj = parent.CreateObjectField("meshrenderer");
 
 		if (m_mesh) {
-			meshRendererObj["mesh_uuid"] = m_mesh->GetUUID().Get();
-			meshRendererObj["mesh_index"] = m_mesh->GetMeshIndex();
+			meshRendererObj.CreateField<std::string>("mesh_uuid", m_mesh->GetUUID().Get());
+			meshRendererObj.CreateField<unsigned int>("mesh_index", m_mesh->GetMeshIndex());
 		}
-		if(m_material)
-			meshRendererObj["material_uuid"] = m_material->GetUUID().Get();
+		if (m_material)
+			meshRendererObj.CreateField<std::string>("material_uuid", m_material->GetUUID().Get());
 
-		json componentWrapper = json::object();
-		componentWrapper["meshrenderer"] = meshRendererObj;
-
-		return componentWrapper;
+		return meshRendererObj;
 	}
 
-	void MeshRenderer::Deserialize(const json& data)
+	void MeshRenderer::Deserialize(const JsonNode& data)
 	{
 		// TODO: Add deserialization for mesh renderer
-		if (data.contains("mesh_uuid"))
+		if (data.Contains("mesh_uuid"))
 		{
 			// This is causing an error so I have to revise it at another point
-			UUID id = UUID(data["mesh_uuid"].get<std::string>());
-			unsigned int index = data["mesh_index"].get<unsigned int>();
+			UUID id = UUID(data.GetValue<std::string>("mesh_uuid").Result);
+			unsigned int index = data.GetValue<unsigned int>("mesh_index").Result;
+
 			Metadata* meta = AssetRegistry::GetMetadata(id);
-			if(meta)
+			if (meta)
 				m_mesh = ResourceManager::GetMesh(*meta, index);
 		}
-		if (data.contains("material_uuid")) {
-			UUID id = UUID(data["material_uuid"].get<std::string>());
+		if (data.Contains("material_uuid")) {
+			UUID id = UUID(data.GetValue<std::string>("material_uuid").Result);
 			Metadata* meta = AssetRegistry::GetMetadata(id);
 			if (meta)
 				m_material = ResourceManager::GetMaterial(*meta);

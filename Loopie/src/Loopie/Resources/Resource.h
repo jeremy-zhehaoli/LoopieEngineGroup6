@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Loopie/Core/UUID.h"
-#include "Loopie/Core/Identificable.h"
+#include "Loopie/Core/IIdentificable.h"
 
 namespace Loopie {
 	enum ResourceType
@@ -14,7 +14,7 @@ namespace Loopie {
 		UNKNOWN
 	};
 
-	class Resource : public  Identificable {
+	class Resource : public  IIdentificable {
 	public:
 		Resource(UUID uuid, ResourceType type) : m_uuid(uuid), m_type(type) {}
 		virtual ~Resource();
