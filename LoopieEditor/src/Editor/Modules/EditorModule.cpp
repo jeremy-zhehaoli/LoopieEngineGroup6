@@ -30,10 +30,18 @@ namespace Loopie
 		/////SCENE
 		Application::GetInstance().CreateScene(""); /// Maybe default One
 		scene = &Application::GetInstance().GetScene();
-		CreateBakerHouse();
 
-		scene->CreateEntity({ 0,0,-10 }, { 1,0,0,0 }, {1,1,1}, nullptr, "MainCamera")->AddComponent<Camera>();
-		scene->CreateEntity({ 0,0,-20 }, { 1,0,0,0 }, {1,1,1}, nullptr, "SecondaryCamera")->AddComponent<Camera>();
+		JsonData data = Json::ReadFromFile(Application::GetInstance().m_activeProject.GetConfigPath());
+		JsonResult<std::string> result = data.Child("last_scene").GetValue<std::string>();
+		if (result.Found)
+			scene->ReadAndLoadSceneFile(result.Result);
+		else {
+			CreateBakerHouse();
+
+			scene->CreateEntity({ 0,0,-10 }, { 1,0,0,0 }, { 1,1,1 }, nullptr, "MainCamera")->AddComponent<Camera>();
+			scene->CreateEntity({ 0,0,-20 }, { 1,0,0,0 }, { 1,1,1 }, nullptr, "SecondaryCamera")->AddComponent<Camera>();
+		}
+		
 
 		Metadata& metadata = AssetRegistry::GetOrCreateMetadata("assets/materials/outlineMaterial.mat");
 		selectedObjectMaterial = ResourceManager::GetMaterial(metadata);

@@ -5,6 +5,7 @@
 #include "Loopie/Core/Window.h"
 #include "Loopie/Files/FileDialog.h"
 #include "Loopie/Files/DirectoryManager.h"
+#include "Loopie/Resources/AssetRegistry.h"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
@@ -361,12 +362,15 @@ namespace Loopie {
 
 			if (ImGui::Button("Save Scene", { 150,20 }))
 			{
-				DirectoryManager::CreateFile(m_newScenePath, m_sceneName, ".json");
-				m_newScenePath = m_newScenePath + "\\" + m_sceneName + ".json";
+				DirectoryManager::CreateFile(m_newScenePath, m_sceneName, ".scene");
+				m_newScenePath = m_newScenePath + "\\" + m_sceneName + ".scene";
 				Application::GetInstance().GetScene().SetFilePath(m_newScenePath);
 
 				Application::GetInstance().GetScene().SaveScene(Application::GetInstance().GetScene().GetFilePath());
+
+				AssetRegistry::RefreshAssetRegistry();
 				ImGui::CloseCurrentPopup();
+
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Cancel")) {
@@ -383,7 +387,8 @@ namespace Loopie {
 			ImGui::SameLine();
 			if (ImGui::Button("##", { 20,20 }))
 			{
-				DialogResult result = FileDialog::SelectFile();
+				std::vector<FileFilter> sceneFilter = { {"Scene Files","scene"} };
+				DialogResult result = FileDialog::SelectFile(sceneFilter);
 				if (result.Status == DialogResultType::SUCCESS)
 				{
 					m_newScenePath = result.Paths[0].string();

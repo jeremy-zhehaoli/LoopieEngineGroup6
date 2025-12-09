@@ -2,6 +2,7 @@
 
 #include "Loopie/Core/Application.h"
 #include "Loopie/Files/DirectoryManager.h"
+#include "Loopie/Files/Json.h"
 
 namespace Loopie {
 	bool Project::Create(const std::filesystem::path& projectPath, const std::string& name) {
@@ -11,8 +12,16 @@ namespace Loopie {
 		}
 
 		m_projectPath = DirectoryManager::CreateFolder(projectPath, name);
+
+
 		m_congifPath = DirectoryManager::CreateFile(m_projectPath, "project", ".config");
 		CreateDefaultPaths();
+
+		JsonData configData;	
+		std::filesystem::path scenePath = DirectoryManager::CreateFolder(m_assetsPath, "Scenes");
+		DirectoryManager::Copy("assets/scenes/DefaultScene.scene", scenePath/"DefaultScene.scene");
+		configData.CreateField<std::string>("last_scene", (scenePath / "DefaultScene.scene").string());
+		Json::WriteToFileFromData(m_congifPath, configData, 4);
 
 		/// Maybe some config Files???? Once Scene Exists a default One
 		Application::GetInstance().m_notifier.Notify(EngineNotification::OnProjectChange);

@@ -1,10 +1,12 @@
 #include "Scene.h"
 #include "Loopie/Files/Json.h"
+#include "Loopie/Core/Application.h"
 #include "Loopie/Core/Log.h"
 #include "Loopie/Components/Transform.h"
 #include "Loopie/Components/Camera.h"
 #include "Loopie/Components/MeshRenderer.h"
 #include "Loopie/Helpers/LoopieHelpers.h"
+#include "Loopie/Resources/AssetRegistry.h"
 
 #include <unordered_set>
 
@@ -19,6 +21,7 @@ namespace Loopie {
 
 		AABB worldBounds(vec3(-500, -500, -500), vec3(500, 500, 500));
 		m_octree = std::make_unique<Octree>(worldBounds);
+
 	}
 
 	Scene::~Scene()
@@ -338,6 +341,22 @@ namespace Loopie {
 			}
 		}
 		Log::Info("Scene loaded successfully");
+		m_filePath = filePath;
+		std::filesystem::path config = Application::GetInstance().m_activeProject.GetConfigPath();
+		if (!config.empty())
+		{
+			JsonData configData = Json::ReadFromFile(config.string());
+			JsonResult<std::string> result = configData.Child("last_scene").GetValue<std::string>();
+			if (!result.Found) {
+				configData.CreateField<std::string>("last_scene", "");
+			}
+			configData.SetValue<std::string>("last_scene", filePath);
+			configData.ToFile(config.string());
+
+			/*Metadata* metadata = AssetRegistry::GetMetadata(filePath); /// Swap to UUID
+			if (metadata)
+				configData.SetValue<std::string>("last_scene", metadata->UUID.Get());*/
+		}
 	}
 
 	std::string Scene::GetUniqueName(std::shared_ptr<Entity> parentEntity, const std::string& desiredName)
