@@ -28,6 +28,8 @@ namespace Loopie {
 
 		void MousePick();
 
+		bool IsVisible() { return m_visible; }
+
 	private:
 		void Drop();
 		void DrawHelperBar();
@@ -37,8 +39,10 @@ namespace Loopie {
 		std::shared_ptr<FrameBuffer> m_buffer;
 		std::shared_ptr<OrbitalCamera> m_camera;
 
-		bool m_usingGuizmo;
+		bool m_usingGuizmo = false;
 		bool m_interacted = false;
+		bool m_visible = false;
+
 		ivec2 m_windowSize = ivec2(0);
 		ivec2 m_mousePosition = ivec2(0);
 

@@ -16,10 +16,13 @@ namespace Loopie {
 		
 		ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoNav;
 		if (ImGui::Begin("Game", nullptr, flags)) {
+			m_visible = true;
 			ImVec2 size = ImGui::GetContentRegionAvail();
 			m_windowSize = { (int)size.x, (int)size.y };
 			ImGui::Image((ImTextureID)m_buffer->GetTextureId(), size, ImVec2(0, 1), ImVec2(1, 0));
 		}
+		else
+			m_visible = false;
 
 		ImGui::End();
 	}

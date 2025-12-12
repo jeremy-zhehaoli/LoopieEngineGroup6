@@ -13,9 +13,12 @@ namespace Loopie {
 		void StartScene();
 		void EndScene();
 
+		bool IsVisible() { return m_visible; }
+
 		Camera* GetCamera();
 
 	private:
+		bool m_visible = false;
 		std::shared_ptr<FrameBuffer> m_buffer;
 		ivec2 m_windowSize = ivec2(0);
 	};

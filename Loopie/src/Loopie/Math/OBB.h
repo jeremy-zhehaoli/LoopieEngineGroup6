@@ -9,11 +9,11 @@ namespace Loopie {
     struct AABB;
 
     struct OBB {
-        vec3 Center;
-        vec3 Extents;
-        vec3 Axes[3];
+        vec3 Center = vec3(0);
+        vec3 Extents = vec3(0);
+        vec3 Axes[3] = { vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f) };
 
-        mutable std::array<vec3, 8> _cachedCorners;
+        mutable std::array<vec3, 8> _cachedCorners = { vec3(0), vec3(0), vec3(0), vec3(0), vec3(0), vec3(0), vec3(0), vec3(0) };
         mutable bool _cornersDirty = true;
 
         void ApplyTransform(const matrix4& transform);

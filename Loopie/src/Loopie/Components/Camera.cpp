@@ -5,6 +5,7 @@
 #include "Loopie/Scene/Entity.h"
 #include "Loopie/Components/Transform.h"
 #include "Loopie/Render/Renderer.h"
+#include "Loopie/Render/Gizmo.h"
 
 
 namespace Loopie
@@ -46,6 +47,11 @@ namespace Loopie
 		CalculateMatrices();
 
 		GetTransform()->m_transformNotifier.AddObserver(this);
+	}
+
+	void Camera::RenderGizmo()
+	{
+		Gizmo::DrawFrustum(GetFrustum());
 	}
 
 	void Camera::OnNotify(const TransformNotification& id)

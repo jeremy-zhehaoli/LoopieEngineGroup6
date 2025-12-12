@@ -16,18 +16,24 @@ layout (std140, binding = 0) uniform Matrices
 uniform mat4 lp_Transform;
 ///
 
-uniform float outlineThickness = 0.03;
+uniform float outlineThickness = 0.01;
 
 void main()
 {
-    // Convert position from local space to view space
-    gl_Position = lp_View * lp_Transform * vec4(a_Position, 1.0);
-    // Conver normal from local space to view space
+    // Transform to view space
+    vec4 viewPos = lp_View * lp_Transform * vec4(a_Position, 1.0);
+    // Compute normal in view space
     vec3 normalViewSpace = normalize(mat3(lp_View * lp_Transform) * a_Normal);
-    // Scale the object by moving its vertices towards normal direction in view space
-    gl_Position.xyz += normalViewSpace * outlineThickness;
-    // Convert position to Clip space
-    gl_Position = lp_Projection * gl_Position;
+    // Distance scaling so outline looks constant
+    float dist = length(viewPos.xyz);
+    // Extract projection info
+    float projScale = lp_Projection[1][1]; // = 1/tan(fov/2)
+    // Convert screen-space thickness to view-space offset
+    float viewOffset = outlineThickness * dist / projScale;
+    // Apply offset
+    viewPos.xyz += normalViewSpace * viewOffset;
+    // Projection
+    gl_Position = lp_Projection * viewPos;
 
 }
 

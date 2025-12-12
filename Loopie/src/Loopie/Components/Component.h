@@ -26,6 +26,10 @@ namespace Loopie {
 		const UUID& GetUUID() const;
 		bool GetIsActive() const;
 
+		// Default Calls
+		virtual void Update() {};
+		virtual void RenderGizmo() {};
+
 		// Setters
 		void SetIsActive(bool active);
 		void SetUUID(const std::string uuid);

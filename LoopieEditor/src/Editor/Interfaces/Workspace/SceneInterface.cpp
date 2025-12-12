@@ -71,6 +71,7 @@ namespace Loopie {
 		}
 
 		if (ImGui::Begin("Scene",nullptr, flags)) {
+			m_visible = true;
 			ImVec2 size = ImGui::GetContentRegionAvail();
 			m_windowSize = { (int)size.x, (int)size.y };
 			m_focused = ImGui::IsWindowHovered();
@@ -107,7 +108,8 @@ namespace Loopie {
 				Renderer::EnableDepth();
 			}
 
-		}
+		}else
+			m_visible = false;
 		ImGui::End();
 	}
 

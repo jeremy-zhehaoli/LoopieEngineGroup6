@@ -64,7 +64,8 @@ namespace Loopie {
 
 		static void RegisterCamera(Camera& camera);
 		static void UnregisterCamera(Camera& camera);
-		static const std::vector<Camera*>& GetRendererCameras() { return s_renderCameras; }
+		static const std::vector<Camera*>& GetRendererCameras() { return s_RenderCameras; }
+		static bool IsGizmoActive() { return s_UseGizmos; }
 
 		static void BeginScene(const matrix4& viewMatrix, const matrix4& projectionMatrix, bool gizmo = true);
 		static void EndScene();
@@ -91,7 +92,9 @@ namespace Loopie {
 	private:
 
 		static std::vector<RenderItem> s_RenderQueue;
-		static std::vector<Camera*> s_renderCameras;
-		static std::shared_ptr<UniformBuffer> s_matricesUniformBuffer;
+		static std::vector<Camera*> s_RenderCameras;
+		static std::shared_ptr<UniformBuffer> s_MatricesUniformBuffer;
+
+		static bool s_UseGizmos;
 	};
 }

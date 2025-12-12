@@ -12,8 +12,9 @@
 namespace Loopie {
 
 	std::vector<Renderer::RenderItem> Renderer::s_RenderQueue = std::vector<Renderer::RenderItem>();
-	std::vector<Camera*> Renderer::s_renderCameras = std::vector<Camera*>();
-	std::shared_ptr<UniformBuffer> Renderer::s_matricesUniformBuffer = nullptr;
+	std::vector<Camera*> Renderer::s_RenderCameras = std::vector<Camera*>();
+	std::shared_ptr<UniformBuffer> Renderer::s_MatricesUniformBuffer = nullptr;
+	bool Renderer::s_UseGizmos = true;
 
 	void Renderer::Init(void* context) {
 		ASSERT(!gladLoadGLLoader((GLADloadproc)context), "Failed to Initialize GLAD!");
@@ -35,8 +36,8 @@ namespace Loopie {
 		BufferLayout layout;
 		layout.AddLayoutElement(0, GLVariableType::MATRIX4, 1, "View");
 		layout.AddLayoutElement(1, GLVariableType::MATRIX4, 1, "Proj");
-		s_matricesUniformBuffer = std::make_shared<UniformBuffer>(layout);
-		s_matricesUniformBuffer->BindToLayout(0);
+		s_MatricesUniformBuffer = std::make_shared<UniformBuffer>(layout);
+		s_MatricesUniformBuffer->BindToLayout(0);
 	}
 
 	void Renderer::Shutdown() {
@@ -58,26 +59,27 @@ namespace Loopie {
 	}
 
 	void Renderer::RegisterCamera(Camera& camera) {
-		auto it = std::find(s_renderCameras.begin(), s_renderCameras.end(), &camera);
-		if (it == s_renderCameras.end()) {
-			s_renderCameras.push_back(&camera);
+		auto it = std::find(s_RenderCameras.begin(), s_RenderCameras.end(), &camera);
+		if (it == s_RenderCameras.end()) {
+			s_RenderCameras.push_back(&camera);
 		}
 	}
 
 	void Renderer::UnregisterCamera(Camera& camera) {
 
-		auto it = std::find(s_renderCameras.begin(), s_renderCameras.end(), &camera);
-		if (it != s_renderCameras.end()) {
-			s_renderCameras.erase(it);
+		auto it = std::find(s_RenderCameras.begin(), s_RenderCameras.end(), &camera);
+		if (it != s_RenderCameras.end()) {
+			s_RenderCameras.erase(it);
 		}
 	}
 
 	void Renderer::BeginScene(const matrix4& viewMatrix, const matrix4& projectionMatrix, bool gizmo)
 	{
-		s_matricesUniformBuffer->SetData(&projectionMatrix[0][0], 0);
-		s_matricesUniformBuffer->SetData(&viewMatrix[0][0], 1);
+		s_UseGizmos = gizmo;
+		s_MatricesUniformBuffer->SetData(&projectionMatrix[0][0], 0);
+		s_MatricesUniformBuffer->SetData(&viewMatrix[0][0], 1);
 
-		if(gizmo)
+		if(s_UseGizmos)
 			Gizmo::BeginGizmo();
 	}
 

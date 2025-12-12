@@ -33,7 +33,7 @@ namespace Loopie {
 		}
 	}
 
-	void MeshRenderer::Render() {
+	void MeshRenderer::RenderGizmo() {
 		if (m_mesh) {
 			///TEST
 			if(m_drawNormalsPerFace)

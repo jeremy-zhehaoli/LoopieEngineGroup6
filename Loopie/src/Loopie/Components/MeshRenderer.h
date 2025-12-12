@@ -22,7 +22,7 @@ namespace Loopie {
 		void Init() override; //// From Component
 		void OnNotify(const TransformNotification& id) override;
 
-		void Render();
+		void RenderGizmo() override;
 		
 		std::shared_ptr<Mesh> GetMesh() { return m_mesh; }
 		void SetMesh(std::shared_ptr<Mesh> mesh);
