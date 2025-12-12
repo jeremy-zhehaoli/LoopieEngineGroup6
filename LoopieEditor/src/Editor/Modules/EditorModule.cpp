@@ -181,14 +181,7 @@ namespace Loopie
 				Renderer::SetStencilFunc(Renderer::StencilFunc::NOTEQUAL, 1, 0xFF);
 				Renderer::SetStencilMask(0x00);
 
-				float outlineScale = 1.05f;
-				glm::vec3 center = renderer->GetWorldAABB().GetCenter();
-
-				glm::mat4 T1 = glm::translate(glm::mat4(1.0f), center);
-				glm::mat4 S = glm::scale(glm::mat4(1.0f), glm::vec3(outlineScale));
-				glm::mat4 T2 = glm::translate(glm::mat4(1.0f), -center);
-				glm::mat4 outlineModel = T1 * S * T2 * entity->GetTransform()->GetLocalToWorldMatrix();
-				Renderer::FlushRenderItem(renderer->GetMesh()->GetVAO(), selectedObjectMaterial, outlineModel);
+				Renderer::FlushRenderItem(renderer->GetMesh()->GetVAO(), selectedObjectMaterial, entity->GetTransform());
 
 				Renderer::SetStencilMask(0xFF);
 				Renderer::EnableDepth();
