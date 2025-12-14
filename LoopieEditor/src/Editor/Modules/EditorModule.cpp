@@ -251,7 +251,7 @@ namespace Loopie
 				if(cam)
 					cam->RenderGizmo();
 			}
-			scene->GetOctree().DebugDraw(GREEN_COLOR);
+			scene->GetOctree().DebugDraw(Color::GREEN);
 		}
 	}
 

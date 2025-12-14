@@ -189,9 +189,9 @@ namespace Loopie {
 				}	
 			}
 
-			Gizmo::DrawLine({ 0.0f, 0.0f, 0.0f }, { 0.0f,s_Data.GridHalfSize * s_Data.GridSpacing, 0.0f }, GREEN_COLOR);
-			Gizmo::DrawLine({ 0.0f, 0.0f, 0.0f }, { s_Data.GridHalfSize * s_Data.GridSpacing, 0.0f, 0.0f }, RED_COLOR);
-			Gizmo::DrawLine({ 0.0f, 0.0f, 0.0f }, {0.0f, 0.0f,  s_Data.GridHalfSize * s_Data.GridSpacing }, BLUE_COLOR);
+			Gizmo::DrawLine({ 0.0f, 0.0f, 0.0f }, { 0.0f,s_Data.GridHalfSize * s_Data.GridSpacing, 0.0f }, Color::GREEN);
+			Gizmo::DrawLine({ 0.0f, 0.0f, 0.0f }, { s_Data.GridHalfSize * s_Data.GridSpacing, 0.0f, 0.0f }, Color::RED);
+			Gizmo::DrawLine({ 0.0f, 0.0f, 0.0f }, {0.0f, 0.0f,  s_Data.GridHalfSize * s_Data.GridSpacing }, Color::BLUE);
 		}
 	}
 }

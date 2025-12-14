@@ -20,12 +20,12 @@ namespace Loopie {
 		static void Init();
 		static void Shutdown();
 
-		static void DrawLine(const vec3& p0, const vec3& p1, const vec4& color = WHITE_COLOR);
-		static void DrawCube(const vec3& p0, const vec3& p1, const vec4& color = WHITE_COLOR);
-		static void DrawCube(const std::array<vec3, 8>& corners, const vec4& color = WHITE_COLOR);
-		static void DrawCube(const OBB& obb, const vec4& color = WHITE_COLOR);
-		static void DrawCube(const AABB& aabb, const vec4& color = WHITE_COLOR);
-		static void DrawFrustum(const Frustum& frustum, const vec4& color = WHITE_COLOR);
+		static void DrawLine(const vec3& p0, const vec3& p1, const vec4& color = Color::WHITE);
+		static void DrawCube(const vec3& p0, const vec3& p1, const vec4& color = Color::WHITE);
+		static void DrawCube(const std::array<vec3, 8>& corners, const vec4& color = Color::WHITE);
+		static void DrawCube(const OBB& obb, const vec4& color = Color::WHITE);
+		static void DrawCube(const AABB& aabb, const vec4& color = Color::WHITE);
+		static void DrawFrustum(const Frustum& frustum, const vec4& color = Color::WHITE);
 
 		static void SetGridSize(int size);
 		static void SetGridSpacing(float spacing);
@@ -73,7 +73,7 @@ namespace Loopie {
 			int GridHalfSize=50;
 			float GridSpacing = 10;
 			bool DrawGrid = true;
-			vec4 GridColor = GREY_COLOR;
+			vec4 GridColor = Color::GREY;
 			///
 		};
 

@@ -402,7 +402,7 @@ namespace Loopie
 		// If is Leaf and depth is greater than 3, then color is YELLOW
 		if (node->m_isLeaf && depth > 3)
 		{
-			Gizmo::DrawCube(node->m_aabb.MinPoint, node->m_aabb.MaxPoint, YELLOW_COLOR);
+			Gizmo::DrawCube(node->m_aabb.MinPoint, node->m_aabb.MaxPoint, Color::YELLOW);
 		}
 		// The rest's is WHATEVER color contained within var color (normally GREEN)
 		else
