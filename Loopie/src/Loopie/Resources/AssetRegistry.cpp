@@ -8,11 +8,41 @@
 #include "Loopie/Importers/TextureImporter.h"
 #include "Loopie/Importers/MeshImporter.h"
 #include "Loopie/Importers/MaterialImporter.h"
+#include "Loopie/Importers/AudioImporter.h"
 
 #include <filesystem>
 #include <unordered_set>
 
 namespace Loopie {
+		namespace {
+		void SyncWwiseAssets()
+		{
+			const Project& project = Application::GetInstance().m_activeProject;
+			const std::filesystem::path wwiseAssetsPath = project.GetAssetsPath() / "Wwise";
+			if (!std::filesystem::exists(wwiseAssetsPath)) {
+				return;
+			}
+
+			const std::filesystem::path wwiseLibraryPath = project.GetChachePath() / "Wwise";
+			std::error_code error;
+			std::filesystem::create_directories(wwiseLibraryPath, error);
+			if (error) {
+				Log::Warn("Failed to create Wwise library folder: {0}", error.message());
+				return;
+			}
+
+			std::filesystem::copy(
+				wwiseAssetsPath,
+				wwiseLibraryPath,
+				std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing,
+				error
+			);
+
+			if (error) {
+				Log::Warn("Failed to sync Wwise assets: {0}", error.message());
+			}
+		}
+	}
 
 	std::unordered_map<UUID, Metadata> AssetRegistry::s_Assets;
 	std::unordered_map<std::string, UUID> AssetRegistry::s_PathToUUID;
@@ -34,6 +64,7 @@ namespace Loopie {
 		CleanOrphanedMetadata();
 		ScanEngineDirectory();
 		ScanAssetDirectory();
+		SyncWwiseAssets();
 
 		for (auto& [key, metadata] : s_Assets) {
 			
@@ -60,6 +91,12 @@ namespace Loopie {
 			else if (metadata.Type == ResourceType::MATERIAL || MaterialImporter::CheckIfIsMaterial(pathString.c_str())) {
 				if (metadata.IsOutdated || metadata.CachesPath.size() == 0) {
 					MaterialImporter::ImportMaterial(pathString, metadata);
+					updated = true;
+				}
+			}
+			else if (metadata.Type == ResourceType::AUDIO || AudioImporter::CheckIfIsAudio(pathString.c_str())) {
+				if (metadata.IsOutdated || metadata.CachesPath.size() == 0) {
+					AudioImporter::ImportAudio(pathString, metadata);
 					updated = true;
 				}
 			}

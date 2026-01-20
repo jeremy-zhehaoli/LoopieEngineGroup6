@@ -11,7 +11,8 @@ namespace Loopie {
 		MATERIAL,
 		SHADER,
 		SCENE,
-		UNKNOWN
+		UNKNOWN,
+		AUDIO
 	};
 
 	class Resource : public  IIdentificable {
