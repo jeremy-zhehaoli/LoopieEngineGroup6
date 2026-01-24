@@ -30,6 +30,10 @@ namespace Loopie {
 		virtual void Update() {};
 		virtual void RenderGizmo() {};
 
+		// Métodos para override en derivados
+		virtual void OnStart() {}
+		virtual void OnUpdate() {}
+
 		// Setters
 		void SetIsActive(bool active);
 		void SetUUID(const std::string uuid);

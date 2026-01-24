@@ -4,10 +4,14 @@
 #include "Loopie/Events/IObserver.h"
 #include "Editor/Events/EditorEventTypes.h"
 
+
+
 namespace Loopie {
 	class Transform;
 	class Camera;
 	class MeshRenderer;
+	class AudioSource;
+	class AudioListener;
 
 
 	class InspectorInterface : public Interface , public IObserver<OnEntityOrFileNotification>{
@@ -32,6 +36,8 @@ namespace Loopie {
 		void DrawEntityConfig(const std::shared_ptr<Entity>& entity);
 		void DrawTransform(Transform* transform);
 		void DrawCamera(Camera* camera);
+		void DrawAudioSource(AudioSource* source);
+		void DrawAudioListener(AudioListener* listener);
 		void DrawMeshRenderer(MeshRenderer* meshRenderer);
 		void AddComponent(const std::shared_ptr<Entity>& entity);
 		bool RemoveComponent(Component* component);
@@ -45,5 +51,6 @@ namespace Loopie {
 	private:
 
 		InspectorMode m_mode = InspectorMode::None;
+		bool m_locked = false;
 	};
 }

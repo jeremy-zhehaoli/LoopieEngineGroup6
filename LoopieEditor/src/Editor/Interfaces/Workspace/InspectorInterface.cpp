@@ -9,6 +9,9 @@
 #include "Loopie/Components/MeshRenderer.h"
 #include "Loopie/Resources/AssetRegistry.h"
 
+#include "Loopie/Components/AudioSource.h"
+#include "Loopie/Components/AudioListener.h"
+
 #include <imgui.h>
 
 namespace Loopie {
@@ -30,6 +33,9 @@ namespace Loopie {
 
 	void InspectorInterface::Render() {
 		if (ImGui::Begin("Inspector")) {
+
+			ImGui::Checkbox("Lock Inspector", &m_locked);
+			ImGui::Separator();
 
 			switch (m_mode)
 			{
@@ -63,6 +69,12 @@ namespace Loopie {
 			}
 			else if (component->GetTypeID() == MeshRenderer::GetTypeIDStatic()) {
 				DrawMeshRenderer(static_cast<MeshRenderer*>(component));
+			}
+			else if (component->GetTypeID() == AudioSource::GetTypeIDStatic()) {
+				DrawAudioSource(static_cast<AudioSource*>(component));
+			}
+			else if (component->GetTypeID() == AudioListener::GetTypeIDStatic()) {
+				DrawAudioListener(static_cast<AudioListener*>(component));
 			}
 		}
 		AddComponent(entity);
@@ -165,6 +177,86 @@ namespace Loopie {
 				if(isMainCamera)
 					camera->SetAsMainCamera();
 			}
+		}
+		ImGui::PopID();
+	}
+
+	void InspectorInterface::DrawAudioSource(AudioSource* source)
+	{
+		ImGui::PushID(source);
+		bool open = ImGui::CollapsingHeader("Audio Source", ImGuiTreeNodeFlags_DefaultOpen);
+		if (RemoveComponent(source)) { ImGui::PopID(); return; }
+
+		if (open)
+		{
+			// 1. Preparar el buffer con el valor ACTUAL
+			char buffer[256];
+			memset(buffer, 0, sizeof(buffer));
+			if (!source->eventPath.empty()) {
+				strncpy_s(buffer, source->eventPath.c_str(), sizeof(buffer) - 1);
+			}
+
+			// 2. Dibujar InputText y detectar si el usuario ESCRIBE
+			if (ImGui::InputText("Audio Path", buffer, sizeof(buffer)))
+			{
+				// Solo entramos aquí si el usuario teclea
+				source->SetEventPath(std::string(buffer));
+			}
+
+			// 3. Lógica de Drag & Drop
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_EXPLORER_FILE"))
+				{
+					const char* path = (const char*)payload->Data;
+					std::filesystem::path resourcePath(path);
+
+					// Limpieza de ruta: buscamos "assets" para hacerla relativa
+					std::string finalPath = resourcePath.string();
+					size_t pos = finalPath.find("assets");
+					if (pos != std::string::npos) {
+						finalPath = finalPath.substr(pos);
+					}
+
+					// Normalizar barras (importante para FMOD)
+					std::replace(finalPath.begin(), finalPath.end(), '\\', '/');
+
+					// Asignar al componente
+					source->SetEventPath(finalPath);
+
+					// Imprimimos en consola para verificar que llega bien
+					Log::Info("Audio Dropped: {0}", finalPath);
+				}
+				ImGui::EndDragDropTarget();
+			}
+
+			// 4. Resto de controles
+			ImGui::Checkbox("Play On Awake", &source->playOnAwake);
+
+			ImGui::Spacing();
+			if (ImGui::Button("Play")) source->Play();
+			ImGui::SameLine();
+			if (ImGui::Button("Stop")) source->Stop();
+		}
+		ImGui::PopID();
+	}
+
+	// --- NUEVA FUNCIÓN: DRAW AUDIO LISTENER ---
+	void InspectorInterface::DrawAudioListener(AudioListener* listener)
+	{
+		ImGui::PushID(listener);
+
+		bool open = ImGui::CollapsingHeader("Audio Listener", ImGuiTreeNodeFlags_DefaultOpen);
+
+		if (RemoveComponent(listener)) {
+			ImGui::PopID();
+			return;
+		}
+
+		if (open)
+		{
+			ImGui::Text("Audio Listener Active");
+			ImGui::TextDisabled("(No editable properties)");
 		}
 		ImGui::PopID();
 	}
@@ -411,6 +503,26 @@ namespace Loopie {
 				return;
 			}
 
+			if (!entity->HasComponent<AudioSource>())
+			{
+				if (ImGui::Selectable("Audio Source"))
+				{
+					entity->AddComponent<AudioSource>();
+					ImGui::EndCombo();
+					return;
+				}
+			}
+
+			// Audio Listener (Solo uno por objeto)
+			if (!entity->HasComponent<AudioListener>())
+			{
+				if (ImGui::Selectable("Audio Listener"))
+				{
+					entity->AddComponent<AudioListener>();
+					ImGui::EndCombo();
+					return;
+				}
+			}
 
 			///// How To Add More Components
 			// 
@@ -453,6 +565,8 @@ namespace Loopie {
 
 	void InspectorInterface::OnNotify(const OnEntityOrFileNotification& id)
 	{
+		if (m_locked) return;
+
 		if (id == OnEntityOrFileNotification::OnEntitySelect) {
 			m_mode = InspectorMode::EntityMode;
 		}

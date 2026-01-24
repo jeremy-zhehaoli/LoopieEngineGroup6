@@ -20,6 +20,10 @@
 #include "Loopie/Resources/Types/Material.h"
 ///
 
+#include "Loopie/Components/AudioListener.h"
+#include "Loopie/Components/AudioSource.h"
+#include <memory>
+
 #include <glad/glad.h>
 
 namespace Loopie
@@ -263,6 +267,21 @@ namespace Loopie
 	{
 		m_scene.ChargeModel("assets/models/Street environment_V01.fbx");
 		//m_scene.ChargeTexture("assets/textures/Baker_house.png");
+
+		auto e = m_currentScene->CreateEntity(vec3(0, 0, 0), quaternion(1, 0, 0, 0), vec3(1, 1, 1), nullptr, "TestAudio");
+
+		// 2. Verificamos que la entidad se creó antes de usarla
+		if (e) {
+			// 3. Usamos 'auto' también para el componente
+			auto src = e->AddComponent<AudioSource>();
+
+			// 4. Verificamos que el componente se creó
+			if (src) {
+				src->SetEventPath("event:/Music/Loop");
+				src->Play();
+			}
+		}
+
 	}
 
 	/*void EditorModule::MousePick(Camera* camera)

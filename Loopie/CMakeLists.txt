@@ -98,9 +98,22 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 
 # Copiar DLLs de FMOD automáticamente al compilar (IMPORTANTE)
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    # 1. fmod.dll (Core Release)
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${FMOD_DIR}/api/core/lib/${FMOD_ARCH_DIR}/fmod.dll"
+    "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+    
+    # 2. fmodL.dll (Core Debug)
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${FMOD_DIR}/api/core/lib/${FMOD_ARCH_DIR}/fmodL.dll"
     "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+
+    # 3. fmodstudio.dll (Studio Release) - ESTE ES EL QUE TE FALTA AHORA
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${FMOD_DIR}/api/studio/lib/${FMOD_ARCH_DIR}/fmodstudio.dll"
+    "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+
+    # 4. fmodstudioL.dll (Studio Debug)
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${FMOD_DIR}/api/studio/lib/${FMOD_ARCH_DIR}/fmodstudioL.dll"
     "$<TARGET_FILE_DIR:${PROJECT_NAME}>"

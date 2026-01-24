@@ -18,6 +18,15 @@ namespace Loopie {
 	std::unordered_map<std::string, UUID> AssetRegistry::s_PathToUUID;
 	std::unordered_map<UUID, std::string> AssetRegistry::s_UUIDToPath;
 
+	static bool IsAudioFile(const std::string& path) {
+		std::filesystem::path p(path);
+		if (!p.has_extension()) return false;
+
+		std::string ext = p.extension().string();
+		// Convertir a minúsculas si es necesario, o listar variaciones
+		return ext == ".wav" || ext == ".mp3" || ext == ".ogg" || ext == ".bank";
+	}
+
 	void AssetRegistry::Initialize() {
 	
 		RefreshAssetRegistry();
@@ -63,6 +72,17 @@ namespace Loopie {
 					updated = true;
 				}
 			}
+
+			else if (metadata.Type == ResourceType::AUDIO || IsAudioFile(pathString)) {
+				// Si detectamos que es un archivo de audio, forzamos el tipo en la metadata
+				if (metadata.Type != ResourceType::AUDIO) {
+					metadata.Type = ResourceType::AUDIO;
+					updated = true; // Esto forzará que se guarde el .meta con el tipo correcto
+				}
+				// Nota: No llamamos a un "AudioImporter::Import" porque FMOD usa los archivos raw directamente.
+				// Simplemente asegurándonos de que el tipo es AUDIO, el AssetExplorer sabrá qué es.
+			}
+
 
 			///
 			if (updated) {
