@@ -109,11 +109,6 @@ namespace Loopie {
 				}
 			}
 
-			if (m_scene)
-			{
-				m_scene->UpdateAudio();
-			}
-
 			if(m_renderInterface){
 				for (Module* module : m_modules) {
 					if (module->IsActive()) {
