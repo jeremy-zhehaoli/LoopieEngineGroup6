@@ -46,15 +46,12 @@ namespace Loopie {
 	const void Project::CreateDefaultPaths()
 	{
 		m_assetsPath = DirectoryManager::CreateFolder(m_projectPath, "Assets");
-		DirectoryManager::CreateFolder(m_assetsPath, "Wwise");
 
 		m_cachePath = DirectoryManager::CreateFolder(m_projectPath, "Library");
 		DirectoryManager::CreateFolder(m_cachePath, "Textures");
 		DirectoryManager::CreateFolder(m_cachePath, "Meshes");
 		DirectoryManager::CreateFolder(m_cachePath, "Materials");
 		DirectoryManager::CreateFolder(m_cachePath, "Shaders");
-		DirectoryManager::CreateFolder(m_cachePath, "Audio");
-		DirectoryManager::CreateFolder(m_cachePath, "Wwise");
 
 	}
 }
