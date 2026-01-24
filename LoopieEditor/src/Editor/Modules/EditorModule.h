@@ -52,5 +52,7 @@ namespace Loopie {
 		Scene* m_currentScene = nullptr;
 		std::shared_ptr<Material> m_selectedObjectMaterial;
 		Shader* m_selectedObjectShader;
+
+		std::shared_ptr<Entity> m_musicEntity = nullptr;
 	};
 }

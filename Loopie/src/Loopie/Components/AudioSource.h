@@ -127,5 +127,17 @@ namespace Loopie {
                 m_sound->release(); // Liberar el sonido raw
             }
         }
+
+        // Añade o verifica que tengas esta función pública:
+        void SetParameter(const std::string& name, float value) {
+            // Solo los Eventos de FMOD Studio soportan parámetros por nombre
+            if (m_isEvent && m_eventInstance) {
+                FMOD_RESULT res = m_eventInstance->setParameterByName(name.c_str(), value);
+                if (res != FMOD_OK) {
+                    // Log::Warn("Parameter not found: {0}", name); // Descomenta si quieres depurar
+                }
+            }
+        }
+
     };
 }

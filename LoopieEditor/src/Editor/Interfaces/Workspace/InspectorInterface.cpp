@@ -230,6 +230,23 @@ namespace Loopie {
 				ImGui::EndDragDropTarget();
 			}
 
+			ImGui::Separator();
+			ImGui::Text("Interactive Parameters");
+
+			// Variables estáticas para mantener el valor en la UI (simple para debug)
+			static char paramName[64] = "Intensity";
+			static float paramValue = 0.0f;
+
+			// 1. Escribir el nombre del parámetro (tal cual está en FMOD Studio)
+			ImGui::InputText("Param Name", paramName, sizeof(paramName));
+
+			// 2. Slider para cambiar el valor (0.0 a 1.0 es lo estándar para blends)
+			if (ImGui::SliderFloat("Value", &paramValue, 0.0f, 1.0f)) {
+				// Al mover el slider, enviamos el valor a FMOD
+				source->SetParameter(std::string(paramName), paramValue);
+			}
+			ImGui::Separator();
+
 			// 4. Resto de controles
 			ImGui::Checkbox("Play On Awake", &source->playOnAwake);
 

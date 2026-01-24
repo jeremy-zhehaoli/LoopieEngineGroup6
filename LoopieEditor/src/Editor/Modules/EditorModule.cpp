@@ -138,6 +138,18 @@ namespace Loopie
 			}
 			m_game.EndScene();
 		}
+
+		if (m_musicEntity) {
+			auto source = m_musicEntity->GetComponent<AudioSource>();
+			if (source) {
+				// Oscilar valor entre 0.0 y 1.0 usando el tiempo (Seno)
+				// Esto hará que la música vaya de "Calma" a "Acción" y vuelva cada ~6 segundos
+				float intensity = (std::sin(ImGui::GetTime() * 1.0f) + 1.0f) * 0.5f;
+
+				// Enviamos el parámetro "Intensity" (o como lo hayas llamado en FMOD)
+				source->SetParameter("Intensity", intensity);
+			}
+		}
 		
 	}
 
