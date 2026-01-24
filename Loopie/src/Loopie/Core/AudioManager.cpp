@@ -3,6 +3,7 @@
 #include <fmod_errors.h>
 #include <filesystem>
 
+
 namespace Loopie {
 
     FMOD::Studio::System* AudioManager::s_studioSystem = nullptr;
@@ -85,19 +86,27 @@ namespace Loopie {
         return sound;
     }
 
-    void AudioManager::PlaySound(FMOD::Sound* sound, FMOD::Channel** channel) {
+    void AudioManager::PlaySound(FMOD::Sound* sound, FMOD::Channel** channel, bool paused) {
         if (s_coreSystem && sound) {
-            s_coreSystem->playSound(sound, nullptr, false, channel);
+            // Pasamos el parámetro 'paused' a FMOD
+            s_coreSystem->playSound(sound, nullptr, paused, channel);
         }
     }
 
     void AudioManager::SetListenerAttributes(const glm::vec3& pos, const glm::vec3& forward, const glm::vec3& up) {
         FMOD_3D_ATTRIBUTES attributes = { {0} };
+
         attributes.position = VectorToFmod(pos);
         attributes.forward = VectorToFmod(forward);
         attributes.up = VectorToFmod(up);
 
-        s_studioSystem->setListenerAttributes(0, &attributes);
+        // También actualizamos la velocidad a 0 para evitar efectos Doppler raros por ahora
+        attributes.velocity = { 0, 0, 0 };
+
+        // IMPORTANTE: El '0' es el índice del listener (solo hay 1 jugador)
+        if (s_studioSystem) {
+            s_studioSystem->setListenerAttributes(0, &attributes);
+        }
     }
 
     void AudioManager::SetGlobalParameter(const std::string& name, float value) {

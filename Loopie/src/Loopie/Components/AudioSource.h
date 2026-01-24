@@ -121,9 +121,32 @@ namespace Loopie {
                 m_eventInstance->start();
             }
             else if (!m_isEvent && m_sound) {
-                AudioManager::PlaySound(m_sound, &m_channel);
-                // Aseguramos el volumen al reproducir
-                // SetVolume(1.0f); 
+                // 1. ARRANCAR EN PAUSA (Usando nuestra nueva función del Manager)
+                AudioManager::PlaySound(m_sound, &m_channel, true);
+
+                if (m_channel) {
+                    // 2. MODO 3D (Sin IGNORETAGS para que no te de error)
+                    m_channel->setMode(FMOD_3D | FMOD_3D_LINEARROLLOFF);
+
+                    // 3. LA CLAVE: OBLIGAR A 3D (1.0f = Todo el sonido sale de un punto)
+                    // Esto arregla el problema de los MP3 estéreo
+                    m_channel->set3DLevel(1.0f);
+
+                    // 4. DISTANCIAS
+                    // Min 2 metros, Max 20 metros
+                    m_channel->set3DMinMaxDistance(2.0f, 20.0f);
+
+                    // 5. POSICIONAR INICIALMENTE
+                    Transform* t = GetOwner()->GetTransform();
+                    if (t) {
+                        FMOD_VECTOR pos = AudioManager::VectorToFmod(t->GetPosition());
+                        FMOD_VECTOR vel = { 0, 0, 0 };
+                        m_channel->set3DAttributes(&pos, &vel);
+                    }
+
+                    // 6. DESPAUSAR (¡Que suene!)
+                    m_channel->setPaused(false);
+                }
             }
         }
 

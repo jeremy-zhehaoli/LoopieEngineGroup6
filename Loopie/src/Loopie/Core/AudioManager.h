@@ -17,7 +17,7 @@ namespace Loopie {
         static FMOD::Sound* CreateSound(const std::string& path, bool loop = false);
 
         // Control
-        static void PlaySound(FMOD::Sound* sound, FMOD::Channel** channel);
+        static void PlaySound(FMOD::Sound* sound, FMOD::Channel** channel, bool paused = false);
 
         // 3D Audio
         static void SetListenerAttributes(const glm::vec3& pos, const glm::vec3& forward, const glm::vec3& up);
@@ -26,7 +26,6 @@ namespace Loopie {
         // Parámetros globales (para el Túnel, por ejemplo)
         static void SetGlobalParameter(const std::string& name, float value);
 
-    private:
         static FMOD::Studio::System* s_studioSystem;
         static FMOD::System* s_coreSystem;
     };

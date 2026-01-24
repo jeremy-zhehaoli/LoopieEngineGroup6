@@ -50,6 +50,16 @@ namespace Loopie {
 
 	public:
 
+		// Devuelve la primera entidad cuyo nombre coincide con el proporcionado, o nullptr si no existe
+		std::shared_ptr<Entity> GetEntityByName(const std::string& name) const {
+			for (const auto& [uuid, entity] : m_entities) {
+				if (entity && entity->GetName() == name) {
+					return entity;
+				}
+			}
+			return nullptr;
+		}
+
 	private:
 		std::string GetUniqueName(std::shared_ptr<Entity> parentEntity, const std::string& desiredName);
 		void CollectEntitiesRecursive(std::shared_ptr<Entity> entity,
