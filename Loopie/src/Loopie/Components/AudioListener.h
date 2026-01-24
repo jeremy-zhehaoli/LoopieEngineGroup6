@@ -11,7 +11,7 @@ namespace Loopie {
         DEFINE_TYPE(AudioListener)
 
         void Init() override {
-            Log::Info("AudioListener INICIALIZADO. ¡Estoy vivo!");
+            Log::Info("AudioListener INITIAL");
         }
 
         void OnStart() override {}

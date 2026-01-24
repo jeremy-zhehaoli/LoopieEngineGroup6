@@ -3,6 +3,12 @@
 #include <fmod_errors.h>
 #include <filesystem>
 
+#include "Loopie/Scene/Scene.h"
+#include "Loopie/Scene/Entity.h"
+#include "Loopie/Components/AudioSource.h"
+#include "Loopie/Components/AudioListener.h" 
+#include "Loopie/Components/Transform.h"
+
 
 namespace Loopie {
 
@@ -10,7 +16,6 @@ namespace Loopie {
     FMOD::System* AudioManager::s_coreSystem = nullptr;
 
     void AudioManager::Init() {
-        // Inicializar FMOD Studio y Core
         FMOD_RESULT result = FMOD::Studio::System::create(&s_studioSystem);
         if (result != FMOD_OK) {
             Log::Critical("FMOD Create Error: {0}", FMOD_ErrorString(result));
@@ -29,9 +34,7 @@ namespace Loopie {
     }
 
     void AudioManager::Update() {
-        if (s_studioSystem) {
-            s_studioSystem->update();
-        }
+        if (s_studioSystem) s_studioSystem->update();
     }
 
     void AudioManager::Shutdown() {
@@ -41,15 +44,81 @@ namespace Loopie {
         }
     }
 
+    void AudioManager::UpdateSceneAudio(Scene* scene)
+    {
+        Update();
+
+        if (!scene) return;
+
+        glm::vec3 listenerPos(0, 0, 0);
+        bool listenerFound = false;
+
+        auto& allEntities = scene->GetAllEntities();
+
+        for (auto& [uuid, entity] : allEntities)
+        {
+            if (entity->GetIsActive())
+            {
+                auto listener = entity->GetComponent<AudioListener>();
+                if (listener)
+                {
+                    Transform* t = entity->GetTransform();
+                    if (t) {
+                        listenerPos = t->GetPosition();
+                        SetListenerAttributes(t->GetPosition(), t->Forward(), t->Up());
+                        listenerFound = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!listenerFound) SetListenerAttributes({ 0,0,0 }, { 0,0,1 }, { 0,1,0 });
+
+        bool inTunnel = (listenerPos.x > 10.0f);
+
+        for (auto& [uuid, entity] : allEntities)
+        {
+            if (entity->GetIsActive())
+            {
+                auto source = entity->GetComponent<AudioSource>();
+                if (source) {
+                    source->OnUpdate();
+
+                    if (inTunnel) source->SetPitch(0.5f);
+                    else source->SetPitch(1.0f);
+                }
+            }
+        }
+    }
+
+    void AudioManager::StartSceneAudio(Scene* scene)
+    {
+        if (!scene) return;
+        auto& allEntities = scene->GetAllEntities();
+
+        for (auto& [uuid, entity] : allEntities)
+        {
+            if (entity->GetIsActive())
+            {
+                auto source = entity->GetComponent<AudioSource>();
+                if (source && source->playOnAwake) {
+                    if (!source->audioClips.empty()) {
+                        source->SetCurrentClip(source->currentClipIndex);
+                    }
+                    source->Play();
+                }
+            }
+        }
+    }
+
     FMOD::Studio::EventInstance* AudioManager::CreateEventInstance(const std::string& eventPath) {
         FMOD::Studio::EventDescription* eventDesc = nullptr;
         FMOD_RESULT result = s_studioSystem->getEvent(eventPath.c_str(), &eventDesc);
-
         if (result != FMOD_OK) {
             Log::Error("FMOD Event not found: {0}", eventPath);
             return nullptr;
         }
-
         FMOD::Studio::EventInstance* instance = nullptr;
         eventDesc->createInstance(&instance);
         return instance;
@@ -57,62 +126,39 @@ namespace Loopie {
 
     FMOD::Sound* AudioManager::CreateSound(const std::string& path, bool loop) {
         FMOD::Sound* sound = nullptr;
-
-        // Configuración 3D por defecto
         FMOD_MODE mode = FMOD_DEFAULT | FMOD_3D;
-
-        // Aplicar flag de Loop
         if (loop) mode |= FMOD_LOOP_NORMAL;
         else mode |= FMOD_LOOP_OFF;
 
-        // INTENTO 1: Ruta tal cual (relativa al .exe)
         FMOD_RESULT result = s_coreSystem->createSound(path.c_str(), mode, nullptr, &sound);
-
-        // INTENTO 2: Corrección de ruta para Debug (subir 2 niveles a 'assets')
         if (result != FMOD_OK) {
             std::string fixPath = "../../" + path;
             result = s_coreSystem->createSound(fixPath.c_str(), mode, nullptr, &sound);
-
-            if (result == FMOD_OK) {
-                // Log::Info("Audio loaded via fixPath: {0}", fixPath); // Descomenta para debug
-            }
         }
 
         if (result != FMOD_OK) {
-            Log::Error("Failed to load sound: {0}. FMOD Error: {1}", path, FMOD_ErrorString(result));
+            Log::Error("Failed to load sound: {0}", path);
             return nullptr;
         }
-
         return sound;
     }
 
     void AudioManager::PlaySound(FMOD::Sound* sound, FMOD::Channel** channel, bool paused) {
         if (s_coreSystem && sound) {
-            // Pasamos el parámetro 'paused' a FMOD
             s_coreSystem->playSound(sound, nullptr, paused, channel);
         }
     }
 
     void AudioManager::SetListenerAttributes(const glm::vec3& pos, const glm::vec3& forward, const glm::vec3& up) {
         FMOD_3D_ATTRIBUTES attributes = { {0} };
-
         attributes.position = VectorToFmod(pos);
         attributes.forward = VectorToFmod(forward);
         attributes.up = VectorToFmod(up);
-
-        // También actualizamos la velocidad a 0 para evitar efectos Doppler raros por ahora
-        attributes.velocity = { 0, 0, 0 };
-
-        // IMPORTANTE: El '0' es el índice del listener (solo hay 1 jugador)
-        if (s_studioSystem) {
-            s_studioSystem->setListenerAttributes(0, &attributes);
-        }
+        if (s_studioSystem) s_studioSystem->setListenerAttributes(0, &attributes);
     }
 
     void AudioManager::SetGlobalParameter(const std::string& name, float value) {
-        if (s_studioSystem) {
-            s_studioSystem->setParameterByName(name.c_str(), value);
-        }
+        if (s_studioSystem) s_studioSystem->setParameterByName(name.c_str(), value);
     }
 
     FMOD_VECTOR AudioManager::VectorToFmod(const glm::vec3& v) {

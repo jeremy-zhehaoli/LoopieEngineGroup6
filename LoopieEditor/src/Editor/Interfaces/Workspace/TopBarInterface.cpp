@@ -7,126 +7,140 @@
 #include "Loopie/Components/Component.h"
 #include "Loopie/Core/Log.h"
 
+// --- INCLUDES NECESARIOS ---
+#include "Loopie/Core/AudioManager.h"
+#include "Loopie/Core/Application.h" // Necesario para GetInstance
+// ---------------------------
+
 namespace Loopie
 {
-    TopBarInterface::TopBarInterface()
-    {
-        std::vector<std::string> iconsToLoad = {
-            "assets/icons/icon_play.png",
-            "assets/icons/icon_pause.png",
-            "assets/icons/icon_stop.png",
-            "assets/icons/icon_nextFrame.png"
-        };
+	TopBarInterface::TopBarInterface()
+	{
+		std::vector<std::string> iconsToLoad = {
+			"assets/icons/icon_play.png",
+			"assets/icons/icon_pause.png",
+			"assets/icons/icon_stop.png",
+			"assets/icons/icon_nextFrame.png"
+		};
 
-        std::vector<Metadata> iconsToLoadMetadatas;
-        for (size_t i = 0; i < iconsToLoad.size(); i++)
-        {
-            Metadata& meta = AssetRegistry::GetOrCreateMetadata(iconsToLoad[i]);
-            TextureImporter::ImportImage(iconsToLoad[i], meta);
-            iconsToLoadMetadatas.emplace_back(meta);
-        }
+		std::vector<Metadata> iconsToLoadMetadatas;
+		for (size_t i = 0; i < iconsToLoad.size(); i++)
+		{
+			Metadata& meta = AssetRegistry::GetOrCreateMetadata(iconsToLoad[i]);
+			TextureImporter::ImportImage(iconsToLoad[i], meta);
+			iconsToLoadMetadatas.emplace_back(meta);
+		}
 
-        m_playIcon = ResourceManager::GetTexture(iconsToLoadMetadatas[0]);
-        m_pauseIcon = ResourceManager::GetTexture(iconsToLoadMetadatas[1]);
-        m_stopIcon = ResourceManager::GetTexture(iconsToLoadMetadatas[2]);
-        m_nextFrameIcon = ResourceManager::GetTexture(iconsToLoadMetadatas[3]);
-    }
+		m_playIcon = ResourceManager::GetTexture(iconsToLoadMetadatas[0]);
+		m_pauseIcon = ResourceManager::GetTexture(iconsToLoadMetadatas[1]);
+		m_stopIcon = ResourceManager::GetTexture(iconsToLoadMetadatas[2]);
+		m_nextFrameIcon = ResourceManager::GetTexture(iconsToLoadMetadatas[3]);
+	}
 
-    void TopBarInterface::Update(const InputEventManager& inputEvent)
-    {
-        if (m_actualMode == PAUSE || m_actualMode == DEACTIVATED)
-            return;
-        if (m_actualMode == STOP)
-        {
-            Application::GetInstance().GetScene().ReadAndLoadSceneFile("recoverScene.scene", false);
-            m_actualMode = DEACTIVATED;
-            return;
-        }
-        for (const auto& [uuid, entity] : Application::GetInstance().GetScene().GetAllEntities())
-        {
-            for (auto& component : entity->GetComponents())
-            {
-                component->Update();
-            }
-        }
-        if (m_actualMode == NEXTFRAME)
-            m_actualMode = PAUSE;
-    }
+	void TopBarInterface::Update(const InputEventManager& inputEvent)
+	{
+		if (m_actualMode == PAUSE || m_actualMode == DEACTIVATED)
+			return;
+		if (m_actualMode == STOP)
+		{
+			Application::GetInstance().GetScene().ReadAndLoadSceneFile("recoverScene.scene", false);
+			m_actualMode = DEACTIVATED;
+			return;
+		}
+		for (const auto& [uuid, entity] : Application::GetInstance().GetScene().GetAllEntities())
+		{
+			for (auto& component : entity->GetComponents())
+			{
+				component->Update();
+			}
+		}
+		if (m_actualMode == NEXTFRAME)
+			m_actualMode = PAUSE;
+	}
 
-    void TopBarInterface::Render()
-    {
-        ImGuiViewport* viewport = ImGui::GetMainViewport();
+	void TopBarInterface::Render()
+	{
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
 
-        ImGui::SetNextWindowPos(viewport->WorkPos);
-        ImGui::SetNextWindowSize(ImVec2(viewport->WorkSize.x, m_toolbarHeight));
+		// ELIMINADO: Cálculos complejos de dockPos que daban error con m_topBar.
+		// La TopBar simplemente se pega arriba del todo.
 
-        ImGuiWindowFlags flags =
-            ImGuiWindowFlags_NoDocking |
-            ImGuiWindowFlags_NoTitleBar |
-            ImGuiWindowFlags_NoResize |
-            ImGuiWindowFlags_NoMove |
-            ImGuiWindowFlags_NoScrollbar |
-            ImGuiWindowFlags_NoScrollWithMouse |
-            ImGuiWindowFlags_NoCollapse;
+		ImGui::SetNextWindowPos(viewport->WorkPos);
+		// Usamos m_toolbarHeight directamente (es variable de esta clase)
+		ImGui::SetNextWindowSize(ImVec2(viewport->WorkSize.x, m_toolbarHeight));
 
-        ImGui::Begin("##TopBar", nullptr, flags);
+		// CORREGIDO: Definimos las flags y usamos el MISMO nombre abajo
+		ImGuiWindowFlags windowFlags =
+			ImGuiWindowFlags_NoDocking |
+			ImGuiWindowFlags_NoTitleBar |
+			ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoScrollWithMouse |
+			ImGuiWindowFlags_NoCollapse;
 
-        float avail = ImGui::GetContentRegionAvail().x;
-        bool hasStyle = false;
-        float buttonWidth = 20.0f * 3 + ImGui::GetStyle().ItemSpacing.x * 2;
-        float offset = (avail - buttonWidth) * 0.5f;
+		ImGui::Begin("##TopBar", nullptr, windowFlags);
 
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset);
+		float avail = ImGui::GetContentRegionAvail().x;
+		bool hasStyle = false;
+		float buttonWidth = 20.0f * 3 + ImGui::GetStyle().ItemSpacing.x * 2;
+		float offset = (avail - buttonWidth) * 0.5f;
 
-        if (m_actualMode == DEACTIVATED)
-        {
-            if (ImGui::ImageButton("play", (ImTextureID)m_playIcon->GetRendererId(), ImVec2(15, 15)))
-            {
-                Application::GetInstance().GetScene().SaveScene("recoverScene.scene");
-                m_actualMode = PLAY;
-            }
-        }
-        else
-        {
-            if (ImGui::ImageButton("stop", (ImTextureID)m_stopIcon->GetRendererId(), ImVec2(15, 15)))
-            {
-                m_actualMode = STOP;
-            }
-        }
-        ImGui::SameLine();
-        if (m_actualMode == PAUSE)
-        {
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0, 0.5, 0.75, 1.0));
-            hasStyle = true;
-        }
-        if (ImGui::ImageButton("pause", (ImTextureID)m_pauseIcon->GetRendererId(), ImVec2(15, 15)) && m_actualMode != DEACTIVATED)
-        {
-            if (m_actualMode == PAUSE)
-                m_actualMode = PLAY;
-            else
-                m_actualMode = PAUSE;
-        }
-        if (hasStyle)
-        {
-            ImGui::PopStyleColor();
-            hasStyle = false;
-        }
-        ImGui::SameLine();
-        if (m_actualMode == DEACTIVATED)
-        {
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-            hasStyle = true;
-        }
-        if (ImGui::ImageButton("nextFrame", (ImTextureID)m_nextFrameIcon->GetRendererId(), ImVec2(15, 15)) && m_actualMode == PAUSE)
-        {
-            m_actualMode = NEXTFRAME;
-        }
-        if (hasStyle)
-        {
-            ImGui::PopStyleColor();
-            hasStyle = false;
-        }
-        ImGui::End();
-    }
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset);
 
+		if (m_actualMode == DEACTIVATED)
+		{
+			if (ImGui::ImageButton("play", (ImTextureID)m_playIcon->GetRendererId(), ImVec2(15, 15)))
+			{
+				Application::GetInstance().GetScene().SaveScene("recoverScene.scene");
+				m_actualMode = PLAY;
+
+				AudioManager::StartSceneAudio(&Application::GetInstance().GetScene());
+			}
+		}
+		else
+		{
+			if (ImGui::ImageButton("stop", (ImTextureID)m_stopIcon->GetRendererId(), ImVec2(15, 15)))
+			{
+				m_actualMode = STOP;
+			}
+		}
+
+		ImGui::SameLine();
+		if (m_actualMode == PAUSE)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0, 0.5, 0.75, 1.0));
+			hasStyle = true;
+		}
+		if (ImGui::ImageButton("pause", (ImTextureID)m_pauseIcon->GetRendererId(), ImVec2(15, 15)) && m_actualMode != DEACTIVATED)
+		{
+			if (m_actualMode == PAUSE)
+				m_actualMode = PLAY;
+			else
+				m_actualMode = PAUSE;
+		}
+		if (hasStyle)
+		{
+			ImGui::PopStyleColor();
+			hasStyle = false;
+		}
+
+		ImGui::SameLine();
+		if (m_actualMode == DEACTIVATED)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+			hasStyle = true;
+		}
+		if (ImGui::ImageButton("nextFrame", (ImTextureID)m_nextFrameIcon->GetRendererId(), ImVec2(15, 15)) && m_actualMode == PAUSE)
+		{
+			m_actualMode = NEXTFRAME;
+		}
+		if (hasStyle)
+		{
+			ImGui::PopStyleColor();
+			hasStyle = false;
+		}
+
+		ImGui::End();
+	}
 }

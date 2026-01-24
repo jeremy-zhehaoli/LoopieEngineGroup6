@@ -22,8 +22,9 @@
 
 #include "Loopie/Components/AudioListener.h"
 #include "Loopie/Components/AudioSource.h"
-#include <memory>
+#include "Loopie/Core/AudioManager.h" 
 
+#include <memory>
 #include <glad/glad.h>
 
 namespace Loopie
@@ -44,7 +45,6 @@ namespace Loopie
 			CreateCity();
 			m_currentScene->CreateEntity({ 0,1,-10 }, { 1,0,0,0 }, { 1,1,1 }, nullptr, "MainCamera")->AddComponent<Camera>();
 		}
-		
 
 		Metadata& metadata = AssetRegistry::GetOrCreateMetadata("assets/materials/outlineMaterial.mat");
 		m_selectedObjectMaterial = ResourceManager::GetMaterial(metadata);
@@ -77,11 +77,10 @@ namespace Loopie
 
 	void EditorModule::OnUpdate()
 	{
-
 		Application& app = Application::GetInstance();
 		InputEventManager& inputEvent = app.GetInputEvent();
 
-		AudioManager::Update();
+		AudioManager::UpdateSceneAudio(m_currentScene);
 
 		m_hierarchy.Update(inputEvent);
 		m_assetsExplorer.Update(inputEvent);
@@ -128,7 +127,7 @@ namespace Loopie
 			RenderWorld(m_scene.GetCamera());
 			Renderer::EndScene();
 			m_scene.EndScene();
-		}		
+		}
 
 		/// GameWindowRender
 		if (m_game.IsVisible()) {
@@ -140,7 +139,6 @@ namespace Loopie
 			}
 			m_game.EndScene();
 		}
-		
 	}
 
 	void EditorModule::OnInterfaceRender()
@@ -185,7 +183,7 @@ namespace Loopie
 	}
 
 	void EditorModule::RenderWorld(Camera* camera)
-	{	
+	{
 		Renderer::EnableStencil();
 		Renderer::EnableDepth();
 		Renderer::Clear();
@@ -212,12 +210,12 @@ namespace Loopie
 					continue;
 				if (component->GetTypeID() == MeshRenderer::GetTypeIDStatic()) {
 					MeshRenderer* renderer = static_cast<MeshRenderer*>(component);
-					if(renderer->GetMesh())
+					if (renderer->GetMesh())
 						renderers.push_back(renderer);
 				}
 
 				if (Renderer::IsGizmoActive()) {
-					if(component->GetTypeID() != Camera::GetTypeIDStatic())
+					if (component->GetTypeID() != Camera::GetTypeIDStatic())
 						component->RenderGizmo();
 				}
 			}
@@ -252,7 +250,7 @@ namespace Loopie
 			if (selectedEntity)
 			{
 				Camera* cam = selectedEntity->GetComponent<Camera>();
-				if(cam)
+				if (cam)
 					cam->RenderGizmo();
 			}
 			m_currentScene->GetOctree().DebugDraw(Color::GREEN);
@@ -269,70 +267,25 @@ namespace Loopie
 	{
 		m_scene.ChargeModel("assets/models/Street environment_V01.fbx");
 
-		// Crear la entidad
 		auto e = m_currentScene->CreateEntity(vec3(0, 0, 0), quaternion(1, 0, 0, 0), vec3(1, 1, 1), nullptr, "TestAudio");
 
 		if (e) {
 			auto src = e->AddComponent<AudioSource>();
 
 			if (src) {
-				// 1. AÑADIR: Agregamos el sonido a la lista (será el índice 0)
-				src->AddClip("event:/Music/Loop");
+				src->AddClip("assets/audio/piano-background-music-462076.mp3"); 
+				src->AddClip("assets/audio/relaxing-ambient-piano-music-467666.mp3");
 
-				// (Opcional) Puedes añadir más si quieres probar la lista
-				// src->AddClip("assets/audio/otra_cancion.mp3"); // Sería el índice 1
-
-				// 2. SELECCIONAR: Le decimos que cargue el índice 0
 				src->SetCurrentClip(0);
 
-				// 3. CONFIGURAR: Activamos loop si es música de fondo
-				src->SetLoop(true);
+				
+				src->usePlaylist = true;
+				src->SetLoop(false);
 
-				// 4. REPRODUCIR
-				src->Play();
+				src->playOnAwake = true;
 			}
 		}
 	}
-
-	/*void EditorModule::MousePick(Camera* camera)
-	{
-		Ray ray = Ray{ vec3(0), vec3(1) };
-		float distance = -1;
-		for (auto& [uuid, entity] : scene->GetAllEntities()) {
-			if (!entity->GetIsActive())
-				continue;
-			MeshRenderer* renderer = entity->GetComponent<MeshRenderer>();
-			if (!renderer || !renderer->GetIsActive() || !renderer->GetMesh())
-				continue;
-
-			if (!camera->GetFrustum().Intersects(renderer->GetWorldAABB()))
-				continue;
-
-			const AABB& worldAABB = renderer->GetWorldAABB();
-			vec3 hitPoint;
-			if (!worldAABB.IntersectsRay(ray.StartPoint(), ray.EndPoint(), hitPoint)) {
-				continue;
-			}
-
-			const MeshData& data = renderer->GetMesh()->GetData();
-			for (int i = 0; i < data.IndicesAmount/3; i++)
-			{
-				std::vector<vec3> vertices;
-				Triangle t;
-				if (!renderer->GetTriangle(i, t))continue;
-				vertices[0] = t.v0;
-				vertices[1] = t.v1;
-				vertices[2] = t.v2;
-				vec3 hitPoint;
-				if (ray.Intersects(vertices, true, hitPoint))
-				{
-					if (distance == -1 || distance > (hitPoint - ray.StartPoint()).length())continue;
-					HierarchyInterface::s_SelectedEntity = entity;
-					distance = (hitPoint - ray.StartPoint()).length();
-				}
-			}
-		}
-	}*/
 
 	void EditorModule::OnNotify(const EngineNotification& type)
 	{
@@ -343,5 +296,4 @@ namespace Loopie
 			///LOAD SCENE
 		}
 	}
-
 }
