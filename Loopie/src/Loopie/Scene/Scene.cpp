@@ -21,10 +21,22 @@ namespace Loopie {
 
 		m_octree = std::make_unique<Octree>(DEFAULT_WORLD_BOUNDS);
 
+		m_audioSystem = std::make_unique<AudioSystem>();
+		if (!m_audioSystem->Initialize())
+		{
+			Log::Error("Failed to initialize AudioSystem in Scene");
+		}
 	}
 
 	Scene::~Scene()
 	{
+		if (m_audioSystem)
+		{
+			m_audioSystem->StopBackgroundMusic();
+			m_audioSystem->Shutdown();
+			m_audioSystem.reset();
+		}
+
 		m_entities.clear();
 	}
 
@@ -420,5 +432,48 @@ namespace Loopie {
 
 		m_octree->Remove(entity);
 		m_entities.erase(entity->GetUUID());
+	}
+
+	void Scene::SetBackgroundMusic(const std::string& track1Path, const std::string& track2Path)
+	{
+		if (!m_audioSystem)
+		{
+			Log::Error("AudioSystem not initialized in Scene");
+			return;
+		}
+
+		if (!m_audioSystem->LoadBackgroundMusic(track1Path, track2Path))
+		{
+			Log::Error("Failed to load background music tracks");
+		}
+	}
+
+	void Scene::PlayBackgroundMusic()
+	{
+		if (!m_audioSystem)
+		{
+			Log::Error("AudioSystem not initialized in Scene");
+			return;
+		}
+
+		m_audioSystem->PlayBackgroundMusic();
+	}
+
+	void Scene::StopBackgroundMusic()
+	{
+		if (!m_audioSystem)
+		{
+			return;
+		}
+
+		m_audioSystem->StopBackgroundMusic();
+	}
+
+	void Scene::UpdateAudio()
+	{
+		if (m_audioSystem)
+		{
+			m_audioSystem->Update();
+		}
 	}
 }

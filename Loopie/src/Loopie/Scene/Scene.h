@@ -4,9 +4,11 @@
 #include "Loopie/Scene/Entity.h"
 #include "Loopie/Math/MathTypes.h"
 #include "Loopie/Math/Octree.h"
+#include "Loopie/Audio/AudioSystem.h"
 
 #include <string>
 #include <unordered_map>
+#include <memory>
 	
 namespace Loopie {
 	class Scene
@@ -48,6 +50,13 @@ namespace Loopie {
 		std::vector<std::shared_ptr<Entity>> GetAllSiblings(std::shared_ptr<Entity> parentEntity = nullptr) const;
 		bool ReadAndLoadSceneFile(std::string filePath, bool safeSceneAsLastLoaded = true);
 
+		void SetBackgroundMusic(const std::string& track1Path, const std::string& track2Path);
+		void PlayBackgroundMusic();
+		void StopBackgroundMusic();
+		void UpdateAudio();
+
+		AudioSystem& GetAudioSystem() { return *m_audioSystem; }
+
 	public:
 
 	private:
@@ -61,6 +70,7 @@ namespace Loopie {
 		std::unordered_map<UUID, std::shared_ptr<Entity>> m_entities; // Fast lookup
 		std::shared_ptr<Entity> m_rootEntity; // Hierarchy based
 		std::string m_filePath;
+		std::unique_ptr<AudioSystem> m_audioSystem;
 		const AABB DEFAULT_WORLD_BOUNDS = AABB(vec3(-500, -450, -500), vec3(500, 550, 500));
 	};	
 }

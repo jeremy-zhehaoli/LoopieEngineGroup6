@@ -40,6 +40,12 @@ namespace Loopie
 			CreateCity();
 			m_currentScene->CreateEntity({ 0,1,-10 }, { 1,0,0,0 }, { 1,1,1 }, nullptr, "MainCamera")->AddComponent<Camera>();
 		}
+
+		m_currentScene->SetBackgroundMusic(
+			"assets/music/001.mp3",  // First background music track (~30 seconds)
+			"assets/music/002.mp3"   // Second background music track (~30 seconds)
+		);
+		m_currentScene->PlayBackgroundMusic();
 		
 
 		Metadata& metadata = AssetRegistry::GetOrCreateMetadata("assets/materials/outlineMaterial.mat");
