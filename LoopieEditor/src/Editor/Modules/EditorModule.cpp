@@ -138,18 +138,6 @@ namespace Loopie
 			}
 			m_game.EndScene();
 		}
-
-		if (m_musicEntity) {
-			auto source = m_musicEntity->GetComponent<AudioSource>();
-			if (source) {
-				// Oscilar valor entre 0.0 y 1.0 usando el tiempo (Seno)
-				// Esto hará que la música vaya de "Calma" a "Acción" y vuelva cada ~6 segundos
-				float intensity = (std::sin(ImGui::GetTime() * 1.0f) + 1.0f) * 0.5f;
-
-				// Enviamos el parámetro "Intensity" (o como lo hayas llamado en FMOD)
-				source->SetParameter("Intensity", intensity);
-			}
-		}
 		
 	}
 
@@ -278,22 +266,30 @@ namespace Loopie
 	void EditorModule::CreateCity()
 	{
 		m_scene.ChargeModel("assets/models/Street environment_V01.fbx");
-		//m_scene.ChargeTexture("assets/textures/Baker_house.png");
 
+		// Crear la entidad
 		auto e = m_currentScene->CreateEntity(vec3(0, 0, 0), quaternion(1, 0, 0, 0), vec3(1, 1, 1), nullptr, "TestAudio");
 
-		// 2. Verificamos que la entidad se creó antes de usarla
 		if (e) {
-			// 3. Usamos 'auto' también para el componente
 			auto src = e->AddComponent<AudioSource>();
 
-			// 4. Verificamos que el componente se creó
 			if (src) {
-				src->SetEventPath("event:/Music/Loop");
+				// 1. AÑADIR: Agregamos el sonido a la lista (será el índice 0)
+				src->AddClip("event:/Music/Loop");
+
+				// (Opcional) Puedes añadir más si quieres probar la lista
+				// src->AddClip("assets/audio/otra_cancion.mp3"); // Sería el índice 1
+
+				// 2. SELECCIONAR: Le decimos que cargue el índice 0
+				src->SetCurrentClip(0);
+
+				// 3. CONFIGURAR: Activamos loop si es música de fondo
+				src->SetLoop(true);
+
+				// 4. REPRODUCIR
 				src->Play();
 			}
 		}
-
 	}
 
 	/*void EditorModule::MousePick(Camera* camera)

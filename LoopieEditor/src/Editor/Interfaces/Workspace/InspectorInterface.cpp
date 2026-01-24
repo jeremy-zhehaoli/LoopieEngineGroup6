@@ -189,21 +189,68 @@ namespace Loopie {
 
 		if (open)
 		{
-			// 1. Preparar el buffer con el valor ACTUAL
-			char buffer[256];
-			memset(buffer, 0, sizeof(buffer));
-			if (!source->eventPath.empty()) {
-				strncpy_s(buffer, source->eventPath.c_str(), sizeof(buffer) - 1);
+			// 1. CHECKBOX LOOP (Tu nueva funcionalidad)
+			bool loop = source->loop;
+			if (ImGui::Checkbox("Loop Audio", &loop)) {
+				source->SetLoop(loop);
 			}
 
-			// 2. Dibujar InputText y detectar si el usuario ESCRIBE
-			if (ImGui::InputText("Audio Path", buffer, sizeof(buffer)))
+			ImGui::Separator();
+			ImGui::Text("Playlist");
+
+			// 2. SELECTOR DE CANCIÓN ACTIVA (ComboBox)
+			// Muestra el nombre de la canción seleccionada actualmente
+			std::string previewValue = "None";
+			if (source->currentClipIndex >= 0 && source->currentClipIndex < source->audioClips.size()) {
+				// Mostramos solo el nombre del archivo, no toda la ruta, para que quede bonito
+				std::filesystem::path p(source->audioClips[source->currentClipIndex]);
+				previewValue = p.filename().string();
+				if (previewValue.empty()) previewValue = "Empty Slot";
+			}
+
+			if (ImGui::BeginCombo("Current Clip", previewValue.c_str()))
 			{
-				// Solo entramos aquí si el usuario teclea
-				source->SetEventPath(std::string(buffer));
+				for (int i = 0; i < source->audioClips.size(); i++)
+				{
+					std::filesystem::path p(source->audioClips[i]);
+					std::string name = p.filename().string();
+					if (name.empty()) name = "Slot " + std::to_string(i);
+
+					const bool is_selected = (source->currentClipIndex == i);
+					if (ImGui::Selectable(name.c_str(), is_selected))
+					{
+						source->SetCurrentClip(i); // Cambiar canción al clickar
+					}
+
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
 			}
 
-			// 3. Lógica de Drag & Drop
+			// 3. LISTA DE CANCIONES (Para verlas y borrar)
+			ImGui::TextDisabled("Audio Library:");
+			for (int i = 0; i < source->audioClips.size(); i++)
+			{
+				ImGui::PushID(i);
+
+				// Botón para borrar canción de la lista
+				if (ImGui::Button("X")) {
+					source->audioClips.erase(source->audioClips.begin() + i);
+					// Ajustar índice si borramos la que estaba sonando
+					if (source->currentClipIndex >= i && source->currentClipIndex > 0) source->currentClipIndex--;
+					ImGui::PopID();
+					continue;
+				}
+
+				ImGui::SameLine();
+				ImGui::Text("%d: %s", i, source->audioClips[i].c_str());
+				ImGui::PopID();
+			}
+
+			// 4. ZONA DE DROP (Arrastra aquí para AÑADIR a la lista)
+			ImGui::Button(" [ Drop New Audio Here ] ", ImVec2(ImGui::GetContentRegionAvail().x, 30));
+
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_EXPLORER_FILE"))
@@ -211,46 +258,25 @@ namespace Loopie {
 					const char* path = (const char*)payload->Data;
 					std::filesystem::path resourcePath(path);
 
-					// Limpieza de ruta: buscamos "assets" para hacerla relativa
+					// Limpieza de ruta
 					std::string finalPath = resourcePath.string();
 					size_t pos = finalPath.find("assets");
-					if (pos != std::string::npos) {
-						finalPath = finalPath.substr(pos);
-					}
-
-					// Normalizar barras (importante para FMOD)
+					if (pos != std::string::npos) finalPath = finalPath.substr(pos);
 					std::replace(finalPath.begin(), finalPath.end(), '\\', '/');
 
-					// Asignar al componente
-					source->SetEventPath(finalPath);
+					// AÑADIR A LA LISTA
+					source->AddClip(finalPath);
 
-					// Imprimimos en consola para verificar que llega bien
-					Log::Info("Audio Dropped: {0}", finalPath);
+					// Si es la primera, la seleccionamos automáticamente
+					if (source->audioClips.size() == 1) source->SetCurrentClip(0);
 				}
 				ImGui::EndDragDropTarget();
 			}
 
 			ImGui::Separator();
-			ImGui::Text("Interactive Parameters");
 
-			// Variables estáticas para mantener el valor en la UI (simple para debug)
-			static char paramName[64] = "Intensity";
-			static float paramValue = 0.0f;
-
-			// 1. Escribir el nombre del parámetro (tal cual está en FMOD Studio)
-			ImGui::InputText("Param Name", paramName, sizeof(paramName));
-
-			// 2. Slider para cambiar el valor (0.0 a 1.0 es lo estándar para blends)
-			if (ImGui::SliderFloat("Value", &paramValue, 0.0f, 1.0f)) {
-				// Al mover el slider, enviamos el valor a FMOD
-				source->SetParameter(std::string(paramName), paramValue);
-			}
-			ImGui::Separator();
-
-			// 4. Resto de controles
+			// CONTROLES DE REPRODUCCIÓN
 			ImGui::Checkbox("Play On Awake", &source->playOnAwake);
-
-			ImGui::Spacing();
 			if (ImGui::Button("Play")) source->Play();
 			ImGui::SameLine();
 			if (ImGui::Button("Stop")) source->Stop();

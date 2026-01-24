@@ -4,28 +4,31 @@
 #include "Loopie/Core/AudioManager.h"
 #include "Loopie/Core/Log.h"
 #include <string>
+#include <vector>
 
 namespace Loopie {
 
     class AudioSource : public Component {
     public:
-
         DEFINE_TYPE(AudioSource)
 
-            std::string eventPath;
+            // Playlist
+            std::vector<std::string> audioClips;
+        int currentClipIndex = 0;
+
+        // Propiedades
+        bool loop = false;
         bool playOnAwake = true;
 
     private:
-        // Punteros para los dos sistemas (Usamos uno u otro)
-        FMOD::Studio::EventInstance* m_eventInstance = nullptr; // Para Eventos
+        FMOD::Studio::EventInstance* m_eventInstance = nullptr;
+        FMOD::Sound* m_sound = nullptr;
+        FMOD::Channel* m_channel = nullptr;
+        bool m_isEvent = false;
 
-        FMOD::Sound* m_sound = nullptr;       // Para archivos raw
-        FMOD::Channel* m_channel = nullptr;   // Canal para controlar el archivo raw
-
-        bool m_isEvent = false; // Flag para saber qué modo usar
-
+        // Método interno para cargar/recargar recursos
         void LoadResource() {
-            // 1. Limpiar lo anterior si existía
+            // 1. Limpiar recursos anteriores
             if (m_eventInstance) {
                 m_eventInstance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
                 m_eventInstance->release();
@@ -36,49 +39,45 @@ namespace Loopie {
                 m_sound = nullptr;
             }
 
-            if (eventPath.empty()) return;
+            // 2. Comprobaciones de seguridad
+            if (audioClips.empty()) return;
+            if (currentClipIndex < 0 || currentClipIndex >= audioClips.size()) return;
 
-            // 2. Detectar tipo y Cargar
-            if (eventPath.find("event:/") == 0 || eventPath.find("snapshot:/") == 0) {
+            std::string path = audioClips[currentClipIndex];
+            if (path.empty()) return;
+
+            // 3. Crear recurso según tipo
+            if (path.find("event:/") == 0 || path.find("snapshot:/") == 0) {
                 m_isEvent = true;
-                m_eventInstance = AudioManager::CreateEventInstance(eventPath);
+                m_eventInstance = AudioManager::CreateEventInstance(path);
             }
             else {
                 m_isEvent = false;
-                // IMPORTANTE: Asegúrate de que CreateSound maneje rutas relativas (lo vemos en el Paso 2)
-                m_sound = AudioManager::CreateSound(eventPath, true);
+                // Pasamos el estado del loop al creador
+                m_sound = AudioManager::CreateSound(path, loop);
             }
         }
 
     public:
-        // MODIFICADO: Ahora recarga el sonido al cambiar el path
-        void SetEventPath(const std::string& path) {
-            if (eventPath != path) { // Solo si cambia
-                eventPath = path;
-                LoadResource(); // <--- ¡AQUÍ ESTÁ LA CLAVE!
-
-                // Opcional: Si quieres que suene nada más soltarlo
-                // if (playOnAwake) Play(); 
-            }
-        }
-
+        // --- Init vacío para evitar el error de UUID ---
         void Init() override {}
 
         void OnStart() override {
-            LoadResource(); // Usamos el mismo método
-            if (playOnAwake) Play();
+            LoadResource();
+            if (playOnAwake) {
+                Play();
+            }
         }
 
         void OnUpdate() override {
+            // Lógica de posicionamiento 3D
             Transform* t = GetOwner()->GetTransform();
             if (!t) return;
 
-            // Calcular posición para FMOD
             FMOD_VECTOR pos = AudioManager::VectorToFmod(t->GetPosition());
             FMOD_VECTOR vel = { 0, 0, 0 };
 
             if (m_isEvent && m_eventInstance) {
-                // Lógica de Eventos
                 FMOD_3D_ATTRIBUTES attr = { {0} };
                 attr.position = pos;
                 attr.forward = AudioManager::VectorToFmod(t->Forward());
@@ -86,8 +85,6 @@ namespace Loopie {
                 m_eventInstance->set3DAttributes(&attr);
             }
             else if (!m_isEvent && m_channel) {
-                // Lógica de Archivos Raw (Core System)
-                // Es importante comprobar si el canal sigue activo
                 bool isPlaying = false;
                 m_channel->isPlaying(&isPlaying);
                 if (isPlaying) {
@@ -96,12 +93,37 @@ namespace Loopie {
             }
         }
 
+        // --- Gestión de Playlist ---
+
+        void AddClip(const std::string& path) {
+            audioClips.push_back(path);
+        }
+
+        void SetCurrentClip(int index) {
+            // Solo recargamos si el índice es válido y diferente (o para forzar reload)
+            if (index >= 0 && index < audioClips.size()) {
+                currentClipIndex = index;
+
+                // Si estaba sonando, que siga sonando con la nueva pista
+                bool wasPlaying = false;
+                if (!m_isEvent && m_channel) m_channel->isPlaying(&wasPlaying);
+
+                LoadResource();
+
+                if (wasPlaying) Play();
+            }
+        }
+
+        // --- Controles de Reproducción ---
+
         void Play() {
             if (m_isEvent && m_eventInstance) {
                 m_eventInstance->start();
             }
             else if (!m_isEvent && m_sound) {
                 AudioManager::PlaySound(m_sound, &m_channel);
+                // Aseguramos el volumen al reproducir
+                // SetVolume(1.0f); 
             }
         }
 
@@ -114,30 +136,43 @@ namespace Loopie {
             }
         }
 
-        // Serialización básica
+        void SetLoop(bool active) {
+            loop = active;
+            // Si ya está sonando un archivo raw, actualizamos el modo en caliente
+            if (!m_isEvent && m_channel) {
+                m_channel->setMode(loop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
+            }
+        }
+
+        void SetVolume(float volume) {
+            if (m_isEvent && m_eventInstance) {
+                m_eventInstance->setVolume(volume);
+            }
+            else if (!m_isEvent && m_channel) {
+                m_channel->setVolume(volume);
+            }
+        }
+
+        void SetParameter(const std::string& name, float value) {
+            if (m_isEvent && m_eventInstance) {
+                m_eventInstance->setParameterByName(name.c_str(), value);
+            }
+        }
+
+        // --- Serialización (Stubs) ---
         JsonNode Serialize(JsonNode& parent) const override { return parent; }
         void Deserialize(const JsonNode& data) override {}
 
         ~AudioSource() {
+            Stop();
             if (m_eventInstance) {
-                m_eventInstance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
                 m_eventInstance->release();
+                m_eventInstance = nullptr;
             }
             if (m_sound) {
-                m_sound->release(); // Liberar el sonido raw
+                m_sound->release();
+                m_sound = nullptr;
             }
         }
-
-        // Añade o verifica que tengas esta función pública:
-        void SetParameter(const std::string& name, float value) {
-            // Solo los Eventos de FMOD Studio soportan parámetros por nombre
-            if (m_isEvent && m_eventInstance) {
-                FMOD_RESULT res = m_eventInstance->setParameterByName(name.c_str(), value);
-                if (res != FMOD_OK) {
-                    // Log::Warn("Parameter not found: {0}", name); // Descomenta si quieres depurar
-                }
-            }
-        }
-
     };
 }

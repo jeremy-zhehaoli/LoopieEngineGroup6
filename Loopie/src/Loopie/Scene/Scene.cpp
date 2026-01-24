@@ -8,6 +8,8 @@
 #include "Loopie/Helpers/LoopieHelpers.h"
 #include "Loopie/Resources/AssetRegistry.h"
 
+#include "Loopie/Components/AudioSource.h"
+
 #include <unordered_set>
 
 
@@ -342,6 +344,15 @@ namespace Loopie {
 						if (meshRenderer)
 						{
 							meshRenderer->Deserialize(node);
+						}
+					}
+					else if (componentNode.Contains("AudioSource"))
+					{
+						JsonNode node = componentNode.Child("AudioSource");
+						auto audioSource = entity->AddComponent<AudioSource>();
+						if (audioSource)
+						{
+							audioSource->Deserialize(node);
 						}
 					}
 				}
