@@ -83,26 +83,6 @@ namespace Loopie
 
 		AudioManager::Update();
 
-		if (m_currentScene) {
-			auto cameraEntity = m_currentScene->GetEntityByName("MainCamera");
-
-			if (cameraEntity) {
-				Transform* t = cameraEntity->GetTransform();
-				if (t) {
-					// Enviamos la posición, el frente y el arriba a FMOD directamente
-					AudioManager::SetListenerAttributes(
-						t->GetPosition(),
-						t->Forward(),
-						t->Up()
-					);
-
-					// DEBUG: Para confirmar que esto SÍ se está ejecutando
-					// Descoméntalo solo si quieres ver los números correr
-					// Log::Info("POSICION OIDOS: {0}", t->GetPosition().x);
-				}
-			}
-		}
-
 		m_hierarchy.Update(inputEvent);
 		m_assetsExplorer.Update(inputEvent);
 		m_scene.Update(inputEvent);

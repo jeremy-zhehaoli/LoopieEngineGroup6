@@ -16,7 +16,7 @@ namespace Loopie {
 
         void OnStart() override {}
 
-        void OnUpdate() override {
+        void Update() override {
             Transform* t = GetOwner()->GetTransform();
             if (t) {
                 // 1. Enviar posición, vector "hacia delante" y "hacia arriba" al Audio Manager
