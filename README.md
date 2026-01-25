@@ -14,6 +14,9 @@ Link to the repository - https://github.com/jeremy-zhehaoli/LoopieEngineGroup6
 
 LoopieEngine is a project for the subject of Game Engines in our 3rd year at CITM (UPC) made by a group of our class. We had to fork their engine for the final project, where we had to add the AudioEngine as we chose.
 
+## IMPORTANT:
+If you want to add different audio files to test how it works, put them in the Assets folder of the project you create in the path you will have chosen.
+
 ## Sub-system main core
 
 The main core sub-systems of a game audio engine are centered around to create an immersive environment by using AudioSources, an InteractiveMusic system and Basic Audio filters like Doppler, Reverb, FallOff...
