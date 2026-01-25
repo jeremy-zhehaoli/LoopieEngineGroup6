@@ -189,7 +189,6 @@ namespace Loopie {
 
 		if (open)
 		{
-			// 1. CHECKBOX LOOP (Tu nueva funcionalidad)
 			bool loop = source->loop;
 			if (ImGui::Checkbox("Loop Audio", &loop)) {
 				source->SetLoop(loop);
@@ -198,11 +197,8 @@ namespace Loopie {
 			ImGui::Separator();
 			ImGui::Text("Playlist");
 
-			// 2. SELECTOR DE CANCIÓN ACTIVA (ComboBox)
-			// Muestra el nombre de la canción seleccionada actualmente
 			std::string previewValue = "None";
 			if (source->currentClipIndex >= 0 && source->currentClipIndex < source->audioClips.size()) {
-				// Mostramos solo el nombre del archivo, no toda la ruta, para que quede bonito
 				std::filesystem::path p(source->audioClips[source->currentClipIndex]);
 				previewValue = p.filename().string();
 				if (previewValue.empty()) previewValue = "Empty Slot";
@@ -219,7 +215,7 @@ namespace Loopie {
 					const bool is_selected = (source->currentClipIndex == i);
 					if (ImGui::Selectable(name.c_str(), is_selected))
 					{
-						source->SetCurrentClip(i); // Cambiar canción al clickar
+						source->SetCurrentClip(i); 
 					}
 
 					if (is_selected)
@@ -228,16 +224,13 @@ namespace Loopie {
 				ImGui::EndCombo();
 			}
 
-			// 3. LISTA DE CANCIONES (Para verlas y borrar)
 			ImGui::TextDisabled("Audio Library:");
 			for (int i = 0; i < source->audioClips.size(); i++)
 			{
 				ImGui::PushID(i);
 
-				// Botón para borrar canción de la lista
 				if (ImGui::Button("X")) {
 					source->audioClips.erase(source->audioClips.begin() + i);
-					// Ajustar índice si borramos la que estaba sonando
 					if (source->currentClipIndex >= i && source->currentClipIndex > 0) source->currentClipIndex--;
 					ImGui::PopID();
 					continue;
@@ -248,7 +241,6 @@ namespace Loopie {
 				ImGui::PopID();
 			}
 
-			// 4. ZONA DE DROP (Arrastra aquí para AÑADIR a la lista)
 			ImGui::Button(" [ Drop New Audio Here ] ", ImVec2(ImGui::GetContentRegionAvail().x, 30));
 
 			if (ImGui::BeginDragDropTarget())
@@ -258,16 +250,13 @@ namespace Loopie {
 					const char* path = (const char*)payload->Data;
 					std::filesystem::path resourcePath(path);
 
-					// Limpieza de ruta
 					std::string finalPath = resourcePath.string();
 					size_t pos = finalPath.find("assets");
 					if (pos != std::string::npos) finalPath = finalPath.substr(pos);
 					std::replace(finalPath.begin(), finalPath.end(), '\\', '/');
 
-					// AÑADIR A LA LISTA
 					source->AddClip(finalPath);
 
-					// Si es la primera, la seleccionamos automáticamente
 					if (source->audioClips.size() == 1) source->SetCurrentClip(0);
 				}
 				ImGui::EndDragDropTarget();
@@ -275,7 +264,6 @@ namespace Loopie {
 
 			ImGui::Separator();
 
-			// CONTROLES DE REPRODUCCIÓN
 			ImGui::Checkbox("Play On Awake", &source->playOnAwake);
 			if (ImGui::Button("Play")) source->Play();
 			ImGui::SameLine();
@@ -284,7 +272,6 @@ namespace Loopie {
 		ImGui::PopID();
 	}
 
-	// --- NUEVA FUNCIÓN: DRAW AUDIO LISTENER ---
 	void InspectorInterface::DrawAudioListener(AudioListener* listener)
 	{
 		ImGui::PushID(listener);
@@ -556,7 +543,6 @@ namespace Loopie {
 				}
 			}
 
-			// Audio Listener (Solo uno por objeto)
 			if (!entity->HasComponent<AudioListener>())
 			{
 				if (ImGui::Selectable("Audio Listener"))

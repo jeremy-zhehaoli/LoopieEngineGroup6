@@ -116,7 +116,7 @@ namespace Loopie {
                 if (m_channel) {
                     m_channel->setMode(FMOD_3D | FMOD_3D_LINEARROLLOFF);
                     m_channel->set3DLevel(1.0f);
-                    m_channel->set3DMinMaxDistance(2.0f, 20.0f);
+                    m_channel->set3DMinMaxDistance(2.0f, 25.0f);
 
                     Transform* t = GetOwner()->GetTransform();
                     if (t) {
@@ -146,8 +146,41 @@ namespace Loopie {
             if (!m_isEvent && m_channel) m_channel->setMode(mode);
         }
 
-        JsonNode Serialize(JsonNode& parent) const override { return parent; }
-        void Deserialize(const JsonNode& data) override {}
+        JsonNode Serialize(JsonNode& parent) const override {
+            JsonNode transformObj = parent.CreateObjectField("AudioSource");
+            transformObj.CreateField("loop", loop);
+            transformObj.CreateField("playOnAwake", playOnAwake);
+            transformObj.CreateField("usePlaylist", usePlaylist);
+            transformObj.CreateField("currentClipIndex", currentClipIndex);
+			JsonNode clipsArray = transformObj.CreateObjectField("audioClips");
+			int arrayIndex = 0;
+            for (const auto& clip : audioClips) {
+                
+				clipsArray.CreateField(std::to_string(arrayIndex), clip);
+                arrayIndex++;
+            }
+
+			return transformObj;
+        }
+
+        void Deserialize(const JsonNode& data) override {
+        
+			data.GetValue<bool>("loop", loop);
+			data.GetValue<bool>("playOnAwake", playOnAwake);
+			data.GetValue<bool>("usePlaylist", usePlaylist);
+            data.GetValue<int>("currentClipIndex", currentClipIndex);
+            audioClips.clear();
+            
+			JsonNode clipsArray = data.Child("audioClips");
+			int arrayAmount = clipsArray.Size();
+            for (int i = 0; i < arrayAmount; i++) {
+
+                auto clipResult = clipsArray.GetValue<std::string>(std::to_string(i), "");
+                audioClips.push_back(clipResult.Result);
+            }
+        
+        
+        }
 
         ~AudioSource() { Stop(); }
     };

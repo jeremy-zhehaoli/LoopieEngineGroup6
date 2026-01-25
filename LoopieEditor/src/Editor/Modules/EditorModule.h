@@ -37,6 +37,9 @@ namespace Loopie {
 		/// Test
 		void CreateBakerHouse();
 		void CreateCity();
+		void CreateMovingAudioSource();
+		void CreateStaticAudioSource();
+		void CreateTunnelWithReverb();
 		//void MousePick(Camera* camera);
 		///
 	private:

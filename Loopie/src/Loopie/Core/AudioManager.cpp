@@ -14,6 +14,8 @@ namespace Loopie {
 
     FMOD::Studio::System* AudioManager::s_studioSystem = nullptr;
     FMOD::System* AudioManager::s_coreSystem = nullptr;
+    glm::vec3 AudioManager::s_tunnelCenter = glm::vec3(0.0f);
+    glm::vec3 AudioManager::s_tunnelSize = glm::vec3(0.0f);
 
     void AudioManager::Init() {
         FMOD_RESULT result = FMOD::Studio::System::create(&s_studioSystem);
@@ -75,7 +77,6 @@ namespace Loopie {
 
         if (!listenerFound) SetListenerAttributes({ 0,0,0 }, { 0,0,1 }, { 0,1,0 });
 
-        bool inTunnel = (listenerPos.x > 10.0f);
 
         for (auto& [uuid, entity] : allEntities)
         {
@@ -85,11 +86,24 @@ namespace Loopie {
                 if (source) {
                     source->OnUpdate();
 
-                    if (inTunnel) source->SetPitch(0.5f);
+                    Transform* t = entity->GetTransform();
+                    if (t && AudioManager::IsInTunnel(t->GetPosition())) source->SetPitch(0.5f);
                     else source->SetPitch(1.0f);
                 }
             }
         }
+    }
+
+    void AudioManager::SetTunnelZone(const glm::vec3& center, const glm::vec3& size) {
+        s_tunnelCenter = center;
+        s_tunnelSize = size * 0.5f;
+    }
+
+    bool AudioManager::IsInTunnel(const glm::vec3& pos) {
+        bool inX = (pos.x >= s_tunnelCenter.x - s_tunnelSize.x) && (pos.x <= s_tunnelCenter.x + s_tunnelSize.x);
+        bool inY = (pos.y >= s_tunnelCenter.y - s_tunnelSize.y) && (pos.y <= s_tunnelCenter.y + s_tunnelSize.y);
+        bool inZ = (pos.z >= s_tunnelCenter.z - s_tunnelSize.z) && (pos.z <= s_tunnelCenter.z + s_tunnelSize.z);
+        return inX && inY && inZ;
     }
 
     void AudioManager::StartSceneAudio(Scene* scene)

@@ -9,6 +9,8 @@
 #include "Loopie/Resources/AssetRegistry.h"
 
 #include "Loopie/Components/AudioSource.h"
+#include "Loopie/Components/AudioListener.h"
+#include "Loopie/Components/AutoMovement.h"
 
 #include <unordered_set>
 
@@ -350,6 +352,24 @@ namespace Loopie {
 					{
 						JsonNode node = componentNode.Child("AudioSource");
 						auto audioSource = entity->AddComponent<AudioSource>();
+						if (audioSource)
+						{
+							audioSource->Deserialize(node);
+						}
+					}
+					else if (componentNode.Contains("AudioListener"))
+					{
+						JsonNode node = componentNode.Child("AudioListener");
+						auto audioSource = entity->AddComponent<AudioListener>();
+						if (audioSource)
+						{
+							audioSource->Deserialize(node);
+						}
+					}
+					else if (componentNode.Contains("AutoMovement"))
+					{
+						JsonNode node = componentNode.Child("AutoMovement");
+						auto audioSource = entity->AddComponent<AutoMovement>();
 						if (audioSource)
 						{
 							audioSource->Deserialize(node);

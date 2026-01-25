@@ -27,7 +27,14 @@ namespace Loopie {
         static FMOD_VECTOR VectorToFmod(const glm::vec3& v);
         static void SetGlobalParameter(const std::string& name, float value);
 
+        static void SetTunnelZone(const glm::vec3& position, const glm::vec3& size);
+
+        static bool IsInTunnel(const glm::vec3& pos);
+
         static FMOD::Studio::System* s_studioSystem;
         static FMOD::System* s_coreSystem;
+
+        static glm::vec3 s_tunnelCenter;
+        static glm::vec3 s_tunnelSize;
     };
 }

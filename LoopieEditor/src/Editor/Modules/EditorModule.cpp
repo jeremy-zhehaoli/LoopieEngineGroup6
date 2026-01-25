@@ -45,7 +45,12 @@ namespace Loopie
 		if (!result.Found || !m_currentScene->ReadAndLoadSceneFile(result.Result))
 		{
 			CreateCity();
-			m_currentScene->CreateEntity({ 0,1,-10 }, { 1,0,0,0 }, { 1,1,1 }, nullptr, "MainCamera")->AddComponent<Camera>();
+			std::shared_ptr<Loopie::Entity> ent = m_currentScene->CreateEntity({ 0,1,-10 }, { 1,0,0,0 }, { 1,1,1 }, nullptr, "MainCamera");
+			if (ent)
+			{
+				ent->AddComponent<Camera>();
+				ent->AddComponent<AudioListener>();
+			}
 		}
 
 		Metadata& metadata = AssetRegistry::GetOrCreateMetadata("assets/materials/outlineMaterial.mat");
@@ -265,9 +270,24 @@ namespace Loopie
 		m_scene.ChargeTexture("assets/textures/Baker_house.png");
 	}
 
+
+	
+
 	void EditorModule::CreateCity()
 	{
 		m_scene.ChargeModel("assets/models/Street environment_V01.fbx");
+
+		
+		CreateMovingAudioSource();
+
+		CreateStaticAudioSource();
+
+		CreateTunnelWithReverb();
+
+	}
+
+	void EditorModule::CreateMovingAudioSource()
+	{
 
 		auto e = m_currentScene->CreateEntity(vec3(0, 2, 0), quaternion(1, 0, 0, 0), vec3(1, 1, 1), nullptr, "TestAudio");
 
@@ -275,7 +295,6 @@ namespace Loopie
 
 			auto renderer = e->AddComponent<MeshRenderer>();
 
-			//Haz q el mesh sea el cubo primitivo
 			Metadata& meta = AssetRegistry::GetOrCreateMetadata("assets/models/primitives/cube.fbx");
 			MeshImporter::ImportModel("assets/models/primitives/cube.fbx", meta);
 			std::shared_ptr<Mesh> mesh = ResourceManager::GetMesh(meta, 0);
@@ -284,41 +303,6 @@ namespace Loopie
 			}
 
 			auto src = e->AddComponent<AudioSource>();
-
-			if (src) {
-				src->AddClip("assets/audio/piano-background-music-462076.mp3"); 
-				src->AddClip("assets/audio/relaxing-ambient-piano-music-467666.mp3");
-
-				src->SetCurrentClip(0);
-
-				
-				src->usePlaylist = true;
-				src->SetLoop(false);
-
-				src->playOnAwake = true;
-			}
-		}
-
-		auto mover = e->AddComponent<AutoMovement>();
-		mover->speed = 3.0f; // Velocidad: 3 metros por segundo
-		mover->startX = 0.0f;
-		mover->limitX = 25.0f;
-
-		auto playerParams = m_currentScene->CreateEntity(vec3(0, 2, -5), quaternion(1, 0, 0, 0), vec3(1, 1, 1), nullptr, "PlayerSource");
-
-		if (playerParams) {
-			auto renderer = playerParams->AddComponent<MeshRenderer>();
-
-			Metadata& meta = AssetRegistry::GetOrCreateMetadata("assets/models/primitives/cube.fbx");
-			MeshImporter::ImportModel("assets/models/primitives/cube.fbx", meta);
-			std::shared_ptr<Mesh> mesh = ResourceManager::GetMesh(meta, 0);
-
-			if (mesh && renderer) {
-				renderer->SetMesh(mesh);
-			}
-
-			
-			auto src = playerParams->AddComponent<AudioSource>();
 
 			if (src) {
 				src->AddClip("assets/audio/piano-background-music-462076.mp3");
@@ -334,6 +318,67 @@ namespace Loopie
 			}
 		}
 
+		auto mover = e->AddComponent<AutoMovement>();
+		mover->speed = 3.0f;
+		mover->startX = 0.0f;
+		mover->limitX = 25.0f;
+	}
+
+	void EditorModule::CreateStaticAudioSource()
+	{
+		auto playerParams = m_currentScene->CreateEntity(vec3(0, 2, -5), quaternion(1, 0, 0, 0), vec3(1, 1, 1), nullptr, "PlayerSource");
+
+		if (playerParams) {
+			auto renderer = playerParams->AddComponent<MeshRenderer>();
+
+			Metadata& meta = AssetRegistry::GetOrCreateMetadata("assets/models/primitives/cube.fbx");
+			MeshImporter::ImportModel("assets/models/primitives/cube.fbx", meta);
+			std::shared_ptr<Mesh> mesh = ResourceManager::GetMesh(meta, 0);
+
+			if (mesh && renderer) {
+				renderer->SetMesh(mesh);
+			}
+
+
+			auto src = playerParams->AddComponent<AudioSource>();
+
+			if (src) {
+				src->AddClip("assets/audio/piano-background-music-462076.mp3");
+				src->AddClip("assets/audio/relaxing-ambient-piano-music-467666.mp3");
+
+				src->SetCurrentClip(0);
+
+
+				src->usePlaylist = true;
+				src->SetLoop(false);
+
+				src->playOnAwake = true;
+			}
+		}
+	}
+
+	void EditorModule::CreateTunnelWithReverb()
+	{
+		glm::vec3 tunnelPos(15.0f, 2.0f, 0.0f);
+		glm::vec3 tunnelSize(8.0f, 10.0f, 10.0f);
+
+		AudioManager::SetTunnelZone(tunnelPos, tunnelSize);
+
+
+		auto tunnelVis = m_currentScene->CreateEntity(tunnelPos, quaternion(1, 0, 0, 0), tunnelSize, nullptr, "DEBUG_TUNNEL_VISUAL");
+
+		if (tunnelVis) {
+			auto rend = tunnelVis->AddComponent<MeshRenderer>();
+
+			Metadata& meta = AssetRegistry::GetOrCreateMetadata("assets/models/primitives/cube.fbx");
+			MeshImporter::ImportModel("assets/models/primitives/cube.fbx", meta);
+			std::shared_ptr<Mesh> mesh = ResourceManager::GetMesh(meta, 0);
+
+			if (rend && mesh) {
+				rend->SetMesh(mesh);
+
+			}
+		}
 	}
 
 	void EditorModule::OnNotify(const EngineNotification& type)

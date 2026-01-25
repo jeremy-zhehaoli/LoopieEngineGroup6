@@ -7,10 +7,8 @@
 #include "Loopie/Components/Component.h"
 #include "Loopie/Core/Log.h"
 
-// --- INCLUDES NECESARIOS ---
 #include "Loopie/Core/AudioManager.h"
-#include "Loopie/Core/Application.h" // Necesario para GetInstance
-// ---------------------------
+#include "Loopie/Core/Application.h" 
 
 namespace Loopie
 {
@@ -62,14 +60,9 @@ namespace Loopie
 	{
 		ImGuiViewport* viewport = ImGui::GetMainViewport();
 
-		// ELIMINADO: Cálculos complejos de dockPos que daban error con m_topBar.
-		// La TopBar simplemente se pega arriba del todo.
-
 		ImGui::SetNextWindowPos(viewport->WorkPos);
-		// Usamos m_toolbarHeight directamente (es variable de esta clase)
 		ImGui::SetNextWindowSize(ImVec2(viewport->WorkSize.x, m_toolbarHeight));
 
-		// CORREGIDO: Definimos las flags y usamos el MISMO nombre abajo
 		ImGuiWindowFlags windowFlags =
 			ImGuiWindowFlags_NoDocking |
 			ImGuiWindowFlags_NoTitleBar |
