@@ -18,11 +18,13 @@
 #include "Loopie/Components/MeshRenderer.h"
 #include "Loopie/Components/Transform.h"
 #include "Loopie/Resources/Types/Material.h"
+#include "Loopie/Importers/MeshImporter.h"
 ///
 
 #include "Loopie/Components/AudioListener.h"
 #include "Loopie/Components/AudioSource.h"
 #include "Loopie/Core/AudioManager.h" 
+#include "Loopie/Components/AutoMovement.h"
 
 #include <memory>
 #include <glad/glad.h>
@@ -267,9 +269,20 @@ namespace Loopie
 	{
 		m_scene.ChargeModel("assets/models/Street environment_V01.fbx");
 
-		auto e = m_currentScene->CreateEntity(vec3(0, 0, 0), quaternion(1, 0, 0, 0), vec3(1, 1, 1), nullptr, "TestAudio");
+		auto e = m_currentScene->CreateEntity(vec3(0, 2, 0), quaternion(1, 0, 0, 0), vec3(1, 1, 1), nullptr, "TestAudio");
 
 		if (e) {
+
+			auto renderer = e->AddComponent<MeshRenderer>();
+
+			//Haz q el mesh sea el cubo primitivo
+			Metadata& meta = AssetRegistry::GetOrCreateMetadata("assets/models/primitives/cube.fbx");
+			MeshImporter::ImportModel("assets/models/primitives/cube.fbx", meta);
+			std::shared_ptr<Mesh> mesh = ResourceManager::GetMesh(meta, 0);
+			if (mesh && renderer) {
+				renderer->SetMesh(mesh);
+			}
+
 			auto src = e->AddComponent<AudioSource>();
 
 			if (src) {
@@ -285,6 +298,42 @@ namespace Loopie
 				src->playOnAwake = true;
 			}
 		}
+
+		auto mover = e->AddComponent<AutoMovement>();
+		mover->speed = 3.0f; // Velocidad: 3 metros por segundo
+		mover->startX = 0.0f;
+		mover->limitX = 25.0f;
+
+		auto playerParams = m_currentScene->CreateEntity(vec3(0, 2, -5), quaternion(1, 0, 0, 0), vec3(1, 1, 1), nullptr, "PlayerSource");
+
+		if (playerParams) {
+			auto renderer = playerParams->AddComponent<MeshRenderer>();
+
+			Metadata& meta = AssetRegistry::GetOrCreateMetadata("assets/models/primitives/cube.fbx");
+			MeshImporter::ImportModel("assets/models/primitives/cube.fbx", meta);
+			std::shared_ptr<Mesh> mesh = ResourceManager::GetMesh(meta, 0);
+
+			if (mesh && renderer) {
+				renderer->SetMesh(mesh);
+			}
+
+			
+			auto src = playerParams->AddComponent<AudioSource>();
+
+			if (src) {
+				src->AddClip("assets/audio/piano-background-music-462076.mp3");
+				src->AddClip("assets/audio/relaxing-ambient-piano-music-467666.mp3");
+
+				src->SetCurrentClip(0);
+
+
+				src->usePlaylist = true;
+				src->SetLoop(false);
+
+				src->playOnAwake = true;
+			}
+		}
+
 	}
 
 	void EditorModule::OnNotify(const EngineNotification& type)

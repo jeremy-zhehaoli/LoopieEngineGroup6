@@ -34,6 +34,9 @@ namespace Loopie {
 		void CreateScene(const std::string& filePath);
 		void LoadScene(const std::string& filePath);
 
+		// Devuelve el delta time (tiempo entre frames) en segundos
+		float GetDeltaTime() const { return m_deltaTime; }
+
 	private:
 		void ProcessEvents(InputEventManager& eventController);
 
@@ -54,7 +57,7 @@ namespace Loopie {
 		bool m_running = true;
 		bool m_renderInterface = true;
 
-		
+		float m_deltaTime = 0.016f; // Valor por defecto, actualízalo en tu bucle principal
 	};
 
 	//// Define Main
