@@ -8,6 +8,8 @@ Victor Cardenas Hormigo - Link to GitHub: https://github.com/vixtorbir
 
 Marc Amo Mateu - Link to GitHub: https://github.com/mxarc
 
+Link to the repository - https://github.com/jeremy-zhehaoli/LoopieEngineGroup6
+
 ## Engine Description
 
 LoopieEngine is a project for the subject of Game Engines in our 3rd year at CITM (UPC) made by a group of our class. We had to fork their engine for the final project, where we had to add the AudioEngine as we chose.
